@@ -1,0 +1,2692 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Page</title>
+	<link rel="icon" type="image/x-icon" href = "stylesheets\Fresno_State_Images\BellPepper.ico">
+    <link rel = "stylesheet" href ="stylesheets/index.css">
+
+</head>
+<body onload="login_check(); FetchMySqlSpecificMealNames(genericMealName);/*FetchMySql('table_header','person_info',document.getElementById('select_person').value);*/">
+
+    <script>
+        var by = 'times_clicked';
+        var order = 'desc';
+        var maxAttempts = 3;
+        var attempts = 0;
+        var add_bool = false;
+        var ingredientOptionsBool = false;
+        var allOptions = [];
+        // Get the query parameters from the URL
+        const urlParams = new URLSearchParams(window.location.search);
+
+        // Get the value of the 'mealName' parameter
+        const genericMealName = urlParams.get('generic_meal_name');
+
+        // Function to apply red color to indicate incorrect input
+        function setInvalid(element) {
+        element.style.borderColor = 'red';
+        }
+
+        // Function to apply green color to indicate correct input
+        function setValid(element) {
+        element.style.borderColor = 'green';
+        }
+
+        //generate all specific meal names given a generic meal name
+        function FetchMySqlSpecificMealNames(genericMealName){
+            var sql_table_name = 'specific_meals';
+            var xhttpphp = new XMLHttpRequest();
+            xhttpphp.onload = function(){
+                console.log(this.responseText);
+                let myObj = JSON.parse(this.responseText);
+
+                let selectElement= document.getElementById("select_specific_meal");
+
+                // Loop through the mealNames array
+                for (let i = 0; i < myObj.length; i++) {
+                // Create a new option element
+                var optionElement = document.createElement('option');
+
+                // Set the value and text of the option
+                optionElement.value = myObj[i].specific_meal_name;
+                optionElement.text = myObj[i].specific_meal_name;
+                optionElement.setAttribute('id',myObj[i].specific_meal_name);
+                // Append the option to the select element
+                selectElement.appendChild(optionElement);
+                }
+                FetchMySqlMealAll(document.getElementById('select_specific_meal').value);
+            }
+            xhttpphp.open("GET","php/GetData.php?meal_page=true&table_name="+sql_table_name+"&name="+genericMealName,true);
+            xhttpphp.send();
+        }
+
+        function login_check(){
+            var xhttpphp1 = new XMLHttpRequest();
+            xhttpphp1.onload = function(){
+            console.log(this.responseText);
+            let myObj = JSON.parse(this.responseText);
+
+                if (JSON.parse(this.responseText)=='You must be logged in to see your own stats.'){
+                    document.getElementById('td_logout_button').setAttribute('hidden', 'true');
+                    document.getElementById('td_login_button').removeAttribute('hidden');
+                    document.getElementById('td_register_button').removeAttribute('hidden');
+
+                }
+                else{
+                    document.getElementById('td_logout_button').removeAttribute('hidden');
+                    document.getElementById('td_login_button').setAttribute('hidden', 'true');
+                    document.getElementById('td_register_button').setAttribute('hidden', 'true');
+
+                }
+            }
+            xhttpphp1.open("GET","php/session.php?",true);
+            xhttpphp1.send();
+        }
+
+        function FetchMySqlMeal(injected_table_name,sql_table_name, name){
+            let p = 0;
+            let temp= document.getElementById(injected_table_name);
+
+
+                            
+                //loading in php
+                var xhttpphp = new XMLHttpRequest();
+                xhttpphp.onload = function(){
+                    console.log(this.responseText);
+                        let class_name= ' ';
+                        let myObj = JSON.parse(this.responseText);
+                        let myObjLength = 0;
+                        let list_arr = [];
+                        let insert_table = ' ';
+                        console.log(myObj);
+                        
+                        if (sql_table_name == 'specific_meals'){
+                        
+                            
+                            //counts how many elements in list
+                            myObjLength = ((myObj[0].ingredient_list).match(/,/g) || []).length + 1;
+                            list_arr = (myObj[0].ingredient_list).split(',');
+                            class_name= 'td_dropdown_menu_item';
+                            insert_table = injected_table_name;
+                        }
+                        //clears category list upon category selection
+
+                        Array.prototype.slice.call(temp.getElementsByTagName('tr')).forEach(
+                            function(item) {
+
+                                if (p > 0){
+                                item.remove();
+                                }
+                                p++;
+                                // or item.parentNode.removeChild(item); for older browsers (Edge-)
+                            });
+                        
+                        console.log(myObjLength);
+                        //loop to create x by y textboxes for Matrix A
+                        for (let i = 0; i < myObjLength; i++){
+                            let r = document.createElement('tr');
+                            
+
+                            for(let j = 0; j < 1; j++){
+                                let c = document.createElement('td');
+                                if (i==0){
+                                    c.setAttribute('class', 'first '+class_name)
+                                }
+                                else if(i+1 == myObjLength){
+                                    c.setAttribute('class', 'last '+class_name);
+                                }
+                                else{
+                                    c.setAttribute('class', "first last "+class_name)
+                                }
+                                c.innerText= list_arr[i];
+                                r.classList.add('editable_tr');
+                                r.appendChild(c);
+                            }
+                            document.getElementById(insert_table).appendChild(r);
+
+                        }
+                    
+                }
+                console.log(name);
+                console.log(sql_table_name);
+                xhttpphp.open("GET","php/GetData.php?table_name="+sql_table_name+"&name="+name,true);
+                xhttpphp.send();
+
+
+
+        }
+        function updateDropdown(name, storeName) {
+            let class_name = "";
+            // clears category list upon category selection
+            // reset dropdown list and the arrows
+            let dropdownListNames = [];
+            dropdownListNames[0] = 'servings_cost_table';
+            dropdownListNames[1] = 'product_cost_table';
+            dropdownListNames[2] = 'nutrition_facts_table';
+            let i = 0;
+            while (i < dropdownListNames.length) {
+                let p = 0;
+                let temp = document.getElementById(dropdownListNames[i]);
+                
+                // Clear dropdown table data (3 tables)
+                Array.prototype.slice.call(temp.getElementsByTagName('tr')).forEach(function (item) {
+                temp.getElementsByTagName('img')[0].setAttribute('class', 'down_arrow');
+                if (p > 0) {
+                    item.remove();
+                }
+                p++;
+                // or item.parentNode.removeChild(item); for older browsers (Edge-)
+                });
+                i++;
+            }
+            let xhttpphp1 = new XMLHttpRequest();
+            xhttpphp1.onload = function() {
+                console.log(this.responseText);
+
+                let myObj = JSON.parse(this.responseText);
+
+                let nut_fact_names_arr = [
+                'Calories',
+                'Total Fat',
+                'Saturated Fat',
+                'Trans Fat',
+                'Cholesterol',
+                'Sodium',
+                'Total Carbs',
+                'Fiber',
+                'Total Sugar',
+                'Added Sugar',
+                'Protein',
+                'Vitamin D',
+                'Calcium',
+                'Iron',
+                'Potassium'
+                ];
+
+                let nut_fact_grams_arr = Array(15).fill(0);
+
+                for (var i = 0; i < myObj.length; i++) {
+                var obj = myObj[i];
+                nut_fact_grams_arr[0] += parseFloat(obj.calories_per_serving);
+                nut_fact_grams_arr[1] += parseFloat(obj.total_fat_per_serving);
+                nut_fact_grams_arr[2] += parseFloat(obj.saturated_fat_per_serving);
+                nut_fact_grams_arr[3] += parseFloat(obj.trans_fat_per_serving);
+                nut_fact_grams_arr[4] += parseFloat(obj.cholesterol_per_serving);
+                nut_fact_grams_arr[5] += parseFloat(obj.sodium_per_serving);
+                nut_fact_grams_arr[6] += parseFloat(obj.total_carbs_per_serving);
+                nut_fact_grams_arr[7] += parseFloat(obj.fiber_per_serving);
+                nut_fact_grams_arr[8] += parseFloat(obj.total_sugar_per_serving);
+                nut_fact_grams_arr[9] += parseFloat(obj.added_sugar_per_serving);
+                nut_fact_grams_arr[10] += parseFloat(obj.protein_per_serving);
+                nut_fact_grams_arr[11] += parseFloat(obj.vitamin_d_per_serving);
+                nut_fact_grams_arr[12] += parseFloat(obj.calcium_per_serving);
+                nut_fact_grams_arr[13] += parseFloat(obj.iron_per_serving);
+                nut_fact_grams_arr[14] += parseFloat(obj.potassium_per_serving);
+                }
+
+                console.log(nut_fact_grams_arr);
+
+                for (let i = 0; i < 15; i++) {
+                let r = document.createElement('tr');
+                if ( i == 0){
+                    r.classList.add('tr_dropdown_top');
+                }
+                if ( i == 14){
+                    r.classList.add('tr_dropdown_bottom');
+                }
+                for (let j = 0; j < 2; j++) {
+                    let c = document.createElement('td');
+
+                    if (i == 0) {
+                    c.setAttribute('class', 'first ' + class_name);
+                    }
+                    if (i + 1 == myObj.length) {
+                    c.setAttribute('class', 'last ' + class_name);
+                    }
+                    if (i == 0 && (i + 1 == myObj.length)) {
+                    c.setAttribute('class', 'last first ' + class_name);
+                    } else {
+                    c.setAttribute('class', class_name);
+                    }
+
+                    if (j == 0) {
+                    c.innerText = nut_fact_names_arr[i] + ':';
+                    } else if (j == 1) {
+                    if (nut_fact_names_arr[i] == 'Calories') {
+                        c.innerText = Math.round(nut_fact_grams_arr[i] / 10) * 10;
+                    } else if (
+                        nut_fact_names_arr[i] == 'Total Fat' ||
+                        nut_fact_names_arr[i] == 'Saturated Fat' ||
+                        nut_fact_names_arr[i] == 'Trans Fat'
+                    ) {
+                        c.innerText =
+                        c.innerText + Math.round(nut_fact_grams_arr[i] / 0.5) * 0.5;
+                    } else if (
+                        nut_fact_names_arr[i] == 'Cholesterol' ||
+                        nut_fact_names_arr[i] == 'Sodium' ||
+                        nut_fact_names_arr[i] == 'Calcium' ||
+                        nut_fact_names_arr[i] == 'Potassium' ||
+                        nut_fact_names_arr[i] == 'Vitamin D'
+                    ) {
+                        c.innerText = c.innerText + Math.round(nut_fact_grams_arr[i] / 5) * 5;
+                    } else if (
+                        nut_fact_names_arr[i] == 'Total Carbs' ||
+                        nut_fact_names_arr[i] == 'Total Sugar' ||
+                        nut_fact_names_arr[i] == 'Added Sugar' ||
+                        nut_fact_names_arr[i] == 'Fiber' ||
+                        nut_fact_names_arr[i] == 'Protein'
+                    ) {
+                        c.innerText = c.innerText + Math.round(nut_fact_grams_arr[i] / 1);
+                    } else if (nut_fact_names_arr[i] == 'Iron') {
+                        c.innerText =
+                        c.innerText + (Math.round(nut_fact_grams_arr[i] / 0.1) * 0.1).toFixed(1);
+                    }
+
+                    if (
+                        nut_fact_names_arr[i] == 'Total Fat' ||
+                        nut_fact_names_arr[i] == 'Saturated Fat' ||
+                        nut_fact_names_arr[i] == 'Trans Fat' ||
+                        nut_fact_names_arr[i] == 'Total Carbs' ||
+                        nut_fact_names_arr[i] == 'Fiber' ||
+                        nut_fact_names_arr[i] == 'Total Sugar' ||
+                        nut_fact_names_arr[i] == 'Added Sugar' ||
+                        nut_fact_names_arr[i] == 'Protein'
+                    ) {
+                        c.innerText = c.innerText + 'g';
+                    } else if (
+                        nut_fact_names_arr[i] == 'Cholesterol' ||
+                        nut_fact_names_arr[i] == 'Sodium' ||
+                        nut_fact_names_arr[i] == 'Calcium' ||
+                        nut_fact_names_arr[i] == 'Iron' ||
+                        nut_fact_names_arr[i] == 'Potassium'
+                    ) {
+                        c.innerText = c.innerText + 'mg';
+                    } else if (nut_fact_names_arr[i] == 'Vitamin D') {
+                        c.innerText = c.innerText + 'mcg';
+                    }
+                    }
+                    r.appendChild(c);
+                    r.setAttribute('hidden', 'true');
+                }
+                document.getElementById(dropdownListNames[2]).appendChild(r);
+                }
+
+                for (let i = 0; i < myObj.length; i++) {
+                let r = document.createElement('tr');
+                if ( i == 0){
+                    r.classList.add('tr_dropdown_top');
+                }
+                if ( i == myObj.length-1){
+                    r.classList.add('tr_dropdown_bottom');
+                }
+                for (let j = 0; j < 2; j++) {
+                    let c = document.createElement('td');
+                    if (i == 0) {
+                    c.setAttribute('class', 'first ' + class_name);
+                    }
+                    if (i + 1 == myObj.length) {
+                    c.setAttribute('class', 'last ' + class_name);
+                    }
+                    if (i == 0 && i + 1 == myObj.length) {
+                    c.setAttribute('class', 'last first' + class_name);
+                    } else {
+                    c.setAttribute('class', class_name);
+                    }
+                    if (j == 0) {
+                    c.innerText = myObj[i].product_name;
+                    } else if (j == 1) {
+                    c.innerText = '$' + Number(myObj[i].servings_cost).toFixed(2);
+                    }
+                    r.appendChild(c);
+                    r.setAttribute('hidden', 'true');
+                }
+                document.getElementById(dropdownListNames[0]).appendChild(r);
+                }
+
+                for (let i = 0; i < myObj.length; i++) {
+                let r = document.createElement('tr');
+                if ( i == 0){
+                    r.classList.add('tr_dropdown_top');
+                }
+                if ( i == myObj.length-1){
+                    r.classList.add('tr_dropdown_bottom');
+                }
+                for (let j = 0; j < 2; j++) {
+                    let c = document.createElement('td');
+                    if (i == 0) {
+                    c.setAttribute('class', 'first ' + class_name);
+                    }
+                    if (i + 1 == myObj.length) {
+                    c.setAttribute('class', 'last ' + class_name);
+                    }
+                    if (i == 0 && i + 1 == myObj.length) {
+                    c.setAttribute('class', 'last first ' + class_name);
+                    } else {
+                    c.setAttribute('class', class_name);
+                    }
+                    if (j == 0) {
+                    c.innerText =
+                        myObj[i].product_name + ' (' + myObj[i].store_name + ') ';
+                    } else if (j == 1) {
+                    let tempNum = myObj[i].product_cost;
+                    c.innerText = '$' + Number(tempNum).toFixed(2);
+                    }
+                    r.appendChild(c);
+                    r.setAttribute('hidden', 'true');
+                }
+                document.getElementById(dropdownListNames[1]).appendChild(r);
+                }
+            };
+            xhttpphp1.open(
+                'GET',
+                'php/GetData.php?meal_page=true&table_name=ingredient_facts&store_name=' +
+                storeName +
+                '&name=' +
+                name,
+                true
+            );
+            xhttpphp1.send();
+            }
+
+
+        function FetchMySqlMealAll(name){//reads in the name of the specific meal to be queried 
+            let p = 0;
+            //let temp= document.getElementById(injected_table_name);
+                            
+                //loading in php
+                var xhttpphp = new XMLHttpRequest();
+                xhttpphp.onload = function(){
+                    console.log(this.responseText);
+                    
+                        let class_name= '';
+                        let myObj = JSON.parse(this.responseText);
+                        let myObjLength = 0;
+                        let list_arr = [];
+                        let insert_table = ' ';
+                        //console.log(myObj);
+                        //console.log(myObj[0].specific_meals[0]);
+                       /// if (sql_table_name == 'specific_meals'){
+                        //reset dropdown list and the arrows
+                        let i = 0;
+                        while (i < (myObj.ingredients).length){
+                            list_arr[i] = myObj.ingredients[i].name;
+                            i++;
+                        }
+                        //console.log(myObj[0].specific_meals[0].ingredients[0].food_products[0].total_cost);
+                        //console.log(myObj[0].specific_meals[0].ingredients[0].total_cost);
+                            //counts how many elements in list
+                            //myObjLength = ((myObj[0].ingredient_list).match(/,/g) || []).length + 1;
+                            //list_arr = (myObj[0].specific_meals.ingredient_list).split(',');
+                            //class_name= 'td_dropdown_menu_item';
+                            //insert_table = injected_table_name;
+                        //}
+
+                        //console.log(myObjLength);
+
+                temp= document.getElementById('table_preparation');
+                //clear description table data (3 tables)
+                Array.prototype.slice.call(temp.getElementsByTagName('tr')).forEach(function(item) {
+                    var classAttr = item.getAttribute('class');
+                    if (!classAttr || !classAttr.includes('class_tr_permanent')) {
+                        item.remove();
+                    }
+                    p++;
+                });
+                i++;
+
+                //fill ingredients required
+                //temp_td = document.createElement('td');
+                let temp_r = document.getElementById('tr_ingredients_required');
+
+                    for (let i = 0; i < (myObj.ingredients).length; i++){
+                            let r = document.createElement('tr');
+
+                            for(let j = 0; j < 2; j++){
+                                let c = document.createElement('td');
+                                //first column is name
+                                if (i==0){
+                                    //c.setAttribute('class', class_name)
+                                }
+                                if(i+1 == (myObj.ingredients).length){
+                                    //c.setAttribute('class', class_name);
+                                }
+                                if(i==0 && (i+1 == (myObj.ingredients).length)){
+                                    //c.setAttribute('class', class_name);
+                                }
+                                else{
+                                    //c.setAttribute('class', "editable_td "+class_name)
+                                }
+                                if (j == 0){
+                                    c.innerText= (myObj.ingredients[i]).ingredient_name;
+                                }
+                                else if(j==1){
+                                    //c.setAttribute('class', "editable_td "+class_name)
+                                    c.innerText = Number((myObj.ingredients[i]).grams_needed).toFixed(0) + (' (Grams)');
+                                }
+                                r.setAttribute('class', "editable_tr ");
+                                r.appendChild(c);
+                                //r.setAttribute('hidden','true')
+                            }
+                            temp_r.after(r);
+                            temp_r = r;
+
+
+                        }
+
+                //fill preparation
+                temp_r = document.getElementById('tr_preparation');
+                //console.log(myObj[0].specific_meals[0].num_ingredients);
+                    for (let i = 0; i < (myObj.preparation_steps).length; i++){
+                            let r = document.createElement('tr');
+
+                            for(let j = 0; j < 2; j++){
+                                let c = document.createElement('td');
+                                //first column is name
+                                if (i==0){
+                                    //c.setAttribute('class', class_name);
+                                }
+                                if(i+1 == (myObj.preparation_steps).length){
+                                    //c.setAttribute('class', class_name);
+                                }
+                                if(i==0 && (i+1 == (myObj.preparation_steps).length)){
+                                    //c.setAttribute('class', class_name);
+                                }
+                                else{
+                                    //c.setAttribute('class', class_name)
+                                }
+                                if (j == 0){
+                                    var stepNode = document.createElement("span");
+                                    stepNode.textContent = 'Step '+(i + 1)+':';
+                                    c.innerHTML = '<span class="class_step_number">' + stepNode.textContent + '</span>';
+                                }
+                                else if(j==1){
+                                    //c.setAttribute('class', 'editable_td '+class_name);
+                                    c.innerText = (myObj.preparation_steps[i]).preparation_step_description;
+                                }
+                                r.setAttribute('class', "editable_tr ");
+                                r.appendChild(c);
+                                //r.setAttribute('hidden','true')
+                            }
+                            temp_r.after(r);
+                            temp_r = r;
+
+
+                        }
+                //fill cooking
+                temp_r = document.getElementById('tr_cooking');
+                //console.log(myObj[0].specific_meals[0].num_ingredients);
+                    for (let i = 0; i < (myObj.cooking_steps).length; i++){
+                            let r = document.createElement('tr');
+
+                            for(let j = 0; j < 2; j++){
+                                let c = document.createElement('td');
+                                //first column is name
+                                if (i==0){
+                                    //c.setAttribute('class', class_name)
+                                }
+                                if(i+1 == (myObj.cooking_steps).length){
+                                    //c.setAttribute('class', class_name);
+                                }
+                                if((i==0) && (i+1 == (myObj.cooking_steps).length)){
+                                    //c.setAttribute('class', class_name);
+                                }
+                                else{
+                                    //c.setAttribute('class', class_name)
+                                }
+                                if (j == 0){
+                                    var stepNode = document.createElement("span");
+                                    stepNode.textContent = 'Step '+(i + 1) +':';
+                                    c.innerHTML = '<span class="class_step_number">' + stepNode.textContent + '</span>';
+                                }
+                                else if(j==1){
+                                    //c.setAttribute('class', 'editable_td '+class_name);
+                                    c.innerText = (myObj.cooking_steps[i]).cooking_step_description;
+                                }
+                                r.setAttribute('class', "editable_tr ");
+                                r.appendChild(c);
+                                //r.setAttribute('hidden','true')
+                            }
+                            temp_r.after(r);
+                            temp_r = r;
+
+
+                        }
+                //fill finishing
+                temp_r = document.getElementById('tr_finishing');
+                //console.log(myObj[0].specific_meals[0].num_ingredients);
+                    for (let i = 0; i < (myObj.finishing_steps).length; i++){
+                            let r = document.createElement('tr');
+
+                            for(let j = 0; j < 2; j++){
+                                let c = document.createElement('td');
+                                //first column is name
+                                if (i==0){
+                                    //c.setAttribute('class', class_name)
+                                }
+                                if(i+1 == (myObj.finishing_steps).length){
+                                    //c.setAttribute('class', class_name);
+                                }
+                                if(i==0 && (i+1 == (myObj.finishing_steps).length)){
+                                    //c.setAttribute('class', class_name);
+                                }
+                                else{
+                                    //c.setAttribute('class', class_name)
+                                }
+                                if (j == 0){
+                                    var stepNode = document.createElement("span");
+                                    stepNode.textContent = 'Step '+(i + 1)+':';
+                                    c.innerHTML = '<span class="class_step_number">' + stepNode.textContent + '</span>';
+                                }
+                                else if(j==1){
+                                    //c.setAttribute('class', 'editable_td '+class_name);
+                                    c.innerText =(myObj.finishing_steps[i]).finishing_step_description;
+                                }
+                                r.setAttribute('class', "editable_tr ");
+                                r.appendChild(c);
+                                //r.setAttribute('hidden','true')
+                            }
+                            temp_r.after(r);
+                            temp_r = r;
+
+
+                        }
+                let store_name = "Store";
+                updateDropdown(name,store_name);
+                //xhttpphp1.open("GET","php/GetData.php?meal_page=true&table_name=ingredient_facts&store_name="+store_name+"&name="+name,true);
+                    //xhttpphp1.open("GET","php/GetData.php?meal_page=true&table_name=ingredient_facts&product_selection=lowest_cost&name="+name,true);
+                    //xhttpphp1.send();
+                }
+                
+                xhttpphp.open("GET","php/GetData.php?meal_page=true&table_name=specific_meal_info&generic_meal_name="+genericMealName+"&name="+name,true);
+                xhttpphp.send();
+
+
+
+        }
+
+        function sort_table(b, o){
+            by = b; 
+            order = o; 
+            //FetchMySqlMeal();
+        }
+        /*
+        function dynamic_page_change(button_id_name,all_menu_items_class_name,table_name){
+            var elms = document.getElementsByClassName(all_menu_items_class_name);
+            //clears styles of all elements with the same class name
+            for (var i = 0; i < elms.length; i++) {
+                    elms[i].setAttribute("style", "");
+            }
+            //clears styles of all elements with the same class name
+
+            document.getElementById(button_id_name).setAttribute('style','background-color: #939799;	');//border-bottom: 2px solid #939799; border-top: 2px solid #939799; ');
+
+
+            //update page data in given table
+            if (table_name == 'table_meal_type_menu'){
+                //change 'Popular Meals' section to 'Meals' and add a category section called 'Categories' and
+                //default select to all, update categories section with all generic meal types.  
+            }
+        }
+*/
+        function dropdown(table_id_dropdown){
+            //change arrow img after click
+            img_var = document.getElementById(table_id_dropdown).getElementsByTagName('img')[0];
+            if ( img_var.className == 'down_arrow'){
+                img_var.setAttribute('class', 'up_arrow');
+                let p=0;
+                let temp= document.getElementById(table_id_dropdown);
+                //clear dropdown table data (3 tables)
+                Array.prototype.slice.call(temp.getElementsByTagName('tr')).forEach(
+                    function(item) {
+
+                        if (p > 0){
+                        item.removeAttribute('hidden');
+                        }
+                        /*
+                        if(item.getAttribute('class')=='class_dropdown_item'){
+                            item.setAttribute('')
+                        }*/
+                        p++;
+                        // or item.parentNode.removeChild(item); for older browsers (Edge-)
+                    });
+                //specific_meal_name = document.getElementById('select_specific_meal').value;
+                //instead unhide the table here
+
+                //inject table 
+                //FetchMySqlMeal('product_cost_table','specific_meals',specific_meal_name);
+            }
+            else{
+                img_var.setAttribute('class', 'down_arrow');
+                //instead hide the table here
+                let p=0;
+                let temp= document.getElementById(table_id_dropdown);
+                //clear dropdown table data (3 tables)
+                Array.prototype.slice.call(temp.getElementsByTagName('tr')).forEach(
+                    function(item) {
+
+                        if (p > 0){
+                        item.setAttribute('hidden','true');
+                        }
+                        p++;
+                        // or item.parentNode.removeChild(item); for older browsers (Edge-)
+                    });
+                //clears category list upon category selection
+                /*
+                let p = 0;
+                temp = document.getElementById('product_cost_table');
+                Array.prototype.slice.call(temp.getElementsByTagName('tr')).forEach(
+                function(item) {
+
+                    if (p > 0){
+                    item.remove();
+                    }
+                    p++;
+                    // or item.parentNode.removeChild(item); for older browsers (Edge-)
+                });
+                */
+            }
+
+        }
+        function load_pmp_page(){
+            window.location.href = "../MealPrep/PMP.html";
+        }
+        function FetchMySql(injected_table_name,sql_table_name, name){
+            console.log(sql_table_name);
+            let p = 0;
+            let temp= document.getElementById(injected_table_name);
+
+            
+                            
+                //loading in php
+                var xhttpphp = new XMLHttpRequest();
+                xhttpphp.onload = function(){
+                    console.log(this.responseText);
+                        let class_name= ' ';
+                        let myObj = JSON.parse(this.responseText);
+                        let myObjLength = 0;
+                        let list_arr = [];
+                        let insert_table = ' ';
+                        console.log(myObj);
+
+                        if(document.getElementById('select_person').value==''){
+                            //gets name
+                            let c = document.createElement('td');
+                            let s = document.createElement('span');
+                            p = 0;
+                            Array.prototype.slice.call(myObj).forEach(function(obj){
+                                let o = document.createElement('option');
+                                o.setAttribute('id','option_'+p)
+                                o.textContent = obj.person_name;
+                                temp.getElementsByTagName('tr')[0].getElementsByTagName('select')[0].appendChild(o);
+                                p++;
+                            })
+                            c.appendChild(s);
+                            temp.getElementsByTagName('tr')[0].appendChild(c);
+                        }
+                        else{
+                            p = 0;
+                            //delete all data before insertion
+                            Array.prototype.slice.call(temp.getElementsByTagName('span')).forEach(
+                                function(item) {
+                                    //this is only used on the person table
+                                    if (p >= 0){
+                                    item.remove();
+                                    }
+                                    p++;
+                                    // or item.parentNode.removeChild(item); for older browsers (Edge-)
+                                });
+                            //append meal plans to pmp header to amount of bs and es
+                            let temp_header = document.getElementById("div_personal_meal_plan_header");
+                            //extract indexes of meal type names
+                            indexBreakfasts = -1;
+                            indexEntrees = -1;
+                            indexDesserts = -1;
+                            for (var i = 0; i < myObj.length; i++) {
+                                if (myObj[i].meal_type_name === "Breakfasts") {
+                                    indexBreakfasts = i; // Assign the index value when validation is successful
+                                }
+                                else if (myObj[i].meal_type_name === "Entrees") {
+                                    indexEntrees = i; // Assign the index value when validation is successful
+                                }
+                                else if (myObj[i].meal_type_name === "Desserts") {
+                                    indexDesserts = i; // Assign the index value when validation is successful
+                                }
+                                }
+                            let b_count = myObj[indexBreakfasts].meal_type_amount;
+                            let e_count = myObj[indexEntrees].meal_type_amount;
+                            let d_count = myObj[indexDesserts].meal_type_amount;
+                            p = 0;
+                            while(b_count > p){
+                            let temp_s = document.createElement('span');
+                            temp_s.setAttribute('class','span_meal_type_non_clickable_button');
+                            temp_s.textContent = 'B'+(p+1);
+                            temp_header.appendChild(temp_s);
+                            p++;
+                            }
+                            p = 0;
+                            while(e_count > p){
+                            let temp_s = document.createElement('span');
+                            temp_s.setAttribute('class','span_meal_type_non_clickable_button');
+                            temp_s.textContent = 'E'+(p+1);
+                            temp_header.appendChild(temp_s);
+                            p++;
+                            }
+                            p = 0;
+                            while(d_count > p){
+                            let temp_s = document.createElement('span');
+                            temp_s.setAttribute('class','span_meal_type_non_clickable_button');
+                            temp_s.textContent = 'D'+(p+1);
+                            temp_header.appendChild(temp_s);
+                            p++;
+                            }
+                            let temp_s = document.createElement('span');
+                            temp_s.setAttribute('class','span_meal_type_clickable_button');
+                            temp_s.setAttribute('onclick','load_pmp_page();');
+                            temp_s.textContent = 'View All';
+                            temp_header.appendChild(temp_s);
+                            }
+                    
+                }
+                console.log(name);
+                console.log(document.getElementById('select_person').value);
+                if (document.getElementById('select_person').value == '' && attempts < maxAttempts){
+                    xhttpphp.open("GET","php/GetData.php?meal_page=\"false\"&table_name="+sql_table_name+"&name=NULL",true);
+                    attempts++;
+                    xhttpphp.onloadend=function(){FetchMySql(injected_table_name,sql_table_name, document.getElementById('select_person').value);};
+                }
+                else{
+                    xhttpphp.open("GET","php/GetData.php?meal_page=\"false\"&table_name="+sql_table_name+"&name="+name,true);
+                }
+                xhttpphp.send();
+
+        }
+        function modifyOptions(startingTrId, step_identifier, operation_type, old_step_identifier="", step_description = "") {
+            old_step_identifier = Number(old_step_identifier);
+            let currentTr = document.getElementById(startingTrId);
+            currentTr = currentTr.nextElementSibling;
+            let stepContent = "Step " + step_identifier + ":";
+
+            while (currentTr && !currentTr.classList.contains("class_tr_permanent")) {
+                let selectElementCheck = currentTr.getElementsByTagName('select');
+                if (selectElementCheck.length != 0) {
+                    let options = selectElementCheck[0].getElementsByTagName('option');
+                    if (operation_type === 'operation_create') {
+                        let selectElement = selectElementCheck[0];
+                        let newOption = document.createElement('option');
+                        newOption.textContent = stepContent;
+                        selectElement.appendChild(newOption);
+                    } 
+                    else if (operation_type === 'operation_delete') {
+                        //for (let i = options.length - 1; i >= 0; i--) {
+                            let option = options[0];
+
+
+                                //if the option step is the same as delete step
+                                if (option.textContent === stepContent) {
+                                    option.remove();
+                                } else {
+                                    //decrement step because of deleteion if it is a higher number step
+                                    let number = parseInt(option.textContent.match(/\d+/)[0]);
+
+                                    if (number > parseInt(stepContent.match(/\d+/)[0])) {
+                                        option.textContent = option.textContent.replace(/\d+/, number - 1);
+                                    }
+                                }
+                                // Update the step number and description of the modified tr
+                                var stepNumberElement = currentTr.getElementsByTagName('select')[0].value;
+                                //stepNumberElement.textContent = "Step " + step_identifier + ":";
+
+
+                                selectElementCheck[0].innerHTML = "";
+                                // Create options for the step numbers
+                                createOptionsForStepNumbers(option.textContent, selectElementCheck[0], currentTr);
+                            }
+                        else if (operation_type === 'operation_update') {
+                            if (old_step_identifier !== step_identifier) {
+                                
+                                // Update the step numbers and descriptions
+                               // for (let i = options.length - 1; i >= 0; i--) {
+                                    let option = options[0];
+                                    let stepNumber = parseInt(option.textContent.match(/\d+/)[0]);
+
+                                    if (!isNaN(stepNumber) && stepNumber == old_step_identifier) {
+
+                                        option.textContent = option.textContent.replace(/\d+/, step_identifier);
+                                        let oldTr = currentTr;
+                                        // Find the target <tr> with the matching step content
+                                        var targetTr = null;
+                                        var siblingTr = currentTr.nextElementSibling;
+
+                                        // Move the oldTr after the targetTr if it was found
+                                        if (targetTr && oldTr) {
+                                            targetTr.parentNode.insertBefore(oldTr, targetTr.nextSibling);
+                                        }
+
+                                        var descriptionElement = currentTr.querySelector("td:nth-child(2)");
+                                        descriptionElement.getElementsByTagName('input')[0].value = step_description;
+
+                                    } else if (!isNaN(stepNumber) && stepNumber > old_step_identifier && stepNumber <= step_identifier) {
+                                        stepNumber--;
+                                        option.textContent = option.textContent.replace(/\d+/, stepNumber);
+                                    } else if (!isNaN(stepNumber) && stepNumber < old_step_identifier && stepNumber >= step_identifier) {
+                                        stepNumber++;
+                                        option.textContent = option.textContent.replace(/\d+/, stepNumber);
+                                    }
+                               // }
+
+                                // Swap the locations of occTr and editTr+
+/*
+                                if (!isNaN(stepNumber) && stepNumber === old_step_identifier) {
+                                    var parentElement = currentTr.parentNode;
+                                    var nextSiblingOfParentTr = currentTr.nextElementSibling;
+                                    parentElement.insertBefore(currentTr, nextSiblingOfParentTr);
+                                }
+                                */
+                                // Update the step number and description of the modified tr
+                                var stepNumberElement = currentTr.getElementsByTagName('select')[0].value;
+                                //stepNumberElement.textContent = "Step " + step_identifier + ":";
+
+
+                                selectElementCheck[0].innerHTML = "";
+                                // Create options for the step numbers
+                                createOptionsForStepNumbers(option.textContent, selectElementCheck[0], currentTr);
+                            }
+                        }
+/*
+                                    
+                                } 
+                            }else {
+                                    break;
+                                }
+                        
+                    }
+                    */
+                }
+
+                currentTr = currentTr.nextElementSibling;
+            }
+        }
+
+
+        function CUD(element){
+        //i should store the category of which the operations were conducted
+            //only one edit shluld be conducted at a time
+         //loading in php
+
+            //for create varaition, i need (meal_info) (gmn) (new smn) and (variation identifier) and (operation create)
+            // for create ig, i need (meal_info) (gmn) (smn) (new ign) and (gn) and (operation create) and (ig identifier)
+            // for create pcfsteps, i need (meal_info) (gmn) (smn) (stepsection) and description) and (operation create) and (step identifier)
+
+            //for edit varaition, i need (meal_info) (gmn) (new smn) (old smn) and (variation identifier)
+            // for edit ig, i need (meal_info) (gmn) (smn) (new ign) (old ign) and (gn) and (operation edit) and (ig identifier)
+            // for edit pcfsteps, i need (meal_info) (gmn) (smn) (stepsection) and (description) and (operation create) and (new step identifier) and (old step identifier)
+
+            //for delete varaition, i need (meal_info) (gmn) (old smn) and (variation identifier) and (operation delete)
+            // for delete ig, i need (meal_info) (gmn) (smn) (old ign) and (operation delete) and (ig identifier)
+            // for delete pcfsteps, i need (meal_info) (gmn) (smn) (stepsection) and (operation delete) and (step identifier)
+
+        var xhttpphp = new XMLHttpRequest();
+
+            //the parameter is the Confirm button element of the tr of the data I want
+//validate inputs in this funciton (user friendly, save time) and then validate in the php function (prevent site break and hax) also
+            let table_name = 'meal_info';
+            let operation_type = element.classList[1];
+            let generic_meal_name = genericMealName;
+            let specific_meal_name = document.getElementById('select_specific_meal').value;
+            let section_identifier = element.classList[2];
+            //variation section
+            if(section_identifier === "section_variation"){
+
+                if(operation_type === 'operation_update'){
+                    let old_specific_meal_identifier = specific_meal_name;
+                    let new_specific_meal_identifier = element.parentNode.getElementsByTagName('input')[0].value;
+                    xhttpphp.open("GET","php/CUD.php?table_name="+table_name+"&operation_type="+operation_type+"&generic_meal_name="+generic_meal_name+"&old_specific_meal_identifier="+old_specific_meal_identifier+"&new_specific_meal_identifier="+new_specific_meal_identifier+"&section_identifier="+section_identifier,true);
+                    xhttpphp.onload = function(){
+
+                        console.log(this.responseText);
+
+                        let selectElement = document.getElementById('select_specific_meal');
+                        let selectedOption = selectElement.options[selectElement.selectedIndex];
+                        // Append the new option to the select element
+                        selectedOption.value = new_specific_meal_identifier;
+                        selectedOption.text = new_specific_meal_identifier;
+                        selectedOption.id = new_specific_meal_identifier;
+
+                        element.parentNode.getElementsByClassName('button_cancel')[0].click();;
+
+                    }
+                }
+                else if(operation_type === 'operation_create'){
+                    specific_meal_name = element.parentNode.getElementsByTagName('input')[0].value;
+                    xhttpphp.open("GET","php/CUD.php?table_name="+table_name+"&operation_type="+operation_type+"&generic_meal_name="+generic_meal_name+"&specific_meal_name="+specific_meal_name+"&section_identifier="+section_identifier,true);
+                    xhttpphp.onload = function(){
+                        console.log(this.responseText);
+
+                        let selectElement = document.getElementById('select_specific_meal');
+
+                        // Create a new option element
+                        let newOption = document.createElement('option');
+                        newOption.value = specific_meal_name;
+                        newOption.text = specific_meal_name;
+
+                        // Append the new option to the select element
+                        selectElement.appendChild(newOption);
+                        // Select the newly added option
+                        newOption.selected = true;
+
+                        overlayElement = document.getElementById('overlay');
+                        element.parentNode.getElementsByClassName('button_cancel')[0].click();
+                        document.getElementById("span_delete_button").click();
+
+                    }
+                }
+                else if(operation_type === 'operation_delete'){
+                    xhttpphp.open("GET","php/CUD.php?table_name="+table_name+"&operation_type="+operation_type+"&generic_meal_name="+generic_meal_name+"&specific_meal_name="+specific_meal_name+"&section_identifier="+section_identifier,true);
+                    xhttpphp.onload = function(){
+                        console.log(this.responseText);
+                        let selectElement = document.getElementById('select_specific_meal');
+                        let options = selectElement.options;
+
+                        for (let i = 0; i < options.length; i++) {
+                            if (options[i].value === specific_meal_name) {
+                                selectElement.remove(i);
+                                break; // Remove this line if you want to delete all options with the matching name
+                            }
+                        }
+                        overlayElement = document.getElementById('overlay');
+                        cancelButtonListener(overlayElement);
+                        // Create a new "change" event
+                        var changeEvent = new Event('change');
+
+                        // Trigger the event on the select element
+                        selectElement.dispatchEvent(changeEvent);
+                    }
+                }
+            }
+            //ingredients required section
+            else if(section_identifier === "section_ingredients_required"){
+                if(operation_type === 'operation_update'){
+                    let old_ingredient_identifier = element.parentNode.parentNode.previousSibling.getElementsByTagName('td')[0].textContent;
+                    let new_ingredient_identifier = element.parentNode.parentNode.getElementsByClassName('inputTextbox')[0].value;
+                    let grams_needed = element.parentNode.getElementsByClassName('grams_needed_textbox')[0].value;
+                    xhttpphp.open("GET","php/CUD.php?table_name="+table_name+"&operation_type="+operation_type+"&generic_meal_name="+generic_meal_name+"&specific_meal_name="+specific_meal_name+"&section_identifier="+section_identifier+"&old_ingredient_identifier="+old_ingredient_identifier+"&new_ingredient_identifier="+new_ingredient_identifier+"&grams_needed="+grams_needed,true);
+                    xhttpphp.onload = function(){
+                        console.log(this.responseText);
+                        //the server will do the test to see if the name is already occupied
+                        let nameOccupiedBool = this.responseText;
+                        // Check if the updated ingredient name is already occupied
+                        if (nameOccupiedBool == 'true'){
+                            // Delete the row with the first td that has the textContent of new_ingredient_identifier
+                            let startingTr = document.getElementById('tr_ingredients_required');
+                            let currentTr = startingTr.nextElementSibling;
+
+                            let foundTr = null;
+                            let hiddenTr = null;
+
+                            while (currentTr && !currentTr.classList.contains('class_tr_permanent')) {
+                                let tdElement = currentTr.getElementsByTagName('td')[0];
+                                    if (tdElement.textContent.includes(new_ingredient_identifier) && currentTr.style.display != "none") {
+                                        foundTr = currentTr;
+                                    }
+                                    else if (tdElement.textContent.includes(old_ingredient_identifier) && currentTr.style.display === "none") {
+                                        hiddenTr = currentTr;
+                                    }
+                                currentTr = currentTr.nextElementSibling;
+                            }
+                                
+                            foundTr.remove();
+                            hiddenTr.getElementsByTagName('td')[0].textContent =  new_ingredient_identifier;
+                            hiddenTr.getElementsByTagName('td')[1].textContent = grams_needed + ' (Grams)';
+                            element.parentNode.getElementsByClassName('button_cancel')[0].click();
+
+                        }
+                        else if (nameOccupiedBool == 'false'){
+                                // Delete the row with the first td that has the textContent of new_ingredient_identifier
+                            let startingTr = document.getElementById('tr_ingredients_required');
+                            let currentTr = startingTr.nextElementSibling;
+
+                            let foundTr = null;
+
+                            while (currentTr && !currentTr.classList.contains('class_tr_permanent')) {
+                                let tdElement = currentTr.getElementsByTagName('td')[0];
+                                    if (tdElement.textContent.includes(old_ingredient_identifier)) {
+                                        foundTr = currentTr;
+                                        break;
+                                    }
+                                currentTr = currentTr.nextElementSibling;
+                            }
+                                
+                            foundTr.getElementsByTagName('td')[1].textContent = grams_needed + ' (Grams)';
+                            element.parentNode.getElementsByClassName('button_cancel')[0].click();
+
+                            //Delete occupied ingredinet entry
+                            //update the update entry with teh occupied name and new grams needed
+                        }
+                        updateDropdown(specific_meal_name,' ');
+                    }
+                }
+                else if(operation_type === 'operation_create'){
+                    let ingredient_identifier = element.parentNode.parentNode.getElementsByClassName('inputTextbox')[0].value;
+                    let grams_needed = element.parentNode.getElementsByClassName('grams_needed_textbox')[0].value;
+                    xhttpphp.open("GET","php/CUD.php?table_name="+table_name+"&operation_type="+operation_type+"&generic_meal_name="+generic_meal_name+"&specific_meal_name="+specific_meal_name+"&section_identifier="+section_identifier+"&ingredient_identifier="+ingredient_identifier+"&grams_needed="+grams_needed,true);
+                    xhttpphp.onload = function(){
+                        console.log(this.responseText);
+                        //the server will do the test to see if the name is already occupied
+                        let nameOccupiedBool = this.responseText;
+                        // Check if the updated ingredient name is already occupied
+                        if (nameOccupiedBool == 'true'){
+                                // Delete the row with the first td that has the textContent of new_ingredient_identifier
+                            let startingTr = document.getElementById('tr_ingredients_required');
+
+                            let currentTr = startingTr.nextElementSibling;
+                            let foundTr = null;
+
+                            while (currentTr && !currentTr.classList.contains('class_tr_permanent')) {
+                                let tdElement = currentTr.getElementsByTagName('td')[0];
+                                    if (tdElement.textContent.includes(ingredient_identifier)) {
+                                        foundTr = currentTr;
+                                        break;
+                                    }
+                                currentTr = currentTr.nextElementSibling;
+                            }
+                                
+                            foundTr.getElementsByTagName('td')[1].textContent = grams_needed + ' (Grams)';
+                            //Delete occupied ingredinet entry
+                            //update the update entry with teh occupied name and new grams needed
+                        }
+                        else if (nameOccupiedBool == 'false'){
+                            // create a new row
+                            let newTr = document.createElement('tr');
+                            let newTdIngredientName = document.createElement('td');
+                            newTdIngredientName.textContent = ingredient_identifier;
+                            let newTdGramsNeeded = document.createElement('td');
+                            newTdGramsNeeded.textContent = grams_needed + ' (Grams)';
+                            newTr.classList.add('editable_tr');
+                            newTr.appendChild(newTdIngredientName);
+                            newTr.appendChild(newTdGramsNeeded);
+                            //insert at the end of the list
+                            let startingTr = document.getElementById('tr_ingredients_required');
+                            let currentTr = startingTr.nextElementSibling;
+
+                            currentTr = currentTr.nextElementSibling;
+                            while (!currentTr.classList.contains('class_tr_permanent')) {
+                                currentTr = currentTr.nextElementSibling;
+                            }
+                            currentTr.insertAdjacentElement('beforeBegin',newTr);
+
+                        }
+                        element.parentNode.getElementsByClassName('button_cancel')[0].click();
+                        updateDropdown(specific_meal_name,' ');
+
+                    }
+                }
+                else if(operation_type === 'operation_delete'){
+                    let ingredient_identifier = element.parentNode.parentNode.getElementsByClassName('inputTextbox')[0].textContent;
+                    xhttpphp.open("GET","php/CUD.php?table_name="+table_name+"&operation_type="+operation_type+"&generic_meal_name="+generic_meal_name+"&specific_meal_name="+specific_meal_name+"&section_identifier="+section_identifier+"&ingredient_identifier="+ingredient_identifier,true);
+                    xhttpphp.onload = function(){
+                        console.log(this.responseText);
+                        //serch trs for a match to the ingredient_identifier and delete the row
+                        let startingTr = document.getElementById('tr_ingredients_required');
+                        let currentTr = startingTr.nextElementSibling;
+
+                        let foundTr = null;
+
+                        while (currentTr && !currentTr.classList.contains('class_tr_permanent')) {
+                            let tdElement = currentTr.getElementsByTagName('td')[0];
+                                if (tdElement.textContent.includes(ingredient_identifier)) {
+                                    foundTr = currentTr;
+                                    break;
+                                }
+                            currentTr = currentTr.nextElementSibling;
+                        }
+                        foundTr.remove();
+                        //resets overlay buttons
+                        overlayElement = document.getElementById('overlay');
+                        cancelButtonListener(overlayElement);
+                        updateDropdown(specific_meal_name,' ');
+                    }
+                }
+            }
+            //steps section
+            else if(section_identifier === "section_preparation_steps" || section_identifier === "section_cooking_steps" || section_identifier === "section_finishing_steps"){
+                let startingTrId = "";
+                if(section_identifier === "section_preparation_steps"){startingTrId = 'tr_preparation';}
+                else if(section_identifier === "section_cooking_steps"){startingTrId = 'tr_cooking';}
+                else if(section_identifier === "section_finishing_steps"){startingTrId = 'tr_finishing';}
+
+                if(operation_type === 'operation_update'){
+                    let old_step_identifier= element.parentNode.parentNode.previousSibling.getElementsByClassName('class_step_number')[0].textContent.replace(/[^\d]/g, '');
+                    let new_step_identifier= element.parentNode.parentNode.getElementsByTagName('select')[0].value.replace(/[^\d]/g, '');
+                    let step_description= element.parentNode.getElementsByClassName('inputTextbox')[0].value;
+                    xhttpphp.open("GET","php/CUD.php?table_name="+table_name+"&operation_type="+operation_type+"&generic_meal_name="+generic_meal_name+"&specific_meal_name="+specific_meal_name+"&section_identifier="+section_identifier+"&old_step_identifier="+old_step_identifier+"&new_step_identifier="+new_step_identifier+"&step_description="+step_description,true);
+                    xhttpphp.onload = function(){
+                        console.log(this.responseText);
+
+                        var currentTr = document.getElementById(startingTrId);
+                        currentTr = currentTr.nextElementSibling;
+                        var insertAfterThisTr = null;
+                        var stepContent = "Step " + old_step_identifier + ":";
+                        var occTr = null;
+                        var editTr = null;
+                            while (currentTr && !currentTr.classList.contains("class_tr_permanent")) {
+                                var originalElementCheck = currentTr.getElementsByTagName('td')[1].getElementsByTagName('input');
+
+                                // Check if the element is not an add or edit
+                                if (originalElementCheck.length == 0) {
+                                    var span = currentTr.querySelector(".class_step_number");
+                                    var stepText = span.textContent;
+                                    var stepNumber = parseInt(stepText.substring(stepText.indexOf(" ") + 1, stepText.indexOf(":")));
+                                    if(old_step_identifier != new_step_identifier){
+                                        if(!isNaN(stepNumber) && (stepNumber == new_step_identifier)){
+                                            occTr = currentTr;
+                                        } if (!isNaN(stepNumber) && (stepNumber == old_step_identifier)) {
+                                            editTr = currentTr;
+                                        } if (!isNaN(stepNumber) && (stepNumber > old_step_identifier && stepNumber <= new_step_identifier)) {
+                                            // Decrement the steps of each step number for each tr that has a step number greater than or equal to the deleted
+                                            stepNumber = Number(stepNumber) - 1;
+                                            currentTr.querySelector(".class_step_number").textContent = "Step " + stepNumber + ":";
+                                        } else if (!isNaN(stepNumber) && (stepNumber < old_step_identifier && stepNumber >= new_step_identifier)) {
+                                            // Increment the steps of each step number for each tr that has a step number between the swap
+                                            stepNumber = Number(stepNumber) + 1;
+                                            currentTr.querySelector(".class_step_number").textContent = "Step " + stepNumber + ":";
+                                        }
+                                        if (occTr && editTr){
+                                            // Swap the locations of occTr and editTr
+                                            var parentElement = occTr.parentNode;
+                                            var nextSiblingOfoccTr = occTr.nextSibling;
+                                            editTr.getElementsByTagName('td')[1].textContent = step_description;
+                                            editTr.querySelector(".class_step_number").textContent = "Step " + new_step_identifier + ":";
+                                            if (old_step_identifier> new_step_identifier){
+                                                parentElement.insertBefore(editTr, occTr); // Move editTr before occTr
+                                            }
+                                            else if (old_step_identifier<new_step_identifier){
+
+                                                parentElement.insertBefore(editTr, nextSiblingOfoccTr.nextElementSibling); // Move editTr before occTr
+                                            }
+                                            //parentElement.insertBefore(occTr, nextSiblingOfeditTr);
+                                            break;
+                                        }
+                                    }
+                                    else if (!isNaN(stepNumber) && (stepNumber == old_step_identifier)){
+                                        currentTr.querySelector(".class_step_number").textContent = "Step " + stepNumber + ":";
+                                        currentTr.getElementsByTagName('td')[1].textContent = step_description;
+                                        break;
+                                    }
+                                }
+
+                                currentTr = currentTr.nextElementSibling;
+                            }
+                        
+
+                        
+
+                        //reset edit options
+                        modifyOptions(startingTrId, new_step_identifier, operation_type, old_step_identifier, step_description);
+
+                        //resets overlay buttons
+                        //overlayElement = document.getElementById('overlay');
+                        //overlayElement.getElementsByClassName(section_identifier)[0].classList.remove(section_identifier);
+                        //click cancel button
+                        element.parentNode.getElementsByClassName('button_cancel')[0].click();
+                    }
+                    
+                }
+                else if(operation_type === 'operation_create'){
+                    let lastStepNumber = 0;
+                    let currentTr = document.getElementById(startingTrId);
+                    currentTr = currentTr.nextElementSibling;
+                    let insertAfterThisTr = null;
+                    while (currentTr && !currentTr.classList.contains("class_tr_permanent")) {
+                        originalElementCheck = currentTr.getElementsByTagName('td')[1].getElementsByTagName('input');
+                        //checks if the element is not an add or edit
+                        if (originalElementCheck.length == 0) {
+                            var span = currentTr.querySelector(".class_step_number");
+                            var stepText = span.textContent;
+                            var stepNumber = parseInt(stepText.substring(stepText.indexOf(" ") + 1, stepText.indexOf(":")));
+                            if (!isNaN(stepNumber) && stepNumber > lastStepNumber) {
+                                insertAfterThisTr = currentTr;
+                                lastStepNumber = stepNumber;
+                            }
+                        }
+                        currentTr = currentTr.nextElementSibling;
+                    }
+                    
+                    let step_identifier= Number(lastStepNumber)+1;
+                    let step_description= element.parentNode.getElementsByClassName('step_description_textbox')[0].value;
+                    xhttpphp.open("GET","php/CUD.php?table_name="+table_name+"&operation_type="+operation_type+"&generic_meal_name="+generic_meal_name+"&specific_meal_name="+specific_meal_name+"&section_identifier="+section_identifier+"&step_identifier="+step_identifier+"&step_description="+step_description,true);
+                    xhttpphp.onload = function(){
+                        console.log(this.responseText);
+
+
+
+                        //add elemnt
+                        // create a new row
+                        let newTr = document.createElement('tr');
+                        let newTdStepNum = document.createElement('td');
+                        newTdStepNum.innerHTML = "<span class =\"class_step_number\">Step " +step_identifier + ":</span>";
+                        let newTdDescription = document.createElement('td');
+                        newTdDescription.textContent = step_description;
+                        newTr.classList.add('editable_tr');
+                        newTr.appendChild(newTdStepNum);
+                        newTr.appendChild(newTdDescription);
+
+                        selectElementCheck = insertAfterThisTr.nextElementSibling.getElementsByTagName('select');
+                        if(insertAfterThisTr&&selectElementCheck.length == 0){
+                        insertAfterThisTr.insertAdjacentElement('afterEnd',newTr);
+                        }
+                        else if(insertAfterThisTr&&selectElementCheck.length > 0){
+                        insertAfterThisTr.nextElementSibling.insertAdjacentElement('afterEnd',newTr);
+                        }
+                        //reset edit options
+                        modifyOptions(startingTrId, step_identifier,operation_type);
+
+                        //click cancel button
+                        element.parentNode.getElementsByClassName('button_cancel')[0].click();
+                    }
+                }
+                else if(operation_type === 'operation_delete'){
+
+                    var step_identifier= Number(element.parentNode.parentNode.getElementsByClassName('class_step_number')[0].textContent.replace(/[^\d]/g, ''));
+                    xhttpphp.open("GET","php/CUD.php?table_name="+table_name+"&operation_type="+operation_type+"&generic_meal_name="+generic_meal_name+"&specific_meal_name="+specific_meal_name+"&section_identifier="+section_identifier+"&step_identifier="+step_identifier,true);
+                    xhttpphp.onload = function(){
+                        console.log(this.responseText);
+                        //if step number of deleted is higher than all than just delete or use this as a general deletion 
+                        var lastStepNumber = 0;
+                        var currentTr = document.getElementById(startingTrId);
+                        let removedBool = false;
+                        currentTr = currentTr.nextElementSibling;
+                        var insertAfterThisTr = null;
+                        let stepContent = "Step " +step_identifier + ":";
+
+                        while (currentTr && !currentTr.classList.contains("class_tr_permanent")) {
+                            originalElementCheck = currentTr.getElementsByTagName('td')[1].getElementsByTagName('input');
+                            //checks if the element is not an add or edit
+                            if (originalElementCheck.length == 0) {
+                                var span = currentTr.querySelector(".class_step_number");
+                                var stepText = span.textContent;
+                                var stepNumber = parseInt(stepText.substring(stepText.indexOf(" ") + 1, stepText.indexOf(":")));
+                                if (!isNaN(stepNumber) && (stepNumber == step_identifier) && (removedBool == false)) {
+                                    currentTr = currentTr.previousElementSibling;
+                                    //removes the delete element
+                                    currentTr.nextElementSibling.remove();
+                                    removedBool = true;
+                                }
+                                else if (!isNaN(stepNumber) && (stepNumber >= step_identifier) && (removedBool == true)){
+                                //here i want to decrement the steps of each step number for each tr that has a step number greater than the dleeted
+                                    stepNumber = Number(stepNumber) - 1;
+                                    currentTr.querySelector(".class_step_number").textContent =  "Step " +stepNumber + ":";
+                                }
+                            }
+                            currentTr = currentTr.nextElementSibling;
+                        }
+                        //reset edit options
+                        modifyOptions(startingTrId, step_identifier,operation_type);
+                    
+                        //resets overlay buttons
+                        overlayElement = document.getElementById('overlay');
+                        overlayElement.getElementsByClassName(section_identifier)[0].classList.remove(section_identifier);
+                        cancelButtonListener(overlayElement);
+                    }
+                }
+            }
+
+            xhttpphp.send();
+           // location.reload();
+    }
+    function sort_table(b, o){
+        by = b; 
+        order = o; 
+        //FetchMySqlIndex();
+    }
+    function dynamic_page_change(button_id_name, all_menu_items_class_name, table_name) {
+        var elms = document.getElementsByClassName(all_menu_items_class_name);
+
+        // Clears styles of all elements with the same class name
+        if (all_menu_items_class_name == 'span_crud_button') {
+            let checkVar = document.getElementById(button_id_name).getAttribute('style');
+            
+            // A CRUD button was clicked previously and this will wipe the traces of the other deselected CRUD
+            if (checkVar != null) {
+
+            // Clears styles of all elements with the same class name
+            for (var i = 0; i < elms.length; i++) {
+                elms[i].removeAttribute("style");
+            }
+
+            // Cancel all steps of the selected operation
+            // Add
+            
+            let form = document.getElementById('form_specific_meal_select');
+            if (form) {
+                form.style.display = ""; // Setting display to an empty string will restore the default display value
+                form.removeAttribute("hidden");
+            }
+            
+            /*
+            let elements = document.querySelectorAll(".add_button_element");
+            elements.forEach(function(element) {
+                element.remove();
+            });
+            */
+            // Edit and Add
+            // Delete all edit and add textboxes and enter buttons
+            p = 0;
+            temp = document.getElementById('table_preparation');
+            Array.prototype.slice.call(temp.getElementsByClassName('class_add_button_row')).forEach(
+                function(item) {
+                item.remove();
+                }
+            );
+
+            // Unhide value replaced with text
+            p = 0;
+            temp = document.getElementById('table_preparation');
+            Array.prototype.slice.call(temp.getElementsByTagName('tr')).forEach(
+                function(item) {
+                //remove delete and edit 
+                if(item.getElementsByClassName('editable_tr') || item.classList.contains('editable_tr')){
+                    let replaceableTds = item.getElementsByClassName('editable_tr');
+                    if (item.classList.contains('editable_tr')){
+                        if(item.hasAttribute('onclick')){
+                            item.setAttribute('onclick',item.getAttribute('onclick').replace(' remove_selected(this);',""));
+                            item.setAttribute('onclick',item.getAttribute('onclick').replace(' edit_selected(this);',""));
+                        }
+                        item.setAttribute('class',(item.className).replace(' tr_category_menu_item_remove',""));
+                        item.setAttribute('class',(item.className).replace(' tr_category_menu_item_edit',""));
+                    }
+
+                    else if (replaceableTds.length>0){
+                        if(replaceableTds[0].hasAttribute('onclick')){
+                            replaceableTds[0].setAttribute('onclick',replaceableTds[0].getAttribute('onclick').replace(' remove_selected(this);',""));
+                            replaceableTds[0].setAttribute('onclick',replaceableTds[0].getAttribute('onclick').replace(' edit_selected(this);',""));
+                        }
+                        replaceableTds[0].setAttribute('class',(replaceableTds[0].className).replace(' tr_category_menu_item_remove',""));
+                        replaceableTds[0].setAttribute('class',(replaceableTds[0].className).replace(' tr_category_menu_item_edit',""));
+                    }
+                    let addableTds = item.getElementsByClassName('td_category_menu_item_add');
+                    // remove add class
+                    if (addableTds.length > 0) {
+                        if (addableTds[0].hasAttribute('onclick')) {
+                        addableTds[0].setAttribute('onclick', addableTds[0].getAttribute('onclick').replace(' add_selected(this.id);', ''));
+                        }
+                        addableTds[0].setAttribute('class', addableTds[0].className.replace(' td_category_menu_item_add', ''));
+                    }
+                }
+                });
+            } else {
+            // Add
+            
+            let form = document.getElementById('form_specific_meal_select');
+            if (form) {
+                form.style.display = ""; // Setting display to an empty string will restore the default display value
+                form.removeAttribute("hidden");
+            }
+            
+
+            /*
+            let elements = document.querySelectorAll(".add_button_element");
+            elements.forEach(function(element) {
+                element.remove();
+            });
+            */
+
+            // Edit and Add
+            // Delete all edit and add textboxes and enter buttons
+            eleTemp = document.getElementsByClassName('class_add_button_row')[0];
+            if (eleTemp != null) {
+                p = 0;
+                temp = document.getElementById('table_preparation');
+                Array.prototype.slice.call(temp.getElementsByClassName('class_add_button_row')).forEach(
+                function(item) {
+                    item.remove();
+                }
+                );
+
+                // Unhide value replaced with text
+                p = 0;
+                temp = document.getElementById('table_preparation');
+                Array.prototype.slice.call(temp.getElementsByTagName('tr')).forEach(
+                function(item) {
+                //remove delete and edit 
+                if(item.getElementsByClassName('editable_tr') || item.classList.contains('editable_tr')){
+                    let replaceableTds = item.getElementsByClassName('editable_tr');
+                    if (item.classList.contains('editable_tr')){
+                        if(item.hasAttribute('onclick')){
+                            item.setAttribute('onclick',item.getAttribute('onclick').replace(' remove_selected(this);',""));
+                            item.setAttribute('onclick',item.getAttribute('onclick').replace(' edit_selected(this);',""));
+                        }
+                        item.setAttribute('class',(item.className).replace(' tr_category_menu_item_remove',""));
+                        item.setAttribute('class',(item.className).replace(' tr_category_menu_item_edit',""));
+                    }
+
+                    else if (replaceableTds.length>0){
+                        if(replaceableTds[0].hasAttribute('onclick')){
+                            replaceableTds[0].setAttribute('onclick',replaceableTds[0].getAttribute('onclick').replace(' remove_selected(this);',""));
+                            replaceableTds[0].setAttribute('onclick',replaceableTds[0].getAttribute('onclick').replace(' edit_selected(this);',""));
+                        }
+                        replaceableTds[0].setAttribute('class',(replaceableTds[0].className).replace(' tr_category_menu_item_remove',""));
+                        replaceableTds[0].setAttribute('class',(replaceableTds[0].className).replace(' tr_category_menu_item_edit',""));
+                    }
+                    let addableTds = item.getElementsByClassName('td_category_menu_item_add');
+                    // remove add class
+                    if (addableTds.length > 0) {
+                        if (addableTds[0].hasAttribute('onclick')) {
+                        addableTds[0].setAttribute('onclick', addableTds[0].getAttribute('onclick').replace(' add_selected(this.id);', ''));
+                        }
+                        addableTds[0].setAttribute('class', addableTds[0].className.replace(' td_category_menu_item_add', ''));
+                    }
+                }
+                });
+            }
+
+            // Clears styles of all elements with the same class name
+            for (var i = 0; i < elms.length; i++) {
+                elms[i].removeAttribute("style", "");
+            }
+
+            document.getElementById(button_id_name).setAttribute('style', 'background-color:' + document.defaultView.getComputedStyle(document.getElementById(button_id_name), "").getPropertyValue('color') + ';color:#FAFAFA;');
+
+            // Call operation selection function
+            if (button_id_name == 'span_add_button') {
+                add_info();
+            } else if (button_id_name == 'span_edit_button') {
+                edit_info();
+            } else if (button_id_name == 'span_remove_button') {
+                remove_info();
+            }
+            }
+        } else {
+            // Clears styles of all elements with the same class name
+            for (var i = 0; i < elms.length; i++) {
+            elms[i].removeAttribute("style");
+            }
+
+            document.getElementById(button_id_name).setAttribute('style', 'background-color:#d3d3d3;');
+        }
+
+        // Update page data in given table
+        if (table_name == 'table_meal_type_menu') {
+            // Change 'Popular Meals' section to 'Meals' and add a category section called 'Categories'
+            // Default select to all
+            // Update categories section with all generic meal types
+        }
+    }
+
+    function load_meal_page(generic_meal_name){
+        window.location.href = "../MealPrep/meal.html?generic_meal_name=" + encodeURIComponent(generic_meal_name);
+    }
+
+    function add_info(){
+        //if(add_bool == false){
+        //this should add a textbox at the top of the category table and upon clikcing away, or pressing enter, the entry will be inputted and
+        //reordered, as it will go into the database.
+        //a category, breakfast, entree, or dessert must also be assigned.
+        //a textbox must be created along with the attribute of clickaway, it should call a function to insert it into
+        //the category list
+        //ok button to click
+        //a category select should be allowed to select an categorize the meal
+        //the button will not work unless the category is specified
+                //add edit button to the side of each meal name
+        let temp= document.getElementById('table_preparation');
+        //clears category list upon category selection
+        Array.prototype.slice.call(temp.getElementsByTagName('tr')).forEach(
+            function(item) {
+                let addableTds = item.getElementsByClassName('class_addable');
+                //adds add class
+                if(addableTds.length>0){
+                    addableTds[0].setAttribute('onclick',' add_selected(this.id);');
+                    addableTds[0].setAttribute('class',addableTds[0].className+' td_category_menu_item_add');
+                    //addableTds[0].onclick ? this.onclick.toString() : "";
+                }
+                //remove delete and edit 
+                if(item.getElementsByClassName('editable_tr') || item.classList.contains('editable_tr')){
+                    let replaceableTds = item.getElementsByClassName('editable_tr');
+                    if (item.classList.contains('editable_tr')){
+                        if(item.hasAttribute('onclick')){
+                            item.setAttribute('onclick',item.getAttribute('onclick').replace(' remove_selected(this);',""));
+                            item.setAttribute('onclick',item.getAttribute('onclick').replace(' edit_selected(this);',""));
+                        }
+                        item.setAttribute('class',(item.className).replace(' tr_category_menu_item_remove',""));
+                        item.setAttribute('class',(item.className).replace(' tr_category_menu_item_edit',""));
+                    }
+
+                    else if (replaceableTds.length>0){
+                        if(replaceableTds[0].hasAttribute('onclick')){
+                            replaceableTds[0].setAttribute('onclick',replaceableTds[0].getAttribute('onclick').replace(' remove_selected(this);',""));
+                            replaceableTds[0].setAttribute('onclick',replaceableTds[0].getAttribute('onclick').replace(' edit_selected(this);',""));
+                        }
+                        replaceableTds[0].setAttribute('class',(replaceableTds[0].className).replace(' tr_category_menu_item_remove',""));
+                        replaceableTds[0].setAttribute('class',(replaceableTds[0].className).replace(' tr_category_menu_item_edit',""));
+                    }
+                }
+
+            });
+    }
+    function edit_info(){
+        //add edit button to the side of each meal name
+        let temp= document.getElementById('table_preparation');
+        //clears category list upon category selection
+        Array.prototype.slice.call(temp.getElementsByTagName('tr')).forEach(
+            function(item) {
+                //remove delete and add edit
+                if(item.getElementsByClassName('editable_tr') || item.classList.contains('editable_tr')){
+                    let replaceableTds = item.getElementsByClassName('editable_tr');
+                    if (item.classList.contains('editable_tr')){
+                        item.setAttribute('onclick',' edit_selected(this);');
+                        item.setAttribute('class',item.className+' tr_category_menu_item_edit');
+                        item.setAttribute('onclick',item.getAttribute('onclick').replace(' remove_selected(this);',""));
+                        item.setAttribute('class',(item.className).replace(' tr_category_menu_item_remove',""));
+                    }
+                    //add edit class
+                    else if (replaceableTds.length>0){
+                        replaceableTds[0].setAttribute('onclick',' edit_selected(this);');
+                        replaceableTds[0].setAttribute('class',replaceableTds[0].className+' tr_category_menu_item_edit');
+                        replaceableTds[0].setAttribute('onclick',replaceableTds[0].getAttribute('onclick').replace(' remove_selected(this);',""));
+                        replaceableTds[0].setAttribute('class',(replaceableTds[0].className).replace(' tr_category_menu_item_remove',""));
+                    }
+                }
+                let addableTds = item.getElementsByClassName(' td_category_menu_item_add');
+                // remove add class
+                if (addableTds.length > 0) {
+                    if (addableTds[0].hasAttribute('onclick')) {
+                    addableTds[0].setAttribute('onclick', addableTds[0].getAttribute('onclick').replace(' add_selected(this.id);', ''));
+                    }
+                    addableTds[0].setAttribute('class', addableTds[0].className.replace(' td_category_menu_item_add', ''));
+                }
+            });
+        }
+
+    function remove_info(){
+        // add remove button tot he side of each meal name
+        let temp= document.getElementById('table_preparation');
+        //clears category list upon category selection
+        Array.prototype.slice.call(temp.getElementsByTagName('tr')).forEach(
+            function(item) {
+                //remove edit and add delete
+                if(item.getElementsByClassName('editable_tr') || item.classList.contains('editable_tr')){
+                    let replaceableTds = item.getElementsByClassName('editable_tr');
+                    if (item.classList.contains('editable_tr')){
+                        item.setAttribute('onclick',' remove_selected(this);');
+                        item.setAttribute('class',item.className+' tr_category_menu_item_remove');
+                        item.setAttribute('onclick',item.getAttribute('onclick').replace(' edit_selected(this);',""));
+                        item.setAttribute('class',(item.className).replace(' tr_category_menu_item_edit',""));
+
+                    }
+                    //add edit class
+                    else if (replaceableTds.length>0){
+                        replaceableTds[0].setAttribute('onclick',' remove_selected(this);');
+                        replaceableTds[0].setAttribute('class',replaceableTds[0].className+' tr_category_menu_item_remove');
+                        replaceableTds[0].setAttribute('onclick',replaceableTds[0].getAttribute('onclick').replace(' edit_selected(this);',""));
+                        replaceableTds[0].setAttribute('class',(replaceableTds[0].className).replace(' tr_category_menu_item_edit',""));
+                    }
+                }
+                let addableTds = item.getElementsByClassName('td_category_menu_item_add');
+                // remove add class
+                if (addableTds.length > 0) {
+                    if (addableTds[0].hasAttribute('onclick')) {
+                    addableTds[0].setAttribute('onclick', addableTds[0].getAttribute('onclick').replace(' add_selected(this.id);', ''));
+                    }
+                    addableTds[0].setAttribute('class', addableTds[0].className.replace(' td_category_menu_item_add', ''));
+                }
+            });
+        }
+
+    function FetchMySqlIngredientOptions(){
+        //loading in php
+        var xhttpphp = new XMLHttpRequest();
+        xhttpphp.onload = function(){
+            console.log(this.responseText);
+            let myObj = JSON.parse(this.responseText);
+            console.log(myObj);
+            allOptions = myObj;
+        }
+        xhttpphp.open("GET","php/GetData.php?meal_page=true&table_name=all_ingredients&name=null",true);
+        xhttpphp.send();
+    }
+    function fetchOptions(searchTerm) {
+        // Filter the options based on the search term
+        const filteredOptions = allOptions.filter((option) => {
+            return option.toLowerCase().includes(searchTerm);
+        });
+
+        return Promise.resolve(filteredOptions);
+    }
+    function displayOptions(options, ingredient_textbox, dropdown) {
+    // Clear previous dropdown options
+        clearDropdown(dropdown);
+        setInvalid(ingredient_textbox);
+
+        // Display the options in the dropdown
+        options.forEach((option) => {
+            const optionElement = document.createElement('div');
+            optionElement.textContent = option;
+            optionElement.classList.add('dropdown-option');
+
+            // Handle option selection
+            optionElement.addEventListener('click', () => {
+                ingredient_textbox.value = option;
+                setValid(ingredient_textbox);
+                clearDropdown(dropdown);
+            });
+
+            // Add the option to the dropdown
+            dropdown.appendChild(optionElement);
+        });
+
+        // Show the autocomplete container if there are options
+        dropdown.style.display = options.length ? 'block' : 'none';
+    }
+
+    function clearDropdown(dropdown) {
+        // Clear the dropdown options
+        while (dropdown.firstChild) {
+            dropdown.removeChild(dropdown.firstChild);
+        }
+    }
+    // Function to close the autocomplete dropdown
+    function closeAutocomplete(isAutocompleteOpen,dropdown) {
+        dropdown.style.display = 'none';
+        isAutocompleteOpen = false;
+    }
+    //onclick functions
+    function handleNumberTextboxInput(number_textbox, ingredient_textbox, dropdown) {
+        var maxLength = parseInt(number_textbox.getAttribute('maxlength'));
+        inputValue = number_textbox.value;
+        var allowedCharacters = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.', 'Backspace'];
+        var key = event.key;
+        var isAllowedKey = allowedCharacters.includes(key);
+        var isMaxLengthExceeded = inputValue.length >= maxLength;
+
+        if ((!isAllowedKey || isMaxLengthExceeded) && key != 'Backspace') {
+            event.preventDefault();
+        }
+    }
+
+    function handleConfirmButtonClick(element) {
+        CUD(element);
+        //element.removeEventListener('click',handleConfirmButtonClick);
+    }
+    function handleOverlayConfirmButtonClick(element, operation_type,section_name){
+        element.classList.add(operation_type);
+        element.classList.add(section_name);
+        handleConfirmButtonClick(element);
+    }
+    function handleCancelButtonClick(tr) {
+        tr.remove();
+    }
+
+    function handleNumberTextboxKeyPress(event) {
+        if (event.keyCode === 13) {
+            document.getElementById('button_new_category').click();
+            this.blur();
+            event.preventDefault();
+        }
+    }
+
+    function handleIngredientTextboxClick(ingredient_textbox, dropdown, isAutocompleteOpen) {
+        if (((ingredient_textbox.value).length < 1 || !dropdown.childNodes.length)) {
+            closeAutocomplete(isAutocompleteOpen,dropdown);
+        } else {
+            dropdown.style.display = 'block';
+            isAutocompleteOpen = true;
+        }
+    }
+
+    function handleIngredientTextboxBlur(ingredient_textbox, errorMessage, tdIngredientSelector,dropdown,isAutocompleteOpen) {
+        setTimeout(() => {
+            var inputValue = ingredient_textbox.value.trim();
+            var optionExists = allOptions.includes(inputValue);
+
+            if (!optionExists) {
+                errorMessage.innerHTML = '<sup>*</sup>Pick an ingredient from the dropdown list.';
+                tdIngredientSelector.appendChild(errorMessage);
+            } else {
+                errorMessage.remove();
+            }
+            closeAutocomplete(isAutocompleteOpen,dropdown);
+        }, 200);
+    }
+
+    function handleIngredientTextboxInput(ingredient_textbox, dropdown, isAutocompleteOpen) {
+        var searchTerm = ingredient_textbox.value.trim().toLowerCase();
+        fetchOptions(searchTerm)
+            .then((options) => {
+                displayOptions(options, ingredient_textbox, dropdown);
+            })
+            .catch((error) => {
+                console.error('Error fetching options:', error);
+            });
+        if (((ingredient_textbox.value).length < 1 || !dropdown.childNodes.length)) {
+            closeAutocomplete(isAutocompleteOpen,dropdown);
+        } else {
+            dropdown.style.display = 'block';
+            isAutocompleteOpen = true;
+        }
+    }
+    function updateStepNumbers(startNode, endNode) {
+        var currentRow = startNode.nextElementSibling;
+        var stepNumber = parseInt(currentRow.querySelector(".class_step_number").textContent.match(/\d+/)[0]);
+
+        while (currentRow && currentRow !== endNode) {
+            var stepNode = currentRow.querySelector(".class_step_number");
+            if (stepNode) {
+                stepNode.textContent = "Step " + stepNumber + ":";
+                stepNumber++;
+            }
+            currentRow = currentRow.nextElementSibling;
+        }
+    }
+    // Function to simulate click event on cancel buttons
+    function clickCancelButtons(cancelButtons){
+        cancelButtons.forEach(function(cancelButton) {
+            cancelButton.click();
+        });
+    }
+    // Event listener for the cancel button on the overlay
+    function cancelButtonListener(overlayElement) {
+        // Hide the overlay
+        overlayElement.style.display = "none";
+
+        // Event listener for the cancel button on the overlay
+        document.getElementById("span_cancel_button").removeEventListener('click', cancelButtonListener);
+    }
+
+    // Event listener for the confirm button on the overlay
+    function deleteButtonListener(newTd, parentTable, trElements, formTd, overlayElement) {
+
+        newTd.remove();
+        var cancelButtons = document.querySelectorAll(".button_cancel");
+
+        // Get all non-permanent and non-hidden <tr> elements
+        var trElementsToDelete = parentTable.querySelectorAll("tr:not(.class_tr_permanent):not([hidden]):not([style*='display: none'])");
+
+        // Get all elements with class "class_dropdown_table"
+        var dropdownTables = document.getElementsByClassName("class_dropdown_table");
+
+        // Iterate over each dropdown table
+        for (var i = 0; i < dropdownTables.length; i++) {
+            var dropdownTable = dropdownTables[i];
+
+            // Get all <tr> elements in the table
+            var rows = dropdownTable.getElementsByTagName("tr");
+
+            // Iterate over each row and unhide it if it's not in the <tbody>
+            for (var j = 0; j < rows.length; j++) {
+                var row = rows[j];
+
+                if (!row.parentNode.matches("tbody")) {
+                    row.style.display = "";
+                }
+            }
+        }
+
+        // Function to unhide all previously hidden elements
+        function unhideElements() {
+            trElements.forEach(function(tr) {
+                tr.style.display = "";
+            });
+            formTd.style.display = "";
+        }
+
+        // Delete each <tr> element
+        trElementsToDelete.forEach(function(tr) {
+            tr.remove();
+        });
+
+        // Simulate click event on cancel buttons
+        clickCancelButtons(cancelButtons);
+
+        // Unhide all previously hidden elements
+        unhideElements();
+
+        this.removeEventListener("click", deleteButtonListener);
+        overlayElement.style.display = "";
+    }
+    function getPrecedingTrPermanent(element) {
+        var precedingSibling = element.previousElementSibling;
+        while (precedingSibling) {
+            if (precedingSibling.classList.contains('class_tr_permanent')) {
+                return precedingSibling;
+            }
+            precedingSibling = precedingSibling.previousElementSibling;
+        }
+    }
+    function createOptionsForStepNumbers(stepContent, select, parentTr) {
+        // Create an option for the first step number
+        var option = document.createElement("option");
+        option.textContent = stepContent;
+        select.appendChild(option);
+
+        // Find the preceding tr with class "class_tr_permanent"
+        var precedingTr = parentTr.previousElementSibling;
+        while (precedingTr && !precedingTr.classList.contains("class_tr_permanent")) {
+            precedingTr = precedingTr.previousElementSibling;
+        }
+
+        // Create options for each step number between the preceding and following "class_tr_permanent" trs
+        var currentTr = precedingTr.nextElementSibling;
+        while (currentTr && !currentTr.classList.contains("class_tr_permanent")) {
+            var originalElementCheck = currentTr.querySelector('td input');
+
+            // Check if the element is not an add or edit
+            if (!originalElementCheck) {
+            var span = currentTr.querySelector(".class_step_number");
+            var stepText = span.textContent;
+            var stepNumber = parseInt(stepText.substring(stepText.indexOf(" ") + 1, stepText.indexOf(":")));
+
+            if (!isNaN(stepNumber) && span.textContent !== stepContent) {
+                // Create an option for each step number between the preceding and following "class_tr_permanent" trs
+                option = document.createElement("option");
+                option.textContent = span.textContent;
+                select.appendChild(option);
+            }
+            }
+            currentTr = currentTr.nextElementSibling;
+        }
+    }
+
+
+    function add_selected(node_id_name){
+        //find which section is looking to be added to and then create the propert node with attributes to fill request
+        //only 5 sections are addable to as of 6/8/2023
+
+        //temp_input_button.setAttribute('onclick','CUD(\'meal_types\',\'create\',document.getElementById(\'textbox_add\').value,document.getElementById(\'add_category_selector\').value);');
+
+        // Get the parent <tr> element
+        var childNode = document.getElementById(node_id_name);
+        var parentTr = childNode.closest('tr');
+        // Create the appropriate nodes based on the provided node_id_name
+
+        if (node_id_name === "span_specific_meal_menu_header" && add_bool == false) {
+
+            var cancelButtons = document.querySelectorAll(".button_cancel");
+            clickCancelButtons(cancelButtons);
+            // Hide the form
+            var formTd = document.getElementById("form_specific_meal_select").parentNode;
+            formTd.style.display = "none";
+
+            // Get the parent <table> element
+            var parentTable = formTd.closest("table");
+
+            // Get all <tr> elements that do not have the class "class_tr_permanent"
+            var trElements = parentTable.querySelectorAll("tr:not(.class_tr_permanent)");
+
+            // Hide each <tr> element
+            trElements.forEach(function(tr) {
+                tr.style.display = "none";
+            });
+
+            // Get all elements with class "class_dropdown_table"
+            var dropdownTables = document.getElementsByClassName("class_dropdown_table");
+
+            // Iterate over each dropdown table
+            for (var i = 0; i < dropdownTables.length; i++) {
+            var dropdownTable = dropdownTables[i];
+
+            // Get all <tr> elements in the table
+            var rows = dropdownTable.getElementsByTagName("tr");
+
+            // Iterate over each row and hide it if it's not in the <tbody>
+            for (var j = 0; j < rows.length; j++) {
+                var row = rows[j];
+                
+                if (!row.parentNode.matches("tbody")) {
+                row.style.display = "none";
+                }
+            }
+            }
+            // Get the parent <tr> element of the form
+            var parentTr = formTd.parentNode;
+
+            // Create a new <td> element 
+            var newTd = document.createElement("td");
+
+            // Create a textbox with placeholder text "Variation Name"
+            var textbox = document.createElement("input");
+            textbox.setAttribute("type", "text");
+            textbox.setAttribute("placeholder", "Variation Name");
+
+            // Create a Confirm button
+            var confirm_button = document.createElement("button");
+            confirm_button.textContent = "✓";
+            confirm_button.classList.add("button_confirm"); // Add the classe "button_confirm" to the button
+            confirm_button.classList.add("operation_create");
+            confirm_button.classList.add("section_variation");
+            confirm_button.addEventListener('click', () => {handleConfirmButtonClick(confirm_button);});
+            // Create a Cancel button deletes the most parent node td
+            var cancel_button = document.createElement("button");
+            cancel_button.textContent = "✗";
+            cancel_button.classList.add("button_cancel"); // Add the class and "button_cancel" to the button
+            cancel_button.addEventListener('click',() => {
+                // Event listener for the cancel button on the overlay
+                document.getElementById("span_cancel_button").addEventListener("click", () => {cancelButtonListener(document.getElementById("overlay")); add_bool = false;});
+
+                // Event listener for the confirm button on the overlay
+                document.getElementById("span_delete_button").addEventListener("click", () => {deleteButtonListener(newTd, parentTable, trElements, formTd, document.getElementById("overlay"));});
+                
+                document.getElementById("overlay").style.display = "block";
+            });
+
+            // Add event listener to the textbox for the Enter keypress event
+            textbox.addEventListener("keypress", () => {handleNumberTextboxKeyPress(event);});
+            textbox.setAttribute("id", "textbox_add");
+
+
+            // Append the textbox and buttons to the new <td> element
+            newTd.appendChild(textbox);
+            newTd.appendChild(confirm_button);
+            newTd.appendChild(cancel_button);
+
+            // Insert the new <td> element after the form's parent <td> element
+            parentTr.insertBefore(newTd, formTd.nextElementSibling);
+            add_bool = true;
+        } else if (node_id_name === "td_ingredients_section") {
+            // Create a select with all possible ingredients
+            if (ingredientOptionsBool == false){
+                FetchMySqlIngredientOptions();
+                ingredientOptionsBool = true;
+            }
+            var ingredient_textbox = document.createElement('input');
+            ingredient_textbox.setAttribute('type','text');
+            ingredient_textbox.classList.add('inputTextbox');
+            ingredient_textbox.setAttribute('placeholder','Search for Ingredient');
+            ingredient_textbox.classList.add('autocomplete-input');
+            var dropdown = document.createElement('div');
+            var errorMessage = document.createElement('div');
+            errorMessage.setAttribute('id','error-message');
+            dropdown.setAttribute('id','dropdown');
+            dropdown.classList.add('autocomplete-dropdown'); // Add the class "autocomplete-dropdown" to the dropdown element
+
+            // Add options to the select element
+            // Append the nodes to the desired section
+            var tr = document.createElement("tr");
+            // Create an empty textbox with placeholder text "Amount In Grams"
+            var number_textbox = document.createElement("input");
+            number_textbox.setAttribute("type", "number");
+            number_textbox.setAttribute("placeholder", "(Grams)");
+            number_textbox.setAttribute('min','1');
+            number_textbox.setAttribute('max','100000');
+            number_textbox.setAttribute('maxlength','6');
+            number_textbox.classList.add('grams_needed_textbox');
+            number_textbox.addEventListener('keydown', () => {handleNumberTextboxInput(number_textbox,ingredient_textbox,dropdown);});
+            ingredient_textbox.addEventListener('input',() => {handleIngredientTextboxInput(ingredient_textbox,dropdown,isAutocompleteOpen);});
+            
+            var confirm_button = document.createElement("button");
+            confirm_button.textContent = "✓";
+            confirm_button.classList.add("button_confirm");
+            confirm_button.classList.add("operation_create");
+            confirm_button.classList.add("section_ingredients_required");
+            confirm_button.addEventListener('click', () => {handleConfirmButtonClick(confirm_button);});
+
+            // Create a Cancel button most parent node tr removed
+            var cancel_button = document.createElement("button");
+            cancel_button.textContent = "✗";
+            cancel_button.classList.add("button_cancel"); // Add the class "button_cancel" to the button
+            cancel_button.addEventListener("click",() => {handleCancelButtonClick(tr);});
+            // Add event listener to the textbox for the Enter keypress event
+            number_textbox.addEventListener('keypress', () => {handleNumberTextboxKeyPress(event);});
+            number_textbox.setAttribute('id', 'textbox_add');
+
+            // Add options to the select element
+            // Append the nodes to the desired section
+            var section = document.getElementById(node_id_name);
+            var tr = document.createElement("tr");
+
+            // Ingredient selector
+            var tdIngredientSelector = document.createElement("td");
+            tdIngredientSelector.classList.add('autocomplete-container'); // Add the class "autocomplete-container" to the tdIngredientSelector element
+            
+            tdIngredientSelector.appendChild(ingredient_textbox);
+            dropdown.style.display = 'none'; // Set initial display style to "none"
+            tdIngredientSelector.appendChild(dropdown);
+            tr.appendChild(tdIngredientSelector);
+
+            // Track if the autocomplete container is open or closed
+            var isAutocompleteOpen = false;
+
+            // Event listener to show/hide the autocomplete dropdown when clicking the input field
+            ingredient_textbox.addEventListener('click', () => {handleIngredientTextboxClick(ingredient_textbox,dropdown,isAutocompleteOpen);});
+            ingredient_textbox.addEventListener('blur',() => {handleIngredientTextboxBlur(ingredient_textbox,errorMessage,tdIngredientSelector,dropdown,isAutocompleteOpen)});
+            // Event listener to show/hide the autocomplete dropdown when clicking the input field
+            ingredient_textbox.addEventListener('input',() => {handleIngredientTextboxInput(ingredient_textbox, dropdown)});
+            // Grams textbox and Confirm and Cancel button
+            var tdGramsTextboxButton = document.createElement("td");
+            tdGramsTextboxButton.appendChild(number_textbox);
+            tdGramsTextboxButton.appendChild(confirm_button);
+            tdGramsTextboxButton.appendChild(cancel_button);
+            tr.appendChild(tdGramsTextboxButton);
+
+            // Find the parent node of node_id_name
+            var parentNode = section.closest("tr");
+
+            // Find the next "class_tr_permanent" element
+            var nextTr = parentNode.nextElementSibling;
+            while (nextTr && !nextTr.classList.contains("class_tr_permanent")) {
+                nextTr = nextTr.nextElementSibling;
+            }
+
+            // Insert the new row after the parent node
+            parentNode.parentNode.insertBefore(tr, nextTr);
+
+        } else if (node_id_name === "td_preparation_section" || node_id_name === "td_cooking_section" || node_id_name === "td_finishing_section") {
+            // Create a node for the next step
+            // Create a node for the next step
+            var stepNode = document.createElement("span");
+            stepNode.classList.add("class_step_number");
+            // Get the step number of the last step before the next "class_tr_permanent" element
+            /*
+            var lastStepNumber = 0;
+            var nextTr = parentTr.nextElementSibling;
+            while (nextTr && !nextTr.classList.contains("class_tr_permanent")) {
+                var span = nextTr.querySelector(".class_step_number");
+                if (span) {
+                var stepText = span.textContent;
+                var stepNumber = parseInt(stepText.substring(stepText.indexOf(" ") + 1, stepText.indexOf(":")));
+                if (!isNaN(stepNumber) && stepNumber > lastStepNumber) {
+                    lastStepNumber = stepNumber;
+                }
+                }
+                nextTr = nextTr.nextElementSibling;
+            }
+            */
+            //stepNode.textContent = "Step " + (lastStepNumber + 1) + ":";
+            stepNode.textContent = "Step (Next):";
+            //parent tr
+            var tr = document.createElement("tr");
+
+            // Create an empty textbox with placeholder text based on the section
+            var textbox = document.createElement("input");
+            textbox.setAttribute("type", "text");
+            let section_name;
+            if (node_id_name === "td_preparation_section") {
+            textbox.setAttribute("placeholder", "Preparation Step");
+            section_name= "section_preparation_steps";
+            } else if (node_id_name === "td_cooking_section") {
+            textbox.setAttribute("placeholder", "Cooking Step");
+            section_name= "section_cooking_steps";
+            } else if (node_id_name === "td_finishing_section") {
+            textbox.setAttribute("placeholder", "Finishing Step");
+            section_name= "section_finishing_steps";
+            }
+
+            // Find the next "class_tr_permanent" element
+            var nextTr = parentTr.nextElementSibling;
+            while (nextTr && !nextTr.classList.contains("class_tr_permanent")) {
+            nextTr = nextTr.nextElementSibling;
+            }
+            // Create a Confirm button
+            var confirm_button = document.createElement("button");
+            confirm_button.textContent = "✓";
+            confirm_button.classList.add("button_confirm"); // Add the class "button_confirm" to the button
+            confirm_button.classList.add("operation_create");
+            confirm_button.classList.add(section_name);
+            confirm_button.addEventListener('click',() => {handleConfirmButtonClick(confirm_button);});
+            // Create a Cancel button
+            var cancel_button = document.createElement("button");
+            cancel_button.textContent = "✗";
+            cancel_button.classList.add("button_cancel"); // Add the class "button_cancel" to the button
+            cancel_button.addEventListener("click", () => {handleCancelButtonClick(tr); });
+            // Add event listener to the textbox for the Enter keypress event
+            textbox.addEventListener('keypress', () => {handleNumberTextboxKeyPress(event);});
+            textbox.classList.add('step_description_textbox');
+
+            // Append the nodes to the desired section
+            var section = document.getElementById(node_id_name);
+            var tdStep = document.createElement("td");
+            var tdTextboxButton = document.createElement("td");
+            tdStep.appendChild(stepNode);
+            tdTextboxButton.appendChild(textbox);
+            tdTextboxButton.appendChild(confirm_button);
+            tdTextboxButton.appendChild(cancel_button);
+            tr.appendChild(tdStep);
+            tr.appendChild(tdTextboxButton);
+
+            // Find the parent node of node_id_name
+            var parentNode = section.closest("tr");
+
+            // Insert the new row after the parent node
+            parentNode.parentNode.insertBefore(tr, nextTr);
+        }
+
+    }
+    function edit_selected(element) {
+        function getPrecedingTrPermanent(element) {
+            var precedingSibling = element.previousElementSibling;
+            while (precedingSibling) {
+                if (precedingSibling.classList.contains('class_tr_permanent')) {
+                    return precedingSibling;
+                }
+                precedingSibling = precedingSibling.previousElementSibling;
+            }
+        }
+
+        // Get the parent <tr> element
+        var parentTr = element;
+
+        // Get the preceding <tr> element with class "tr_permanent"
+        var precedingTr = getPrecedingTrPermanent(parentTr);
+
+
+        if (element.id === "select_specific_meal") {
+            // Hide the form
+            var formTd = document.getElementById("form_specific_meal_select").parentNode;
+            formTd.style.display = "none";
+
+            // Get the parent <table> element
+            var parentTable = formTd.closest("table");
+
+            // Get all <tr> elements that do not have the class "class_tr_permanent"
+            var trElements = parentTable.querySelectorAll("tr:not(.class_tr_permanent)");
+
+            // Get the parent <tr> element of the form
+            var parentTr = formTd.parentNode;
+
+            // Create a new <td> element
+            var newTd = document.createElement("td");
+
+            // Create a textbox with placeholder text "Variation Name"
+            var textbox = document.createElement("input");
+            textbox.setAttribute("type", "text");
+            textbox.setAttribute("placeholder", "Variation Name");
+
+            // Create a Confirm button
+            var confirm_button = document.createElement("button");
+            confirm_button.textContent = "✓";
+            confirm_button.classList.add("button_confirm"); // Add the class "button_confirm" to the button
+            confirm_button.classList.add("operation_update");
+            confirm_button.classList.add("section_variation");
+            confirm_button.addEventListener('click', () => {handleConfirmButtonClick(confirm_button);});
+            // Create a Cancel button that deletes the most parent node td
+            var cancel_button = document.createElement("button");
+            cancel_button.textContent = "✗";
+            cancel_button.classList.add("button_cancel"); // Add the class "button_cancel" to the button
+            cancel_button.addEventListener("click",() => {formTd.style.display = ""; handleCancelButtonClick(newTd);});
+
+
+            // Add event listener to the textbox for the Enter keypress event
+            textbox.addEventListener("keypress", () => {handleNumberTextboxKeyPress(event);});
+            textbox.setAttribute("id", "textbox_add");
+
+            // Append the textbox and buttons to the new <td> element
+            newTd.appendChild(textbox);
+            newTd.appendChild(confirm_button);
+            newTd.appendChild(cancel_button);
+
+            // Insert the new <td> element after the form's parent <td> element
+            parentTr.insertBefore(newTd, formTd.nextElementSibling);
+
+            // Get the value from the select element
+            var selectValue = document.getElementById("select_specific_meal").value;
+
+            // Set the value in the newly created textbox
+            textbox.value = selectValue;
+        } else if (precedingTr && precedingTr.id === 'tr_ingredients_required') {
+            // Create a select with all possible ingredients
+            if (ingredientOptionsBool == false){
+                FetchMySqlIngredientOptions();
+                ingredientOptionsBool = true;
+            }
+            var ingredient_textbox = document.createElement('input');
+            ingredient_textbox.setAttribute('type','text');
+            ingredient_textbox.classList.add('inputTextbox');
+            ingredient_textbox.setAttribute('placeholder','Search for Ingredient');
+            ingredient_textbox.classList.add('autocomplete-input');
+            var dropdown = document.createElement('div');
+            var errorMessage = document.createElement('div');
+            errorMessage.setAttribute('id','error-message');
+            dropdown.setAttribute('id','dropdown');
+            dropdown.classList.add('autocomplete-dropdown'); // Add the class "autocomplete-dropdown" to the dropdown element
+
+            // Add options to the select element
+            // Append the nodes to the desired section
+            var tr = document.createElement("tr");
+            // Create an empty textbox with placeholder text "Amount In Grams"
+            var number_textbox = document.createElement("input");
+            number_textbox.setAttribute("type", "number");
+            number_textbox.setAttribute("placeholder", "(Grams)");
+            number_textbox.setAttribute('min','1');
+            number_textbox.setAttribute('max','100000');
+            number_textbox.setAttribute('maxlength','6');
+            number_textbox.classList.add('grams_needed_textbox');
+            number_textbox.addEventListener('keydown', () => {handleNumberTextboxInput(number_textbox,ingredient_textbox,dropdown);});
+            ingredient_textbox.addEventListener('input',() => {handleIngredientTextboxInput(ingredient_textbox,dropdown,isAutocompleteOpen);});
+            
+            var confirm_button = document.createElement("button");
+            confirm_button.textContent = "✓";
+            confirm_button.classList.add("button_confirm");
+            confirm_button.classList.add("operation_update");
+            confirm_button.classList.add("section_ingredients_required");
+            confirm_button.addEventListener('click', () => {handleConfirmButtonClick(confirm_button);});
+
+            // Create a Cancel button most parent node tr removed
+            var cancel_button = document.createElement("button");
+            cancel_button.textContent = "✗";
+            cancel_button.classList.add("button_cancel"); // Add the class "button_cancel" to the button
+            cancel_button.addEventListener("click",() => {parentTr.style.display = ""; handleCancelButtonClick(tr);});
+            // Add event listener to the textbox for the Enter keypress event
+            number_textbox.addEventListener('keypress', () => {handleNumberTextboxKeyPress(event);});
+            number_textbox.setAttribute('id', 'textbox_add');
+
+            // Add options to the select element
+            // Append the nodes to the desired section
+            var tr = document.createElement("tr");
+
+            // Ingredient selector
+            var tdIngredientSelector = document.createElement("td");
+            tdIngredientSelector.classList.add('autocomplete-container'); // Add the class "autocomplete-container" to the tdIngredientSelector element
+            
+            tdIngredientSelector.appendChild(ingredient_textbox);
+            dropdown.style.display = 'none'; // Set initial display style to "none"
+            tdIngredientSelector.appendChild(dropdown);
+            tr.appendChild(tdIngredientSelector);
+
+            // Track if the autocomplete container is open or closed
+            var isAutocompleteOpen = false;
+
+            // Event listener to show/hide the autocomplete dropdown when clicking the input field
+            ingredient_textbox.addEventListener('click', () => {handleIngredientTextboxClick(ingredient_textbox,dropdown,isAutocompleteOpen);});
+            ingredient_textbox.addEventListener('blur',() => {handleIngredientTextboxBlur(ingredient_textbox,errorMessage,tdIngredientSelector,dropdown,isAutocompleteOpen)});
+            // Event listener to show/hide the autocomplete dropdown when clicking the input field
+            ingredient_textbox.addEventListener('input',() => {handleIngredientTextboxInput(ingredient_textbox, dropdown)});
+            // Grams textbox and Confirm and Cancel button
+            var tdGramsTextboxButton = document.createElement("td");
+            tdGramsTextboxButton.appendChild(number_textbox);
+            tdGramsTextboxButton.appendChild(confirm_button);
+            tdGramsTextboxButton.appendChild(cancel_button);
+            tr.appendChild(tdGramsTextboxButton);
+
+            // Find the ingredient name and grams needed from the hidden row element
+            var ingredientName = parentTr.getElementsByTagName("td")[0].textContent;
+            var ingredientAmount = parentTr.getElementsByTagName("td")[1].textContent;
+            ingredientAmount = parseFloat(ingredientAmount.match(/\d+(\.\d+)?/)[0]);
+
+            // Set the value of the ingredient textbox and grams needed textbox
+            ingredient_textbox.value = ingredientName;
+            number_textbox.value = ingredientAmount;
+
+            // Hide the parent tr
+            parentTr.style.display = "none";
+            parentTr.insertAdjacentElement("afterend", tr);
+
+        } else if (
+            precedingTr && precedingTr.id === 'tr_preparation' ||
+            precedingTr && precedingTr.id === 'tr_cooking' ||
+            precedingTr && precedingTr.id === 'tr_finishing'
+        ) {
+            // Hide the parent tr
+            parentTr.style.display = "none";
+
+            // Create a node for the next step
+            var stepNode = document.createElement("span");
+            var firstTd = parentTr.querySelector("td:first-child");
+            stepNode.textContent = firstTd.textContent;
+            stepContent = stepNode.textContent;
+            // Create a select element
+            var select = document.createElement("select");
+            
+            createOptionsForStepNumbers(stepContent, select ,parentTr);
+
+/*
+            // Create an option for the first step number
+            var option = document.createElement("option");
+            option.textContent = stepNode.textContent;
+            select.appendChild(option);
+
+            // Find the preceding tr with class "class_tr_permanent"
+            var precedingTr = parentTr.previousElementSibling;
+            while (precedingTr && !precedingTr.classList.contains("class_tr_permanent")) {
+                precedingTr = precedingTr.previousElementSibling;
+            }
+            //if step number of deleted is higher than all than just delete or use this as a general deletion 
+            var currentTr = precedingTr.nextElementSibling;
+            while (currentTr && !currentTr.classList.contains("class_tr_permanent")) {
+                originalElementCheck = currentTr.getElementsByTagName('td')[1].getElementsByTagName('input');
+                //checks if the element is not an add or edit
+                if (originalElementCheck.length == 0) {
+                    let span = currentTr.querySelector(".class_step_number");
+                    let stepText = span.textContent;
+                    let stepNumber = parseInt(stepText.substring(stepText.indexOf(" ") + 1, stepText.indexOf(":")));
+                    if (!isNaN(stepNumber)&& !(span.textContent === stepNode.textContent)) {
+                        // Create an option for each step number between the preceding and following "class_tr_permanent" trs
+                        option = document.createElement("option");
+                        option.textContent = span.textContent;
+                        select.appendChild(option);
+                    }
+                }
+                currentTr = currentTr.nextElementSibling;
+            }
+*/
+            // Create an empty textbox with placeholder text based on the section
+            var section;
+            let section_name
+            var textbox = document.createElement("input");
+            textbox.setAttribute("type", "text");
+            if (precedingTr && precedingTr.id === 'tr_preparation') {
+                section = "Preparation";
+                section_name= "section_preparation_steps";
+                textbox.setAttribute("placeholder", "Preparation Step");
+            } else if (precedingTr && precedingTr.id === 'tr_cooking') {
+                section = "Cooking";
+                section_name= "section_cooking_steps";
+                textbox.setAttribute("placeholder", "Cooking Step");
+            } else if (precedingTr && precedingTr.id === 'tr_finishing') {
+                section = "Finishing";
+                section_name= "section_finishing_steps";
+                textbox.setAttribute("placeholder", "Finishing Step");
+            }
+
+            // Insert the textContent from the second <td> of the parent's parent <tr> into the textbox
+            textbox.value = parentTr.querySelector("td:nth-child(2)").textContent;
+            textbox.classList.add('inputTextbox');
+            // Create a Confirm button
+            var confirm_button = document.createElement("button");
+            confirm_button.textContent = "✓";
+            confirm_button.classList.add("button_confirm"); // Add the class "button_confirm" to the button
+            confirm_button.classList.add("operation_update");
+            confirm_button.classList.add(section_name);
+            confirm_button.addEventListener('click',() => {handleConfirmButtonClick(confirm_button);});        
+            // Create a Cancel button that shows the parent tr and removes the most parent node tr
+            var cancel_button = document.createElement("button");
+            cancel_button.textContent = "✗";
+            cancel_button.classList.add("button_cancel"); // Add the class "button_cancel" to the button
+            cancel_button.addEventListener("click", () => {parentTr.style.display = ""; handleCancelButtonClick(tr);});
+            // Add event listener to the textbox for the Enter keypress event
+            textbox.addEventListener("keypress", () => {handleNumberTextboxKeyPress(event);});
+            textbox.setAttribute("id", "textbox_add");
+
+            // Append the nodes to the desired section
+            var tr = document.createElement("tr");
+            var tdStep = document.createElement("td");
+            var tdTextboxButton = document.createElement("td");
+            tdStep.appendChild(select);
+            tdTextboxButton.appendChild(textbox);
+            tdTextboxButton.appendChild(confirm_button);
+            tdTextboxButton.appendChild(cancel_button);
+            tr.appendChild(tdStep);
+            tr.appendChild(tdTextboxButton);
+
+            // Insert the new row after the parent tr
+            parentTr.insertAdjacentElement("afterend", tr);
+
+        }
+        //add_bool = true;
+        }
+
+    function remove_selected(element){
+        var operation_type = 'operation_delete';
+        let section_name = "";
+        // Event listener for the cancel button on the overlay
+        document.getElementById("span_cancel_button").addEventListener("click", eventListener = function() {
+            // Hide the overlay
+            document.getElementById("overlay").style.display = "none";
+            this.removeEventListener("click",eventListener);
+        });
+        // Get the parent <tr> element
+        var parentTr = element;
+
+        // Get the preceding <tr> element with class "tr_permanent"
+        var precedingTr = getPrecedingTrPermanent(parentTr);
+
+
+        if (element.id === "select_specific_meal") {
+            section_name = 'section_variation';
+            // Get the specific meal name from the select element's value
+            var specificMealName = element.value;
+
+            // Edit the textContent of the overlay
+            document.getElementById("p_overlay_text").textContent = 'You are about to DELETE the Meal Variation "' + specificMealName + '" and all of its contents';
+            //reset page
+            // Get the cancel buttons
+            //blur the select button
+        // Edit the textContent of the overlay
+        //document.getElementById("p_overlay_text").innerHTML = 'You are about to DELETE the row for the Ingredient: "<span class="inputTextbox">' + ingredientName + '</span>"';
+
+        document.getElementById("span_delete_button").addEventListener("click",eventListener= function() {
+            handleOverlayConfirmButtonClick(this, operation_type, section_name);
+            this.removeEventListener("click",eventListener);
+        });
+
+
+        } else if (precedingTr && precedingTr.id === 'tr_ingredients_required') {
+            section_name = 'section_ingredients_required';
+        // Get the ingredient name from the select in the parent td
+        var ingredientName = parentTr.getElementsByTagName("td")[0].textContent;
+        // Edit the textContent of the overlay
+        document.getElementById("p_overlay_text").innerHTML = 'You are about to DELETE the row for the Ingredient: "<span class="inputTextbox">' + ingredientName + '</span>"';
+
+        //event listener for the confirm button on the overlay
+        //document.getElementById("span_delete_button").addEventListener("click",eventListenerHandleCancelButtonClick);
+        document.getElementById("span_delete_button").addEventListener("click",eventListener= function() {
+            handleOverlayConfirmButtonClick(this, operation_type, section_name);
+            this.removeEventListener("click",eventListener);
+        });
+            // Rest of your code to add/remove elements
+        } else if (
+            precedingTr && precedingTr.id === 'tr_preparation' ||
+            precedingTr && precedingTr.id === 'tr_cooking' ||
+            precedingTr && precedingTr.id === 'tr_finishing'
+        ) {
+
+            // Get the step number and description
+            var stepNumber = parentTr.querySelector("td:first-child").textContent;
+            var description = parentTr.querySelector("td:nth-child(2)").textContent;
+
+            // Edit the textContent of the overlay
+            var section;
+            let section_name
+            if (precedingTr && precedingTr.id === 'tr_preparation') {
+                section = "Preparation";
+                section_name= "section_preparation_steps";
+            } else if (precedingTr && precedingTr.id === 'tr_cooking') {
+                section = "Cooking";
+                section_name= "section_cooking_steps";
+            } else if (precedingTr && precedingTr.id === 'tr_finishing') {
+                section = "Finishing";
+                section_name= "section_finishing_steps";
+            }
+            document.getElementById("p_overlay_text").innerHTML = 'You are about to DELETE the row for the ' + section + ' "<span class ="class_step_number">' + stepNumber + '</span>" with description "' + description + '"';
+
+        //event listener for the confirm button on the overlay
+        //document.getElementById("span_delete_button").addEventListener("click",eventListenerHandleCancelButtonClick);
+        document.getElementById("span_delete_button").addEventListener("click",eventListener= function() {
+            handleOverlayConfirmButtonClick(this, operation_type, section_name);
+            this.removeEventListener("click",eventListener);
+        });
+            // Rest of your code to add/remove elements
+        }
+        element.blur();
+        document.getElementById("overlay").style.display = "block";
+        //add_bool = true;
+    }
+    function delete_category(name){
+        //remove overlay
+        document.getElementById("overlay").style.display = "none";
+        //delete category && //refresh page
+        CUD('meal_types','delete',name,'');
+    }
+    </script>
+<main>
+    <div class = "menu_bar_header">
+        <table id="table_header">
+
+                <tr>
+                    
+                    <td id="td_a_pic">
+                        <a href="index.html" alt="Home_Web_page">
+                            <img id="img_header_logo"src="stylesheets\Fresno_State_Images\BellPepper.png" >
+                        </a>
+                    </td>
+                    <td id="td_a_h1">
+                        <a href="index.html" alt="Home_Web_page">
+                            <h1>    
+                                JuicyBell
+                            </h1>
+                        </a>
+                    </td>
+                    <td></td><td></td><td></td><td></td><td></td><td></td>
+                    <!--
+                    <td id = "td_person_meal_plan">
+                        <form>
+                            <div id = "div_personal_meal_plan_header">
+                                    <select id = "select_person" onchange="FetchMySql('table_header','person_info',value);">
+    
+                                    </select>
+                            </div>
+
+                        </form>
+                        <td></td><td></td><td></td><td></td><td></td><td></td>
+                    </td>
+                    -->
+                        <td></td><td></td><td></td><td></td><td></td><td></td>
+                    <!--
+                    <td id="td_search_bar">
+                        <form>
+                            <input id="input_search_bar" type="textbox">
+                            
+                        </form>
+                    </td><td><td></td><td></td><td></td><td></td>
+                    -->
+                    <td id="td_login_button">
+                        <a href= "login.html" alt = "Login_Web_Page">
+                            Login
+                        </a>
+                    </td>
+                    <td id="td_logout_button" hidden>
+                        <a href= "php/logout_mysql.php" alt = "Logout_Link">
+                            Logout
+                        </a>
+                    </td>
+                    <td id="td_register_button">
+                        <a href= "signup.html" alt = "Signup_Web_Page">
+                            Register
+                        </a>
+                    </td> 
+                    
+                </tr>
+        </table>
+    </div>
+    <div class="flex-container2">
+        <div id = "div_preparation_info" >
+            <div id = 'overlay'>
+                <div id = 'overlay_text'  class="class_preparation_table">
+                    <span id="span_overlay_menu_header">Are You Sure?</span>
+                    <p id="p_overlay_text">You are about to DELETE the New Meal Variation and all of its contents<span id = "span_name_overlay"></span></p>
+                    <span class="span_overlay_button" id = "span_delete_button">Delete</span>
+                    <span class="span_overlay_button" id = "span_cancel_button">Cancel</span>        
+                </div>
+            </div>
+            <table id = "table_preparation" class="class_preparation_table">
+                <tr class="class_tr_permanent" id="tr_category_menu_header" >
+                    <td id="category_menu_header" colspan="2">
+                        <span>Meal Info</span>
+                        </form>
+                        <span class="span_crud_button" id = "span_remove_button" onclick="dynamic_page_change(id,'span_crud_button','table_preparation');">Delete</span>
+                        <span class="span_crud_button" id = "span_edit_button" onclick="dynamic_page_change(id,'span_crud_button','table_preparation');">Edit</span>
+                        <span class="span_crud_button" id = "span_add_button" onclick="dynamic_page_change(id,'span_crud_button','table_preparation');">Add</span>
+                    </td>
+                </tr>
+                <tr  class="class_tr_permanent tr_empty_row_top">
+                    <td class="first_half">
+                        <label ><span class= "class_addable" id="span_specific_meal_menu_header">Variation:</span></label>           
+                    </td>
+                    <td class="first_half">                    
+                        <form id = 'form_specific_meal_select'                                                                                                                                                        >
+                            <select onclick="" name = select_specific_meal id = "select_specific_meal" class="editable_tr" onchange="FetchMySqlMealAll(value);">
+                                <!-- 
+                                <option id="Strawberry Banana Chocolate Oatmeal" >Strawberry Banana Chocolate Oatmeal</option>
+                                <option id="Cherry Berry Chocolate Oatmeal" >Cherry Berry Chocolate Oatmeal</option>
+                                <option id="Mango Strawberry Vanilla Oatmeal" >Mango Strawberry Vanilla Oatmeal</option>
+                                -->
+                            </select>
+                            </form>
+                    </td>
+                </tr>
+                <tr class="class_tr_permanent">
+                    <td class="first">
+                        <label><span>Servings:</span></label>
+                    </td>
+                    <td class="first">
+                        <form id = 'form_serving_input'>
+                            <input type = "number" min = "1" max = "100" maxlength = "3" value = "1"></input>
+                        </form>
+                    </td>
+                </tr>
+                <tr class="class_tr_permanent" id="tr_ingredients_required">
+                    <td id="td_ingredients_section"class="first class_addable">
+                        <span>Ingredients Required:</span>
+                    </td>
+                </tr>
+                <tr class="class_tr_permanent" id="tr_preparation">
+                    <td id="td_preparation_section" class="first class_addable">
+                        <span>Preparation:</span>
+                    </td>
+                </tr>
+                <tr class="class_tr_permanent" id="tr_cooking">
+                    <td id="td_cooking_section" class="first class_addable">
+                        <span>Cooking:</span>
+                    </td>
+                </tr>
+                <tr class="class_tr_permanent" id="tr_finishing">
+                    <td id="td_finishing_section" class="first class_addable">
+                        <span>Finishing:</span>
+                    </td>
+                </tr>
+                <tr class= "class_tr_permanent tr_empty_row_bottom">
+                    <td></td>
+                </tr>
+            </table>
+        </div>
+        <div id = "div_sidebar_info" >
+            <!-- <table id = "p_sidebar_header"><tr><td>Additional Information:</td></tr> -->
+            <table class = "class_dropdown_table class_first_dropdown_table" id="servings_cost_table">
+                <tr class = "class_dropdown_item" id = "row_servings_cost" onclick ="dropdown('servings_cost_table');">
+                    <td class="td_dropdown_header">
+                        <span>Servings Cost</span>
+                    </td>
+                    
+                    <td class="td_arrow">
+                        <img class="down_arrow" src="stylesheets\Fresno_State_Images\arrow.png">
+                    </td>
+                    
+                </tr>
+            </table>
+            <table class = "class_dropdown_table" id="product_cost_table">
+                <tr class = "class_dropdown_item" id = "row_product_cost" onclick ="dropdown('product_cost_table');">
+                    <td class="td_dropdown_header">
+                        <span>Product Cost</span>
+                    </td>
+                    
+                    <td class="td_arrow">
+                        <img class="down_arrow" src="stylesheets\Fresno_State_Images\arrow.png">
+                    </td>
+                    
+                </tr>
+            </table>
+            <table class = "class_dropdown_table" id="nutrition_facts_table">
+                <tr class = "class_dropdown_item" id = "row_nutrition_facts" onclick ="dropdown('nutrition_facts_table');">
+                    <td class="td_dropdown_header">
+                        <span>Nutrition Facts</span>
+                    </td>
+                    
+                    <td class="td_arrow">
+                        <img class="down_arrow" src="stylesheets\Fresno_State_Images\arrow.png">
+                    </td>
+                    
+                </tr>
+            </table>
+        </div>
+    </div>
+</main>
+    <footer class="menu_bar_footer">
+        <div class = "div_footer_text">
+            <span class = "span_footer_text">Website designed and developed by Weston Hawes &copy.</span>
+        </div>
+    </footer>
+</body>
+</html>

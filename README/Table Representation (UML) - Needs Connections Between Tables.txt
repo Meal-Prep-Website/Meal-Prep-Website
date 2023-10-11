@@ -1,0 +1,202 @@
++---------------------------+
+|          users            |
++---------------------------+
+| login        (PK)         |
+| hashed_password           |
++---------------------------+
+
++----------------------------+
+|        person_info         |
++----------------------------+
+| person_id (PK)             |
+| person_name                |
+| daily_caloric_intake       |
+| weight_goal                |
+| daily_protein_intake       |
+| percent_of_daily_calories_from_meal_prep  |
+| meal_plan_name (FK)        |
++----------------------------+
+
++---------------------------+
+|       food_allergens      |
++---------------------------+
+| allergen_name (PK)        |
++---------------------------+
+
++---------------------------+
+|  dietary_restrictions     |
++---------------------------+
+| restriction_name (PK)     |
++---------------------------+
+
++---------------------------------------+
+|       person_id_to_food_allergens     |
++---------------------------------------+
+|            person_id (CK)(FK)         |
+|            allergen_name (CK)(FK)     |
++---------------------------------------+
+
++---------------------------------------+
+|  person_id_to_dietary_restrictions    |
++---------------------------------------+
+|            person_id (CK)(FK)         |
+|         restriction_name (CK)(FK)     |
++---------------------------------------+
+
++---------------------------------------+
+|         person_id_to_weight           |
++---------------------------------------+
+|            person_id (CK)(FK)         |
+|            weight (CK)                |
+|            date (CK)                  |
++---------------------------------------+
+
++---------------------------+
+|         stores            |
++---------------------------+
+| store_name (PK)           |
++---------------------------+
+
++---------------------------+
+|     store_locations       |
++---------------------------+
+| store_location (PK)       |
+| store_name (FK)           |
++---------------------------+
+
++---------------------------+
+|          brands           |
++---------------------------+
+| brand_name (PK)           |
+| store_name (FK)           |
+| generic                   |
++---------------------------+
+
++----------------------------+
+|         meal_types         |
++----------------------------+
+| meal_type_name (PK)        |
++----------------------------+
+
++----------------------------+
+|        meal_plans          |
++----------------------------+
+| meal_plan_name       (CK)  |
+| meal_type_name    (FK)(CK) |
+| meal_type_amount           |
++----------------------------+
+
++----------------------------+
+|       generic_meals        |
++----------------------------+
+| generic_meal_name (PK)     |
+| meal_type_name    (FK)     |
++----------------------------+
+
++----------------------------+
+|       specific_meals       |
++----------------------------+
+| specific_meal_name (CK)    |
+| generic_meal_name  (CK)(FK)|
++----------------------------+
+
++-----------------------------------+
+|    specific_meal_ingredients      |
++-----------------------------------+
+| ingredient_name           (CK)(FK)|
+| specific_meal_name        (CK)(FK)|
+| generic_meal_name         (CK)(FK)|
+| grams_needed                      |
++-----------------------------------+
+
++-----------------------------------+
+| specific_meal_preparation_steps   |
++-----------------------------------+
+| preparation_step_number   (CK)    |
+| specific_meal_name        (CK)(FK)|
+| generic_meal_name         (CK)(FK)|
+| preparation_step_description      |
++-----------------------------------+
+
++--------------------------------+
+|  specific_meal_cooking_steps   |
++--------------------------------+
+| cooking_step_number    (CK)    |
+| specific_meal_name     (CK)(FK)|
+| generic_meal_name      (CK)(FK)|
+| cooking_step_description       |
++--------------------------------+
+
++-----------------------------------+
+|  specific_meal_finishing_steps    |
++-----------------------------------+
+| finishing_step_number  (CK)       |
+| specific_meal_name    (CK)(FK)    |
+| generic_meal_name      (CK)(FK)   |
+| finishing_step_description        |
++-----------------------------------+
+
++------------------------------+
+|         ingredients          |
++------------------------------+
+| ingredient_name  (PK)        |
++------------------------------+
+
++------------------------------+
+|   ingredient_substitutes     |
++------------------------------+
+| ingredient_name_one  (CK)(FK)|
+| ingredient_name_two  (CK)(FK)|
++------------------------------+
+
++-----------------------------------+
+|            products               |
++-----------------------------------+
+| product_id  (PK)                  |
+| store_name (FK)                   |
+| product_name                      |
+| price                             |
+| rating                            |
+| brand_name (FK)                   |
+| ingredient_name (FK)              |
+| size                              |
+| size_unit                         |
+| organic                           |
+| indivisible_bool                  |
++-----------------------------------+
+
++-----------------------------------+
+|      product_nutrition_facts      |
++-----------------------------------+
+| product_id (PK)(FK)               |
+| calories_per_serving              |
+| total_fat_per_serving             |
+| saturated_fat_per_serving         |
+| trans_fat_per_serving             |
+| cholesterol_per_serving           |
+| sodium_per_serving                |
+| total_carbs_per_serving           |
+| fiber_per_serving                 |
+| total_sugar_per_serving           |
+| added_sugar_per_serving           |
+| protein_per_serving               |
+| vitamin_d_per_serving             |
+| calcium_per_serving               |
+| iron_per_serving                  |
+| potassium_per_serving             |
++-----------------------------------+
+
++-----------------------------------+
+|      product_allergen_info        |
++-----------------------------------+
+| product_id (PK)(FK)               |
+| contains_milk_bool                |
+| contains_tree_nuts_bool           |
+| contains_peanuts_bool             |
+| contains_eggs_bool                |
+| contains_fish_bool                |
+| contains_shellfish_bool           |
+| contains_wheat_bool               |
+| contains_soy_bool                 |
+| contains_seasame_bool             |
++-----------------------------------+

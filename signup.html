@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Signup Page</title>
+        <link rel="icon" type="image/x-icon" href="stylesheets\Fresno_State_Images\BellPepper.ico">
+        <link rel="stylesheet" href="stylesheets/index.css">
+        <style>
+            /* Custom styles for the register page */
+            body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .register-container {
+            width: 350px;
+            background-color: #ffffff;
+            border-radius: 5px;
+            padding: 30px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .register-container h1 {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .form-group p.error-message {
+            color: #e53935;
+            font-size: 12px;
+            margin: 5px 0 0;
+        }
+
+        .form-group p.info-message {
+            color: #2196f3;
+            font-size: 12px;
+            margin: 5px 0 0;
+        }
+
+        .form-group button {
+            width: 100%;
+            padding: 10px;
+            background-color: #2196f3;
+            border: none;
+            border-radius: 3px;
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .form-group button:hover {
+            background-color: #1976d2;
+        }
+
+        .form-group p.login-link {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .form-group p.login-link a {
+            color: #2196f3;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .form-group p.login-link a:hover {
+            color: #1976d2;
+        }
+        .page_link{
+            text-decoration: underline;
+        }
+        </style>
+    </head>
+    <body>
+        <div class="register-container">
+            <h1>Sign Up</h1>
+            <form>
+                <div class="form-group">
+                    <label for="username">Username:<sup>*</sup></label>
+                    <input id="username" type="text" name="username" required>
+                    <p id="username_err" class="error-message"></p>
+                </div>
+                <div class="form-group">
+                    <label for="current-password">Password:<sup>*</sup></label>
+                    <input id="current-password" type="password" name="current-password" required>
+                    <p id="password_err" class="error-message"></p>
+                </div>
+                <div class="form-group"> 
+                    <label for="confirm_password">Confirm Password:<sup>*</sup></label>
+                    <input id="confirm_password" type="password" name="confirm_password" required>
+                    <p id="confirm_password_err" class="error-message"></p>
+                </div>
+                <div class="form-group">
+                    <button onclick="spa_post()" type="button" value="Submit">Sign In</button>
+                </div>
+                <p class="form-group login-link">Already have an account? <a class="page_link" href="login.html">Login</a>.</p>
+            </form>
+        </div>
+        <script>
+            function spa_post(){
+                let user = document.getElementById("username").value;
+                let pass = document.getElementById("current-password").value;
+                let conf_pass = document.getElementById("confirm_password").value;
+                document.getElementById("username_err").textContent='';
+                document.getElementById("password_err").textContent='';
+                document.getElementById("confirm_password_err").textContent='';
+                arr = {username:user, password:pass, confirm_password:conf_pass};
+
+                //arr = '{\'username\':\''+username+'\'},{password:\''+password+'\'}';
+                
+                //Create an XMLHttpRequest object
+                var xhttp = new XMLHttpRequest();
+                console.log(JSON.stringify(arr));
+                //Define a callback function (used for async)
+                xhttp.onload=function(){
+                    //process data
+                    console.log(this.responseText);
+                    //console.log(JSON.parse(this.responseText));
+                    console.log(this.responseText);
+                    
+                    let err = this.responseText;
+                        err = err.replace("\"\"", "*");
+                        err = err.replace("\"", "");
+                        err = err.replace("\"", "");
+                        myArray = err.split("*");
+                        console.log(myArray);
+                        myArray.forEach(element => {
+                            if(element.includes("Please enter a username.")||element.includes("This username is already taken.")){
+                                document.getElementById('username_err').innerHTML =element;
+                            }
+                            else if(element.includes("Please enter a password.")||element.includes("Password must have atleast 6 characters.")){
+                                document.getElementById('password_err').innerHTML = element;
+                            }
+                            else if(element.includes('Please confirm password.')||element.includes('Password did not match.')){
+                                document.getElementById('confirm_password_err').innerHTML = element;
+                            }
+                            else{
+                                document.getElementById('username_err').innerHTML =element;
+                            }
+                        });
+                        /*
+                        if (myArray[0].includes('username')){
+                        document.getElementById('username_err').innerHTML =myArray[0];
+
+                        }
+                        else if (myArray[1].includes("password")&&!myArray[1].includes("match"))                                                                                                                                                                                                                                                                                                                     {
+                            document.getElementById('password_err').innerHTML = myArray[1];
+
+                        }
+                        else{
+                            document.getElementById('confirm_password_err').innerHTML = myArray[0];   
+                        }
+                        err = '';
+                    }
+                    
+                    if (err.includes('username')){
+                        document.getElementById('username_err').innerHTML =err;
+
+                    }
+                    else if (err.includes("password")&&!err.includes("match"))                                                                                                                                                                                                                                                                                                                     {
+                        document.getElementById('password_err').innerHTML = err;
+
+                    }
+                    else if (err.includes("Password did not match.")){
+                        document.getElementById('confirm_password_err').innerHTML = err;
+                    }
+                    else{
+                        document.getElementById('username_err').innerHTML =err;
+
+                    }
+                    */
+                
+                }
+                // open object
+                xhttp.open("POST","php/register_mysql.php", true);
+                //send request
+                xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                xhttp.send("username="+user+"&current-password="+pass+"&confirm_password="+conf_pass,true);
+
+            }
+            // Add event listeners for the Enter key press on the input fields
+            document.getElementById("username").addEventListener("keypress", function(event) {
+                if (event.keyCode === 13) { // Check if Enter key is pressed
+                    spa_post(); // Call the function to sign in
+                    event.preventDefault();
+                }
+            });
+            document.getElementById("current-password").addEventListener("keypress", function(event) {
+                if (event.keyCode === 13) { // Check if Enter key is pressed
+                    spa_post(); // Call the function to sign in
+                }
+            });
+            document.getElementById("confirm_password").addEventListener("keypress", function(event) {
+                if (event.keyCode === 13) { // Check if Enter key is pressed
+                    spa_post(); // Call the function to sign in
+                }
+            });
+        </script>
+
+</body>
+</html>

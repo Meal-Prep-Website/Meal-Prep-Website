@@ -1,0 +1,361 @@
+/*START --------------------------------------------- index.html*/
+
+/*START --- General formatting*/
+*{  font-family: "Inter", sans-serif;}
+table {margin-left: auto;margin-right: auto;border-spacing: 0px;}
+h1{font-size: 26px;text-align: bottom;font-weight:bolder;color:black;}
+body{background-color: #FAFAFA;position:relative;background: url("Fresno_state_Images/vegetables_background.svg");background-repeat: no-repeat;background-attachment:fixed;background-size:cover;margin:0px;}
+a{color: black;text-decoration: none;font-size: 22px;  font-family: "Inter", sans-serif;}
+.flex-container{width:75%;margin-right:auto; margin-left:auto;}
+main{  margin-bottom: calc(10.75px + 39.6px);}
+/*END --- General formatting*/
+
+/*START --- Menu Bar at top of page*/
+#img_header_logo{width:22.75px; height:26px;}
+/*#select_person{font-size:15px;}*/
+.span_meal_type_clickable_button{font-size:16px;color:green;cursor:pointer; padding: 3.75px 7.5px; background-color: #f2f2f2; border: solid 1px green; }
+.span_meal_type_non_clickable_button{font-size:16px;color:#d9d9d9;cursor:pointer; padding: 3.75px 7.5px; background-color: #ededed; border: solid 1px #d9d9d9;  }
+.span_meal_type_clicked_button{font-size:16px;color:red;cursor:pointer; padding: 3.75px 7.5px; background-color: #f2f2f2; border: solid 1px red; }
+#div_personal_meal_plan_header{background-color: #d9d9d9;padding:3.75px; left:50%; position: absolute;text-align: center;transform: translate(-50%,-50%);-ms-transform: translate(-50%,-50%); }
+#td_search_bar{width:60%; }
+#input_search_bar{width:100%;font-size: 18px; background-image:url("Fresno_state_Images/Search_Icon.png"); background-repeat: no-repeat; padding: 7.5px;padding-left:33px;background-size: 18px 18px;background-position: 7.5px 50%;}
+#img_all{width: 38px; height:40px;}
+#img_breakfasts{width:65.4px; height:40px;}
+#img_entrees{width:57.6px; height: 40px;}
+#img_desserts{width:45px; height: 40px;}
+#table_header{width: 90%; border-collapse: collapse;  padding-left:0px; padding-right:0px;  /*margin-top: 22.5px;*/}
+.menu_bar_header{z-index: 1; border-bottom: 1px solid black; width:100%; background-color: #f2f2f2;position: sticky; top:0; left:0; overflow: hidden; margin: 0px; padding: 10px 0px; box-shadow: 0px 0px 4px #939799;}
+table#table_header tr td:empty {width: 10%;}
+table#table_header tr td{padding-top: 0px; padding-bottom: 0px;}
+#table_header tr {line-height: 0px;}
+#td_a_h1 {padding-bottom: 0px;}
+img{width: 100%;height: 100%;}
+#td_login_button {font-size: 18px; font-weight: bold;/*background: rgb(116, 178, 23);*/padding-right: 7.5px;padding-left: 7.5px;border:0px;border-right:1px solid black;}
+#td_login_button a:hover {text-decoration: underline;}
+#td_register_button{font-size: 18px;font-weight: bold;padding-right: 7.5px;padding-left: 7.5px;/*background-color: rgba(229, 44, 26, 1);*/border:0px;border-left:1px solid black;}
+#td_register_button a:hover {text-decoration: underline;}
+#td_logout_button {font-size: 18px;font-weight: bold;padding-right: 7.5px;padding-left: 7.5px;/*background-color:rgba(229, 44, 26, 1);*/border:0px;}
+#td_logout_button a:hover {text-decoration: underline;}
+#td_logout_button a{color: black;}
+#td_login_button a{color: black;}
+#td_register_button a{color: black;}
+/*END --- Menu Bar at top of page*/
+
+/*START --- Meal Type Menu Bar*/
+#div_meal_type_menu{background-color: #f2f2f2; padding:7.5px;margin-top: 22.5px; border :solid 1px black; }
+#table_meal_type_menu{width: 100%;border-collapse: collapse;}
+#table_meal_type_menu td{padding-top: 15px;padding-bottom: 15px;font-size: 22px; }
+.td_meal_type_menu_item{display: table-cell;text-align:center;vertical-align: middle;position: relative;height: 100%;width: 100%;font-weight: bold; border-right: solid 1px black;}
+td#td_desserts_button{border:0px;}
+td#td_all_button,td#td_desserts_button,td#td_breakfasts_button,td#td_entrees_button{width: 20%;}
+.td_meal_type_menu_item:hover{cursor: pointer;text-decoration: underline;background-color:#ededed;}
+/*END --- Meal Type Menu Bar*/
+
+/*START --- Category Menu List*/
+#span_category_menu_header{left:50%;position: absolute;text-align: center;transform: translate(-50%,0%);-ms-transform: translate(-50%,0%); font-size: 100%;}
+#span_specific_meal_menu_header {font-size:100%;}
+.span_crud_button{float:right;}
+#span_add_button{color:green;cursor:pointer; padding:0 7.5px; background-color: #f2f2f2; border: solid 1px green;  margin-right: 7.5px;}
+/*#span_add_button{color:white;cursor:pointer; padding:0 7.5px; background-color: green; border: solid 1px green;  margin-right: 15px;}*/
+#span_edit_button{color:rgb(224, 146, 2);cursor:pointer; padding:0 7.5px; background-color: #f2f2f2; border: solid 1px rgb(224, 146, 2);  margin-right: 7.5px;}
+/*#span_edit_button{color:white;cursor:pointer; padding:0 7.5px; background-color: rgb(224, 146, 2); border: solid 1px white;  margin-right: 15px;}*/
+#span_remove_button{color:red;cursor:pointer;  background-color: #f2f2f2; border: solid 1px red; padding:0 7.5px;}
+/*#span_remove_button{color:white;cursor:pointer; padding:0 7.5px; background-color: red; border: solid 1px white; margin-right: 15px;}*/
+#span_add_button:hover{text-decoration: underline;background-color:#ededed;}
+#span_edit_button:hover{text-decoration: underline;background-color:#ededed;}
+#span_remove_button:hover{text-decoration: underline;background-color:#ededed;}
+.td_category_menu_item{display: table-cell;text-align:center;vertical-align: middle;position: relative;height: 100%;width: 100%;font-weight: bold; border-right: solid 1px black;}
+.td_category_menu_item{border:0px;  /*border-top: solid 1px black;*/}
+#div_category_menu{border: solid 1px black;margin-top: 22.5px;padding:7.5px;background-color: #f2f2f2;}
+#category_menu{width: 100%;margin-left: auto;margin-right: auto;border-collapse: collapse;background-color: #f2f2f2;}
+#category_menu_header{/*border-bottom: solid 1px black;*/background-color: #d9d9d9;padding: 7.5px 18.25px; font-weight: bold;font-size: 22px;}
+.td_category_menu_item:hover{/*border: solid 1px black;*/ text-decoration: underline;cursor: pointer;/*background-color: #d9d9d9;*/}
+.td_category_menu_item{padding-top: 7.5px;padding-bottom: 7.5px;font-size: 22px; width: 10px;}
+.tr_category_menu_item_remove:hover{color:red;cursor:pointer; text-decoration: underline;}
+.td_category_menu_item_remove:hover{color:red;cursor:pointer; text-decoration: underline;}
+.tr_category_menu_item_edit:hover{color:rgb(224, 146, 2); cursor:pointer; text-decoration: underline;}
+.td_category_menu_item_edit:hover{color:rgb(224, 146, 2); cursor:pointer; text-decoration: underline;}
+.tr_category_menu_item_add:hover{color:green; cursor:pointer; text-decoration: underline;}
+.td_category_menu_item_add:hover{color:green; cursor:pointer; text-decoration: underline;}
+.first{padding-top: 15px;}
+.first_half{padding-top: 7.5px;}
+.last{padding-bottom: 15px;}
+#form_specific_meal_select{ display: inline;float:left;}
+#select_specific_meal{ padding: 3.75px 7.5px; background-color: #f2f2f2; display: inline; font-size: 80%;}
+.class_tr_permanent{font-weight:bolder;}
+.button_confirm,
+.button_cancel {cursor: pointer;}
+.button_confirm:hover {color: green;}
+.button_cancel:hover {color: red;}
+input,select{padding: 1.88px 7.5px; background-color: #f2f2f2; display: inline; font-size: 80%;}
+/*END --- Category Menu List*/
+/*START --- Autocomplete Dropdwon ingredient selector*/
+/* Container for the dropdown list */
+#error-message{color:red; font-size:80%; margin-top: 4px; margin-bottom: 4px;}
+.autocomplete-container {
+	position: relative;
+	display: inline-block;
+  }
+  tr td:nth-child(2) {
+	vertical-align: top;
+  }
+  /* Text input field */
+  .autocomplete-input {
+	padding: 3.75px 7.5px; background-color: #FAFAFA; display: inline; font-size: 80%; width: 80%;
+  }
+  
+  /* Dropdown list */
+  .autocomplete-dropdown {
+	position: absolute;
+	width: 80%;
+	max-height: 100px;
+	overflow-y: auto;
+	background-color: #f9f9f9;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	padding: 5px;
+	z-index: 1;
+  }
+  
+  /* Dropdown list items */
+  .dropdown-option {
+	/*padding: 8px 12px;*/
+	cursor: pointer;
+  }
+  
+  /* Highlighted item */
+  .dropdown-option:hover {
+	background-color: #ededed;
+  }
+  
+  /* Scrollbar for the dropdown list */
+  .autocomplete-dropdown::-webkit-scrollbar {
+	width: 8px;
+  }
+  
+  .autocomplete-dropdown::-webkit-scrollbar-track {
+	background: #f1f1f1;
+  }
+  
+  .autocomplete-dropdown::-webkit-scrollbar-thumb {
+	background: #888;
+  }
+  
+  .autocomplete-dropdown::-webkit-scrollbar-thumb:hover {
+	background: #555;
+  }
+
+/*END --- Autocomplete Dropdown ingredient selector*/
+/*START --- Delete overlay*/
+#overlay {
+	position: fixed; /* Sit on top of the page content */
+	display: none; /* Hidden by default */
+	width: 100%; /* Full width (cover the whole page) */
+	height: 100%; /* Full height (cover the whole page) */
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(0,0,0,0.5); /* Black background with opacity */
+	z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
+	 /* Add a pointer on hover */
+}
+#overlay_text{
+	width:40%;
+	position: absolute;
+	top: 35%;
+	left: 50%;
+	/*font-size: 50px;*/
+	color: black;
+	transform: translate(-50%,0%);
+	-ms-transform: translate(-50%,0%);
+	background-color: #f2f2f2;
+	padding-bottom: 15px;
+}
+#span_cancel_button{font-size:22px;color:green;cursor:pointer; padding:0 7.5px; background-color: #f2f2f2; border: solid 1px green;  margin-right: 20%;float:right;}
+#span_delete_button{font-size:22px;color:red;cursor:pointer; padding:0 7.5px; background-color: #f2f2f2; border: solid 1px red; margin-left: 20%;float:left;}
+#span_cancel_button:hover{text-decoration: underline;background-color:#ededed;}
+#span_delete_button:hover{text-decoration: underline;background-color:#ededed;}
+#p_overlay_text{text-align:center;font-size:22px;/*background-color: #d9d9d9;*/margin-left:20%; margin-right:20%;}
+#span_name_overlay{font-weight:bold;}
+#span_overlay_menu_header{padding:15px 0px;flex-direction:column;display:flex;width: 100%;text-align: center;background-color: #d9d9d9;font-size:26px;font-weight:bolder;}
+/*END --- Delete overlay*/
+
+
+
+/*START --- Page adjustments*/
+/*START --- Small screen page adjustments*/
+@media (max-width:950px){
+	#img_header_logo{width:17px; height:19.5px;}
+	#input_search_bar{font-size: 13.5px; padding: 5.6px;padding-left:24.75px;background-size: 13.5px 13.5px;background-position: 5.6px 50%;}
+	#img_all{width: 28.5px; height:30px;}
+	#img_breakfasts{width:49px; height:30px;}
+	#img_entrees{width:43.2px; height: 30px;}
+	#img_desserts{width:33.75px; height: 30px;}
+	h1{font-size: 19.5px;}
+	#td_login_button,#td_register_button,#td_logout_button{font-size: 15.75px; padding-left:12.75px; padding-right: 12.75px;}
+	#td_login_button{border-right:1.5px solid black;}
+	#td_register_button{border-left:1.5px solid black;}
+	#div_meal_type_menu{background-color: #f2f2f2; padding:5.6px;margin-top: 16.88px; border :solid 1px black; }
+	#table_meal_type_menu td{font-size: 16.88px; padding-top: 11.25px; padding-bottom: 11.25px;}
+	#div_category_menu{border: solid 1px black;margin-top: 16.88px;padding:5.6px;background-color: #f2f2f2;}
+	#category_menu_header{font-size: 16.5px; padding-top: 11.25px; padding-bottom: 11.25px;}
+	.td_category_menu_item{font-size: 16.5px; padding-top: 5.6px; padding-bottom: 5.6px;}
+	.first{padding-top:11.25px;}
+	.last{padding-bottom:11.25px;}
+	a{font-size: 16.5px;}
+}
+/*END --- Small screen page adjustments*/
+/*START --- Small screen page adjustments*/
+@media (max-width:450px){
+	#img_header_logo{width:11.375px; height:13px;}
+	#input_search_bar{font-size: 9px; padding: 3.75px;padding-left:16.5px;background-size: 9px 9px;background-position: 3.75px 50%;}
+	#img_all{width: 19px; height:20px;}
+	#img_breakfasts{width:32.7px; height:20px;}
+	#img_entrees{width:28.8px; height: 20px;}
+	#img_desserts{width:22.5px; height: 20px;}
+	h1{font-size: 13px;}
+	#td_login_button,#td_register_button,#td_logout_button{font-size: 10.5px; padding-left:8.5px; padding-right: 8.5px;}
+	#td_login_button{border-right:1px solid black;}
+	#td_register_button{border-left:1px solid black;}
+	#div_meal_type_menu{background-color: #f2f2f2; padding:3.75px;margin-top: 11.25px; border :solid .5px black; }
+	#table_meal_type_menu td{font-size: 11.25px; padding-top: 7.5px; padding-bottom: 7.5px;}
+	#div_category_menu{border: solid .5px black;margin-top: 11.25px;padding:3.75px;background-color: #f2f2f2;}
+	#category_menu_header{font-size: 11px; padding-top: 7.5px; padding-bottom: 7.5px;}
+	.td_category_menu_item{font-size: 11px; padding-top: 3.75px; padding-bottom: 3.75px;}
+	.first{padding-top:7.5px;}
+	.last{padding-bottom:7.5px;}
+	a{font-size: 11px;}
+}
+/*END --- Small screen page adjustments*/
+/*END --- page adjustments*/
+
+
+
+/*END --------------------------------------------- index.html*/
+
+
+
+
+/*START --------------------------------------------- meal.html*/
+
+.flex-container2{width:75%;margin-right:auto; margin-left:auto;display:flex;justify-content: center;}
+
+/*START --- Preparation Info*/ 
+#person_menu_header{/*border-bottom: solid 1px black;*/background-color: #d9d9d9;padding-top: 10.75px;padding-bottom: 10.75px; padding-right:10.75px;padding-left:10.75px;font-weight: bold;font-size: 16px;}
+#personal_info_menu_header{/*border-bottom: solid 1px black;*/background-color: #e9e9e9;padding-top: 10.75px;padding-bottom: 10.75px; padding-right:10.75px;padding-left:10.75px;font-weight: bold;font-size: 16px;}
+#table_preparation{width: 98%; /*flex: 45%;*/ }
+
+/*START --- Preparation Info*/
+
+/*START --- Dropdown Tables*/
+#p_sidebar_header{width: 100%;border: solid 1px black;margin-top: 22.5px;padding:7.5px;background-color: #d9d9d9;}
+#div_sidebar_info{width:25%;/*flex:25%;*/margin-right:0px; float:right;}
+.class_dropdown_table{width: 100%; border: solid 1px black;margin-top: 10px;/*padding:7.5px;*/background-color: #f2f2f2;}
+.up_arrow{width:18px; height: 18px; float:right;vertical-align:top;}
+.class_dropdown_item{cursor: pointer;border: 1px solid black;background-color: #d9d9d9;}
+.down_arrow{transform: rotate(180deg);width:18px; height: 18px;float:right; vertical-align:top;}
+.td_arrow{vertical-align:top; padding-right:7.5px;padding:10.75px;}
+.td_dropdown_header{padding:10.75px;}
+
+.td_dropdown_header,.td_arrow{/*border-bottom: 1px solid black;padding-bottom:7.5px;*/font-weight: bold;}
+
+/*START --- Drowpdown Tables*/
+
+/*END --------------------------------------------- meal.html*/
+
+/*START --------------------------------------------- PMP.html*/
+
+.flex-container2{width:75%;margin-right:auto; margin-left:auto;display:flex;justify-content: center;}
+
+/*START --- Person INFO*/
+
+#table_people{width: 98%; /*flex: 45%;*/}
+#div_preparation_info{width: 74%; /*flex: 45%;*/ float: left;}
+.class_preparation_table{margin-top:7.5px; border-left: solid 1px black;border-bottom: solid 1px black;border-right: solid 1px black; border-top: solid 1px black;/*padding:7.5px; padding-bottom:7.5px;*/background-color: #f2f2f2;}
+.class_preparation_table td:not(#category_menu_header):not(#person_menu_header){padding-left:18.25px; padding-right:18.25px;}
+#span_person{float: left; padding-left: 7.5px;}
+.class_td_permanent{padding-left:7.5px;}
+#tr_dietary_restrictions{margin-top:7.5px;}
+.tr_table_people_item_edit td{padding-left:7.5px;}
+.tr_table_people_item_edit:hover{color:rgb(224, 146, 2); cursor:pointer;}
+.tr_empty_row_top td{padding-top:10.75px;}
+.tr_empty_row_bottom td{padding-bottom:10.75px;}
+
+/*START --- Preparation INFO*/
+
+/*START --- Dropdown Tables*/
+#p_sidebar_header{width: 100%;border: solid 1px black;margin-top: 22.5px;padding:7.5px;background-color: #d9d9d9;}
+#div_sidebar_info{width:40%;/*flex:25%;*/margin-right:0px; float:right;}
+.class_dropdown_table{width: 100%; border: solid 1px black;margin-top: 10px;/*padding:7.5px;*/background-color: #f2f2f2;}
+.up_arrow{width:18px; height: 18px; float:right;vertical-align:top;}
+.class_dropdown_item{cursor: pointer;border: 1px solid black;background-color: #d9d9d9;}
+.down_arrow{transform: rotate(180deg);width:18px; height: 18px;float:right; vertical-align:top;}
+.td_arrow{vertical-align:top;}
+.td_dropdown_header{padding-right:7.5px;}
+
+.td_dropdown_header,.td_arrow{/*border-bottom: 1px solid black;padding-bottom:7.5px;*/font-weight: bold;}
+
+/*START --- Drowpdown Tables*/
+.tr_dropdown_top td{padding-top:10.75px;}
+.tr_dropdown_bottom td{padding-bottom:10.75px;}
+/*START --- Meal Plan INFO*/
+#p_sidebar_header{width: 100%;border: solid 1px black;margin-top: 22.5px;padding:7.5px;background-color: #d9d9d9;}
+#div_sidebar_info{width:25%;/*flex:25%;*/margin-right:0px; float:right;}
+.class_dropdown_table{width: 100%; border: solid 1px black;margin-top: 7.5px;/*padding:7.5px;*/background-color: #f2f2f2;}
+/*.class_first_dropdown_table{margin-top: 16.88px;}*/
+.class_dropdown_table td:not(.category_menu_header){ padding-left:10.75px;padding-right:10.75px;}
+.up_arrow{width:18px; height: 18px; float:right;vertical-align:top;}
+.class_dropdown_item{cursor: pointer;border: 1px solid black;background-color: #d9d9d9;}
+.down_arrow{transform: rotate(180deg);width:18px; height: 18px;float:right; vertical-align:top;}
+.td_arrow{vertical-align:top;}
+.td_dropdown_header{padding-right:7.5px;}
+
+.td_dropdown_header,.td_arrow{/*border-bottom: 1px solid black;padding-bottom:7.5px;*/font-weight: bold;}
+
+.class_td_permanent{font-weight: bolder;}
+/*START --- Meal Plan INFO*/
+
+
+/*START --- Meal Plan Table*/
+#table_meal_plan_header{margin-top:7.5px;width: 98%; border-top: solid 1px black;  border-left: solid 1px black;  border-right: solid 1px black;}
+#td_meal_plan_menu_header{  background-color: #D9D9D9;padding: 10.75px;font-weight: bold;font-size: 14px;margin-top: 7.5px;}
+.td_meal_type_subtable{width: 50%; padding: 7.5px;border: solid 1px #c9c9c9;background-color: #E9E9E9;}
+.span_meal_plan_subtable_header{padding-left: 7.5px;font-weight:bold;}
+
+#table_meal_plan{ border-collapse: separate; border-spacing: 7.5px; background-color: #f2f2f2;}
+#span_meal_type_table_header{padding-left:7.5px; font-weight:550px;font-size: 16px;}
+.table_meal_type_subtable{margin:0px;}
+#span_style_selector{float:right;padding-right: 7.5px; }
+
+.table_meal_plan_option{border: solid 1px #999999; background-color:#f9f9f9; padding: 10.75px; margin-top:7.5px; width:100%;}
+.td_meal_plan_option_header{font-size:14px; font-weight:bold; padding-left:10.75px;padding-top:3.25px; padding-bottom:10.75px;}
+
+
+.td_meal_plan_subtable_header{padding:7.5px; padding-top:0px;padding-bottom:0px;}
+.td_meal_plan_option_dropdown_first{border-top: solid 1px #b9b9b9;}
+.td_meal_plan_option_dropdown{background-color: #d9d9d9; padding:7.5px; border-bottom: solid 1px #b9b9b9; border-left: solid 1px #b9b9b9; border-right: solid 1px #b9b9b9;color:#090909;}
+.span_meal_plan_option_dropdown_header{font-size:14px;}
+.span_meal_plan_option_dropdown_header_value{font-weight:bold;}
+
+.td_meal_plan_option_add_area{ height: 103px; border: solid 1px #d9d9d9; background-color: #e9e9e9; text-align: center;}
+.table_meal_plan_option_add_area{ color: #898989; background-color: #f2f2f2; border: solid 1px #c9c9c9}
+
+
+.span_meal_plan_option_header_value{vertical-align:middle;}
+.span_meal_plan_option_dropdown_svg{float:right; /*padding-right:7.5px;*/padding-left:18.25px;}
+.span_meal_plan_option_dropdown_svg:hover{cursor:pointer;}
+.span_meal_plan_option_dropdown_svg:hover svg path{ fill: #f2f2f2; }
+.dropdown_clicked svg path{fill: #e9e9e9;}
+.span_meal_plan_option_dot_svg {float:right; padding-right: 10.75px;   display: table-cell;}
+.span_meal_plan_option_edit{float:right; font-weight: 550; color:#898989; font-size:14px; padding-top: 2px;}
+.table_meal_type_subtable{width:100%;}
+/*#div_preparation_info{width:74%;float: left;}*/
+.class_meal_plan_table{width: 98%; border-bottom: solid 1px black;  border-left: solid 1px black;  border-right: solid 1px black;background-color: #f2f2f2;}
+/*END --- Meal Plan Table*/
+
+/*Start --- Menu Bar Footer*/
+.menu_bar_footer{position:fixed;left:0; bottom:0;border-bottom: 1px solid black; width:100%; background-color: #f2f2f2; padding: 10px 0px; box-shadow: 0px 0px 4px #939799;}
+.div_footer_text{text-align:center;}
+/*END --- Menu Bar Footer*/
+/*END --------------------------------------------- PMP.html*/

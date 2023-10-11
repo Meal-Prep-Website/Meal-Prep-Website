@@ -1,0 +1,1566 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Page</title>
+	<link rel="icon" type="image/x-icon" href = "stylesheets\Fresno_State_Images\BellPepper.ico">
+    <link rel = "stylesheet" href ="stylesheets/index.css">
+
+</head>
+<body onload="login_check(); FetchMySql('table_people','person_info',document.getElementById('select_person').value);">
+
+    <script>
+        var by = 'times_clicked';
+        var order = 'desc';
+        var attempts = 0;
+        var maxAttempts = 3;
+        var myObj;
+        var myObjLength = 0;
+        function login_check(){
+            var xhttpphp1 = new XMLHttpRequest();
+            xhttpphp1.onload = function(){
+            console.log(this.responseText);
+            let myObj = JSON.parse(this.responseText);
+
+                if (JSON.parse(this.responseText)=='You must be logged in to see your own stats.'){
+                    document.getElementById('td_logout_button').setAttribute('hidden', 'true');
+                    document.getElementById('td_login_button').removeAttribute('hidden');
+                    document.getElementById('td_register_button').removeAttribute('hidden');
+
+                }
+                else{
+                    document.getElementById('td_logout_button').removeAttribute('hidden');
+                    document.getElementById('td_login_button').setAttribute('hidden', 'true');
+                    document.getElementById('td_register_button').setAttribute('hidden', 'true');
+
+                }
+            }
+            xhttpphp1.open("GET","php/session.php?",true);
+            xhttpphp1.send();
+        }
+
+        function FetchMySql(injected_table_name,sql_table_name, person_id){
+            console.log(sql_table_name);
+            let p = 0;
+            let temp= document.getElementById(injected_table_name);
+
+            
+                            
+                //loading in php
+                var xhttpphp = new XMLHttpRequest();
+                xhttpphp.onload = function(){
+                    console.log(this.responseText);
+                        let class_name= ' ';
+                        let myObj = JSON.parse(this.responseText);
+                        let myObjLength = 0;
+                        let list_arr = [];
+                        let insert_table = ' ';
+                        console.log(myObj);
+                        /*
+                        if (sql_table_name == 'specific_meal_table'){
+                        
+                            
+                            //counts how many elements in list
+                            myObjLength = ((myObj[0].ingredient_list).match(/,/g) || []).length + 1;
+                            list_arr = (myObj[0].ingredient_list).split(',');
+                            class_name= 'td_dropdown_menu_item';
+                            insert_table = injected_table_name;
+                        }
+                        */
+
+                        
+                        if(document.getElementById('select_person').value==''){
+                            
+                            //gets name
+                            let c = document.createElement('td');
+                            let s = document.createElement('span');
+                            p = 0;
+                            Array.prototype.slice.call(myObj).forEach(function(obj){
+                                let o = document.createElement('option');
+                                o.setAttribute('id','person_id = ' + obj.person_id);
+                                o.innerHTML = obj.person_name
+                                temp.getElementsByTagName('tr')[0].getElementsByTagName('select')[0].appendChild(o);
+                                p++;
+                            })
+                            //c.appendChild(s);
+                            //temp.getElementsByTagName('tr')[0].appendChild(c);
+                        }
+                        else{
+                            /*
+                            p = 0;
+                            //adds all info needed
+                            //get last char of string to match to obj
+                            let select_temp = document.getElementById('select_person');
+                            Array.prototype.slice.call(select_temp.getElementsByTagName('option')).forEach(function(op){
+                                if(op.textContent == select_temp.value){
+                                    i = p;
+                                } 
+                                p++;
+                            })
+                            console.log(i);
+                            */
+                            //clears category list upon category selection
+                            let p=-1;
+                            Array.prototype.slice.call(temp.getElementsByTagName('tr')).forEach(
+                                function(item) {
+                                    //this is only used on the person table
+                                    /*
+                                    if (p == 0){
+                                        Array.prototype.slice.call(item.getElementsByTagName('option')).forEach(function(op){op.remove();});
+                                    }
+                                    */
+                                    if (p>0){
+
+                                        item.getElementsByTagName('td')[1].innerHTML = '';
+                                    }
+                                    p++;
+                                    // or item.parentNode.removeChild(item); for older browsers (Edge-)
+                                });
+
+                                console.log(myObjLength);
+                                p = -1;
+                                Array.prototype.slice.call(temp.getElementsByTagName('tr')).forEach(
+                                    function(item) {
+                                        if (p>0){
+                                            let c = item.getElementsByTagName('td')[1];
+                                            let s = document.createElement('span');
+                                            switch(p){     
+                                                case 1:
+                                                    s.innerHTML = myObj[0].restriction_names;
+                                                    break;
+                                                case 2:
+                                                    s.innerHTML = Math.round(myObj[0].weight);
+                                                    break;
+                                                case 3:
+                                                    s.innerHTML = Math.round(myObj[0].daily_caloric_intake);
+                                                    break;
+                                                case 4:
+                                                    s.innerHTML = Math.round(myObj[0].percent_of_daily_calories_from_meal_prep);
+                                                    break;
+                                                case 5:
+                                                    s.innerHTML = myObj[0].formatted_meal_plan;
+                                                    break;
+                                                case 6:
+                                                    s.innerHTML = myObj[0].prep_cycle;
+                                                    break;
+                                                case 7:
+                                                    s.innerHTML = Math.round(myObj[0].daily_protein_intake);
+                                                    break;
+                                                case 8:
+                                                    s.innerHTML = Math.round(myObj[0].weight_goal);
+                                                    break;
+                                                case 9:
+                                                    s.innerHTML = myObj[0].allergen_names;
+                                                    break;
+                                                default:
+                                                    console.log('broken');
+                                            }
+                                            c.appendChild(s)
+                                            
+                                        }
+                                        p++;
+                                    });
+                            //new and separated dynamic update for meal plan cycle
+                            document.getElementById('span_prep_cycle_meal_plan_header').innerHTML = "("+myObj[0].prep_cycle + " Day Cycle)";
+                            }
+                    
+                }
+                console.log(name);
+                console.log(document.getElementById('select_person').value);
+                if (document.getElementById('select_person').value == '' && attempts < maxAttempts){
+                    xhttpphp.open("GET","php/GetData.php?meal_page=\"false\"&page=\"pmp\"&table_name="+sql_table_name+"&name=NULL",true);
+                    attempts++;
+                    xhttpphp.onloadend=function(){FetchMySql(injected_table_name,sql_table_name, getPersonId(document.getElementById('select_person')));};
+                }
+                else{
+                    name = 'null';
+                    xhttpphp.open("GET","php/GetData.php?meal_page=\"false\"&page=\"pmp\"&table_name="+sql_table_name+"&name="+name+"&person_id="+person_id,true);
+                }
+                xhttpphp.send();
+
+        }
+        
+
+        function FetchMySqlAll(name){//reads in the name of the specific meal to be queried 
+            let p = 0;
+            //let temp= document.getElementById(injected_table_name);
+
+
+                            
+                //loading in php
+                var xhttpphp = new XMLHttpRequest();
+                xhttpphp.onload = function(){
+                    console.log(this.responseText);
+                    
+                        let class_name= ' ';
+                        let myObj = JSON.parse(this.responseText);
+                        let myObjLength = 0;
+                        let list_arr = [];
+                        let insert_table = ' ';
+                        //console.log(myObj);
+                        //console.log(myObj[0].specific_meals[0]);
+                       /// if (sql_table_name == 'specific_meal_table'){
+                        //reset dropdown list and the arrows
+                        let i = 0;
+                        while (i < myObj[0].specific_meals[0].num_ingredients){
+                            list_arr[i] = myObj[0].specific_meals[0].ingredients[i].name;
+                            i++;
+                        }
+                        //console.log(myObj[0].specific_meals[0].ingredients[0].food_products[0].total_cost);
+                        console.log(myObj[0].specific_meals[0]);
+                        //console.log(myObj[0].specific_meals[0].ingredients[0].total_cost);
+                            //counts how many elements in list
+                            //myObjLength = ((myObj[0].ingredient_list).match(/,/g) || []).length + 1;
+                            //list_arr = (myObj[0].specific_meals.ingredient_list).split(',');
+                            //class_name= 'td_dropdown_menu_item';
+                            //insert_table = injected_table_name;
+                        //}
+                        //clears category list upon category selection
+                        //reset dropdown list and the arrows
+                        let dropdown_list_names= [];
+                        dropdown_list_names[0]= 'servings_cost_table';
+                        dropdown_list_names[1]= 'product_cost_table';
+                        dropdown_list_names[2]= 'nutrition_facts_table';
+                        i = 0;
+                        while (i < dropdown_list_names.length){
+                            p=0;
+                            temp= document.getElementById(dropdown_list_names[i]);
+                            //clear dropdown table data (3 tables)
+                            Array.prototype.slice.call(temp.getElementsByTagName('tr')).forEach(
+                                function(item) {
+                                    temp.getElementsByTagName('img')[0].setAttribute('class','down_arrow');
+                                    if (p > 0){
+                                    item.remove();
+                                    }
+                                    p++;
+                                    // or item.parentNode.removeChild(item); for older browsers (Edge-)
+                                });
+                                i++;
+                        }
+                        console.log(myObjLength);
+
+                        //insert dropdown table data
+
+                        //insert servings cost table data
+                            //row length is cost per ingredient(num ingredients)
+                            // 2 columns ing name and cost
+                        //loop to create x by y textboxes for Matrix A
+                        
+
+
+                        for (let i = 0; i < myObj[0].specific_meals[0].num_ingredients; i++){
+                            let r = document.createElement('tr');
+                            
+
+                            for(let j = 0; j < 2; j++){
+                                let c = document.createElement('td');
+                                //first column is name
+                                if (i==0){
+                                    c.setAttribute('class', 'first '+class_name)
+                                }
+                                if(i+1 == myObjLength){
+                                    c.setAttribute('class', 'last '+class_name);
+                                }
+                                if(i==0 && (i+1 == myObjLength)){
+                                    c.setAttribute('class', 'last first'+class_name);
+                                }
+                                else{
+                                    c.setAttribute('class', class_name)
+                                }
+                                if (j == 0){
+                                    c.innerText= list_arr[i];
+                                }
+                                else if(j==1){
+                                    c.innerText = '$'+myObj[0].specific_meals[0].cost_per_ingredient[i].toFixed(2);
+                                }
+                                r.appendChild(c);
+                                r.setAttribute('hidden','true')
+                            }
+                            document.getElementById(dropdown_list_names[0]).appendChild(r);
+
+                        }
+                        //insert dropdown table data
+
+                        //insert product cost table data
+                            //row length is cost per ingredient(num ingredients)
+                            // 3 columns ing name, cost per product, and how many of product to make all servings
+                        //loop to create x by y textboxes for Matrix A
+                        
+                        for (let i = 0; i < myObj[0].specific_meals[0].num_ingredients; i++){
+                            let r = document.createElement('tr');
+                            
+
+                            for(let j = 0; j < 2; j++){
+                                let c = document.createElement('td');
+                                //first column is name
+                                if (i==0){
+                                    c.setAttribute('class', 'first '+class_name)
+                                }
+                                if(i+1 == myObjLength){
+                                    c.setAttribute('class', 'last '+class_name);
+                                }
+                                if(i==0 && (i+1 == myObjLength)){
+                                    c.setAttribute('class', 'last first '+class_name);
+                                }
+                                else{
+                                    c.setAttribute('class', class_name)
+                                }
+                                if (j == 0){
+                                    c.innerText= myObj[0].specific_meals[0].ingredients[i].name;
+                                }
+                                else if(j==1){
+                                    let tempNum = myObj[0].specific_meals[0].ingredients[i].food_products[0].total_cost;
+                                    c.innerText = '$'+Number(tempNum).toFixed(2);//.toPrecision(2);//.toPrecision(2);
+                                }
+                                r.appendChild(c);
+                                r.setAttribute('hidden','true')
+                            }
+                            document.getElementById(dropdown_list_names[1]).appendChild(r);
+
+                        }
+                        
+                                                //insert dropdown table data
+
+                        //insert nutrition facts table data
+                            //row length is amount of nutriton facts
+                            // fact, amount, dvpercentage
+                            //create table, write insert all facts along with grams and percentages on far right
+                        //loop to create x by y textboxes for Matrix A
+                                                //put into an array all nutrition facts per seving and then
+                        //display those along with the accompanying grams and dvp
+                        let nut_fact_names_arr= [];
+                        nut_fact_names_arr.push('Calories');
+                        nut_fact_names_arr.push('Total Fat');
+                        nut_fact_names_arr.push('Saturated Fat');
+                        nut_fact_names_arr.push('Trans Fat');
+                        nut_fact_names_arr.push('Cholesterol');
+                        nut_fact_names_arr.push('Sodium');
+                        nut_fact_names_arr.push('Total Carbs');
+                        nut_fact_names_arr.push('Fiber');
+                        nut_fact_names_arr.push('Total Sugar');
+                        nut_fact_names_arr.push('Added Sugar');
+                        nut_fact_names_arr.push('Protein');
+                        nut_fact_names_arr.push('Vitamin D');
+                        nut_fact_names_arr.push('Calcium');
+                        nut_fact_names_arr.push('Iron');
+                        nut_fact_names_arr.push('Potassium');
+                        //grams
+                        let nut_fact_grams_arr=[];
+                        nut_fact_grams_arr.push(myObj[0].specific_meals[0].calories_per_serving);
+                        nut_fact_grams_arr.push(myObj[0].specific_meals[0].total_fat_per_serving);
+                        nut_fact_grams_arr.push(myObj[0].specific_meals[0].saturated_fat_per_serving);
+                        nut_fact_grams_arr.push(myObj[0].specific_meals[0].trans_fat_per_serving);
+                        nut_fact_grams_arr.push(myObj[0].specific_meals[0].cholesterol_per_serving);
+                        nut_fact_grams_arr.push(myObj[0].specific_meals[0].sodium_per_serving);
+                        nut_fact_grams_arr.push(myObj[0].specific_meals[0].total_carbs_per_serving);
+                        nut_fact_grams_arr.push(myObj[0].specific_meals[0].fiber_per_serving);
+                        nut_fact_grams_arr.push(myObj[0].specific_meals[0].total_sugar_per_serving);
+                        nut_fact_grams_arr.push(myObj[0].specific_meals[0].added_sugar_per_serving);
+                        nut_fact_grams_arr.push(myObj[0].specific_meals[0].protein_per_serving);
+                        nut_fact_grams_arr.push(myObj[0].specific_meals[0].vitamin_d_per_serving);
+                        nut_fact_grams_arr.push(myObj[0].specific_meals[0].calcium_per_serving);
+                        nut_fact_grams_arr.push(myObj[0].specific_meals[0].iron_per_serving);
+                        nut_fact_grams_arr.push(myObj[0].specific_meals[0].potassium_per_serving);
+
+                        //dvp
+                        console.log(nut_fact_grams_arr);
+
+                        for (let i = 0; i < 15; i++){
+                            let r = document.createElement('tr');
+                            
+
+                            for(let j = 0; j < 2; j++){
+                                let c = document.createElement('td');
+                                
+                                if (i==0){
+                                    c.setAttribute('class', 'first '+class_name)
+                                }
+                                if(i+1 == myObjLength){
+                                    c.setAttribute('class', 'last '+class_name);
+                                }
+                                if(i==0 && (i+1 == myObjLength)){
+                                    c.setAttribute('class', 'last first '+class_name);
+                                }
+                                else{
+                                    c.setAttribute('class', class_name)
+                                }
+                                //first column is name
+                                if (j == 0){
+                                    c.innerText= nut_fact_names_arr[i]+':';
+                                }
+                                //second column is data
+                                else if(j==1){
+                                    //if statements to format info correctly
+                                    //number roundage
+                                    if(nut_fact_names_arr[i]=='Calories'){
+                                        c.innerText = (Math.round(nut_fact_grams_arr[i]/10)*10);
+                                    }
+                                    else if (nut_fact_names_arr[i]=='Total Fat' || nut_fact_names_arr[i]=='Saturated Fat'
+                                        || nut_fact_names_arr[i]=='Trans Fat'){
+                                            c.innerText = c.innerText+(Math.round(nut_fact_grams_arr[i]/.5)*.5);
+                                    }
+                                    else if(nut_fact_names_arr[i]=='Cholesterol' || nut_fact_names_arr[i]=='Sodium'
+                                    || nut_fact_names_arr[i]=='Calcium' || nut_fact_names_arr[i]=='Potassium'
+                                    || nut_fact_names_arr[i]=='Vitamin D'){
+                                        c.innerText = c.innerText+(Math.round(nut_fact_grams_arr[i]/5)*5);
+                                    }
+                                    else if(nut_fact_names_arr[i]=='Total Carbs' || nut_fact_names_arr[i]=='Total Sugar'
+                                    || nut_fact_names_arr[i]=='Added Sugar' || nut_fact_names_arr[i]=='Fiber'
+                                    || nut_fact_names_arr[i]=='Protein'){
+                                        c.innerText = c.innerText+(Math.round(nut_fact_grams_arr[i]/1));
+                                    }
+                                    else if (nut_fact_names_arr[i]=='Iron'){
+                                        c.innerText = c.innerText+(Math.round(nut_fact_grams_arr[i]/.1)*.1).toFixed(1);
+                                    }
+                                    /*
+
+                                        */
+                                    //unit of measurement
+                                    if(nut_fact_names_arr[i]=='Total Fat' || nut_fact_names_arr[i]=='Saturated Fat'
+                                    || nut_fact_names_arr[i]=='Trans Fat' || nut_fact_names_arr[i]=='Total Carbs'
+                                    || nut_fact_names_arr[i]=='Fiber' || nut_fact_names_arr[i]=='Total Sugar'
+                                    || nut_fact_names_arr[i]=='Added Sugar' || nut_fact_names_arr[i]=='Protein'){
+                                        c.innerText = c.innerText+'g';
+                                    }
+                                    else if(nut_fact_names_arr[i]=='Cholesterol' || nut_fact_names_arr[i]=='Sodium'
+                                    || nut_fact_names_arr[i]=='Calcium' || nut_fact_names_arr[i]=='Iron'
+                                    || nut_fact_names_arr[i]=='Potassium'){
+                                        c.innerText = c.innerText+'mg';
+                                    }
+                                    else if(nut_fact_names_arr[i]=='Vitamin D'){
+                                        c.innerText = c.innerText+'mcg';
+                                    }
+
+                                   // c.innerText = (Math.round(nut_fact_grams_arr[i]*10)/10);
+                                }
+                                r.appendChild(c);
+                                r.setAttribute('hidden','true')
+                            }
+                            document.getElementById(dropdown_list_names[2]).appendChild(r);
+                        }
+                        
+                //clear all left side description
+                            
+                temp= document.getElementById('table_preparation');
+                //clear description table data (3 tables)
+                Array.prototype.slice.call(temp.getElementsByTagName('tr')).forEach(
+                    function(item) {
+                        if (item.getAttribute('class')!=' '){
+                        item.remove();
+                        }
+                        p++;
+                        // or item.parentNode.removeChild(item); for older browsers (Edge-)
+                    });
+                    i++;
+
+                //fill ingredients required
+                //temp_td = document.createElement('td');
+                let temp_r = document.getElementById('tr_ingredients_required');
+
+                    for (let i = 0; i < myObj[0].specific_meals[0].num_ingredients; i++){
+                            let r = document.createElement('tr');
+
+                            for(let j = 0; j < 2; j++){
+                                let c = document.createElement('td');
+                                //first column is name
+                                if (i==0){
+                                    c.setAttribute('class', 'first '+class_name)
+                                }
+                                if(i+1 == myObj[0].specific_meals[0].num_ingredients){
+                                    c.setAttribute('class', 'last '+class_name);
+                                }
+                                if(i==0 && (i+1 == myObj[0].specific_meals[0].num_ingredients)){
+                                    c.setAttribute('class', 'last first '+class_name);
+                                }
+                                else{
+                                    //c.setAttribute('class', class_name)
+                                }
+                                if (j == 0){
+                                    c.innerText= myObj[0].specific_meals[0].ingredients[i].name;
+                                }
+                                else if(j==1){
+                                    c.innerText = myObj[0].specific_meals[0].grams_needed_per_ingredient[i]+' g';
+                                }
+                                r.appendChild(c);
+                                //r.setAttribute('hidden','true')
+                            }
+                            temp_r.after(r);
+                            temp_r = r;
+
+
+                        }
+
+                //fill preparation
+                temp_r = document.getElementById('tr_preparation');
+                //console.log(myObj[0].specific_meals[0].num_ingredients);
+                    for (let i = 0; i < myObj[0].specific_meals[0].preparation_steps.length; i++){
+                            let r = document.createElement('tr');
+
+                            for(let j = 0; j < 2; j++){
+                                let c = document.createElement('td');
+                                //first column is name
+                                if (i==0){
+                                    c.setAttribute('class', 'first '+class_name)
+                                }
+                                if(i+1 == myObj[0].specific_meals[0].preparation_steps.length){
+                                    c.setAttribute('class', 'last '+class_name);
+                                }
+                                if(i==0 && (i+1 == myObj[0].specific_meals[0].preparation_steps.length)){
+                                    c.setAttribute('class', 'last first '+class_name);
+                                }
+                                else{
+                                    //c.setAttribute('class', class_name)
+                                }
+                                if (j == 0){
+                                    c.innerText= 'Step '+(i+1)+':';
+                                }
+                                else if(j==1){
+                                    c.innerText = myObj[0].specific_meals[0].preparation_steps[i];
+                                }
+                                r.appendChild(c);
+                                //r.setAttribute('hidden','true')
+                            }
+                            temp_r.after(r);
+                            temp_r = r;
+
+
+                        }
+                //fill cooking
+                temp_r = document.getElementById('tr_cooking');
+                //console.log(myObj[0].specific_meals[0].num_ingredients);
+                    for (let i = 0; i < myObj[0].specific_meals[0].cooking_steps.length; i++){
+                            let r = document.createElement('tr');
+
+                            for(let j = 0; j < 2; j++){
+                                let c = document.createElement('td');
+                                //first column is name
+                                if (i==0){
+                                    c.setAttribute('class', 'first '+class_name)
+                                }
+                                if(i+1 == myObj[0].specific_meals[0].cooking_steps.length){
+                                    c.setAttribute('class', 'last '+class_name);
+                                }
+                                if((i==0) && (i+1 == myObj[0].specific_meals[0].cooking_steps.length)){
+                                    c.setAttribute('class', 'last first '+class_name);
+                                }
+                                else{
+                                    //c.setAttribute('class', class_name)
+                                }
+                                if (j == 0){
+                                    c.innerText= 'Step '+(i+1)+':';
+                                }
+                                else if(j==1){
+                                    c.innerText = myObj[0].specific_meals[0].cooking_steps[i];
+                                }
+                                r.appendChild(c);
+                                //r.setAttribute('hidden','true')
+                            }
+                            temp_r.after(r);
+                            temp_r = r;
+
+
+                        }
+                //fill finishing
+                temp_r = document.getElementById('tr_finishing');
+                //console.log(myObj[0].specific_meals[0].num_ingredients);
+                    for (let i = 0; i < myObj[0].specific_meals[0].finishing_steps.length; i++){
+                            let r = document.createElement('tr');
+
+                            for(let j = 0; j < 2; j++){
+                                let c = document.createElement('td');
+                                //first column is name
+                                if (i==0){
+                                    c.setAttribute('class', 'first '+class_name)
+                                }
+                                if(i+1 == myObj[0].specific_meals[0].finishing_steps.length){
+                                    c.setAttribute('class', 'last '+class_name);
+                                }
+                                if(i==0 && (i+1 == myObj[0].specific_meals[0].finishing_steps.length)){
+                                    c.setAttribute('class', 'last first '+class_name);
+                                }
+                                else{
+                                    //c.setAttribute('class', class_name)
+                                }
+                                if (j == 0){
+                                    c.innerText= 'Step '+(i+1)+':';
+                                }
+                                else if(j==1){
+                                    c.innerText = myObj[0].specific_meals[0].finishing_steps[i];
+                                }
+                                r.appendChild(c);
+                                //r.setAttribute('hidden','true')
+                            }
+                            temp_r.after(r);
+                            temp_r = r;
+
+
+                        }
+                }
+                xhttpphp.open("GET","php/GetData.php?meal_page=true&table_name=specific_meal_table&name="+name,true);
+                xhttpphp.send();
+
+
+
+        }
+        function CUD(table_name,operation_type,old_name,old_cat,new_name,new_cat){
+        //i should store the category of which the operations were conducted
+            //only one edit shluld be conducted at a time
+         //loading in php
+
+        var xhttpphp = new XMLHttpRequest();
+            xhttpphp.onload = function(){
+                console.log(this.responseText);
+
+            }
+            if(operation_type == 'update'){
+                let tempCat;
+                let p1 = 0;
+                /*
+                //create options here
+                Array.prototype.slice.call(document.getElementsByClassName('td_meal_type_menu_item')).forEach(
+                function(item) {
+
+                    if (p1 > 0){
+                        if(item.getAttribute('style') != null){
+                            tempCat = item.id;
+                        }
+                    }
+                    p1++;
+                    // or item.parentNode.removeChild(item); for older browsers (Edge-)
+                });
+                let tempName;
+                let p2 = 0;
+                //create options here
+                Array.prototype.slice.call(document.getElementsByClassName('tr_table_people_item_edit')).forEach(
+                function(item) {
+
+                    if (p1 > 0){
+                        //console.log(item.getAttribute('hidden'));
+                        if(item.getAttribute('hidden') == 'hidden'){
+                            tempName = item.textContent;
+                            //console.log(tempName);
+                            old_name = tempName;
+                        }
+                    }
+                    p1++;
+                    // or item.parentNode.removeChild(item); for older browsers (Edge-)
+                });
+                */
+                new_cat = new_cat.slice(3,new_cat.length);
+                xhttpphp.open("GET","php/CUD.php?table_name="+table_name+"&operation_type="+operation_type+"&old_name="+old_name+"&old_cat="+old_cat+"&new_name="+new_name+"&new_cat="+new_cat,true);
+            }
+            else if(operation_type == 'create'){
+                console.log(old_name);
+                console.log(old_cat);
+                console.log(new_name);
+                console.log(new_cat);
+                xhttpphp.open("GET","php/CUD.php?table_name="+table_name+"&operation_type="+operation_type+"&old_name="+old_name+"&old_cat="+old_cat+"&new_name="+new_name+"&new_cat="+new_cat,true);
+            }
+            else if(operation_type == 'delete'){
+                let tempVal;
+                let p1 = 0;
+                xhttpphp.open("GET","php/CUD.php?table_name="+table_name+"&operation_type="+operation_type+"&old_name="+old_name,true);
+            }
+            xhttpphp.send();
+            location.reload();
+        }
+        function sort_table(b, o){
+            by = b; 
+            order = o; 
+            //FetchMySql();
+        }
+        function dynamic_page_change(button_id_name,all_menu_items_class_name,table_name){
+            var elms = document.getElementsByClassName(all_menu_items_class_name);
+
+            //clears styles of all elements with the same class name
+            if(all_menu_items_class_name == 'span_crud_button'){
+                let checkVar = document.getElementById(button_id_name).getAttribute('style');
+                //a CUD button was clicked previously and this will wipe the traces of the other dselecrted crud
+                if (checkVar != null){
+
+                    //clears styles of all elements with the same class name
+                    for (var i = 0; i < elms.length; i++) {
+                            elms[i].removeAttribute("style");
+                    }
+
+                    //cancel all setps of the selected operation
+                    //add
+                    let eleTemp=  document.getElementById('add_button_row');
+                    if(eleTemp){
+                        document.getElementById('add_button_row').remove();
+                    }
+                    //edit
+                    //delete all edit stuff
+                    p = -1;
+                    temp = document.getElementById('table_people');
+                    Array.prototype.slice.call(temp.getElementsByClassName('class_add_button_row')).forEach(
+                    function(item) {
+                            item.remove();
+                        // or item.parentNode.removeChild(item); for older browsers (Edge-)
+                    });
+                    //unhide value replaced with text
+                    p = -1;
+                    temp = document.getElementById('table_people');
+                    Array.prototype.slice.call(temp.getElementsByTagName('tr')).forEach(
+                    function(item) {
+
+                        if (p > 0){
+                            item.removeAttribute('onclick');
+                            item.removeAttribute('class');
+                            item.getElementsByTagName('td')[1].removeAttribute('hidden');
+                        }
+                        p++;
+                        // or item.parentNode.removeChild(item); for older browsers (Edge-)
+                    });
+
+                }
+
+                else{
+                    //add
+                    eleTemp=  document.getElementById('add_button_row');
+                    if(eleTemp!=null){
+                        document.getElementById('add_button_row').remove();
+                    }
+                    //edit
+                    //delete all edit stuff
+                    eleTemp=  document.getElementsByClassName('class_add_button_row')[0];
+                    if(eleTemp!=null){
+                        p = -1;
+                        temp = document.getElementById('table_people');
+                        Array.prototype.slice.call(temp.getElementsByClassName('class_add_button_row')).forEach(
+                        function(item) {
+                                item.remove();
+                            // or item.parentNode.removeChild(item); for older browsers (Edge-)
+                        });
+                        //unhide value replaced with text
+                        p = -1;
+                        temp = document.getElementById('table_people');
+                        Array.prototype.slice.call(temp.getElementsByTagName('tr')).forEach(
+                        function(item) {
+
+                            if (p > 0){
+                                item.removeAttribute('onclick');
+                                item.removeAttribute('class');
+                                item.getElementsByTagName('td')[1].removeAttribute('hidden');
+                            }
+                            p++;
+                            // or item.parentNode.removeChild(item); for older browsers (Edge-)
+                        });
+                    }
+                    //clears styles of all elements with the same class name
+                    for (var i = 0; i < elms.length; i++) {
+                            elms[i].removeAttribute("style", "");
+                    }
+
+                    document.getElementById(button_id_name).setAttribute('style','background-color:'+document.defaultView.getComputedStyle(document.getElementById(button_id_name), "").getPropertyValue('color')+';color:#FAFAFA;');//border-bottom: 2px solid #939799; border-top: 2px solid #939799; ');
+                    
+                    //call operation selection function
+                    if (button_id_name == 'span_add_button'){add_person();}
+                    else if (button_id_name == 'span_edit_button'){edit_person();}
+                    else if (button_id_name == 'span_remove_button'){remove_person(document.getElementById('select_person').value);}
+
+
+                }
+        }
+        else{
+
+            //clears styles of all elements with the same class name
+            for (var i = 0; i < elms.length; i++) {
+                    elms[i].removeAttribute("style");
+            }
+
+            document.getElementById(button_id_name).setAttribute('style','background-color:#d3d3d3;');//border-bottom: 2px solid #939799; border-top: 2px solid #939799; ');
+        }
+
+        //update page data in given table
+        if (table_name == 'table_meal_type_menu'){
+            //change 'Popular Meals' section to 'Meals' and add a category section called 'Categories' and
+            //default select to all, update categories section with all generic meal types.  
+        }
+    }
+    function add_person(){
+        //if(add_bool == false){
+        //this should add a textbox at the top of the category table and upon clikcing away, or pressing enter, the entry will be inputted and
+        //reordered, as it will go into the database.
+        //a category, breakfast, entree, or dessert must also be assigned.
+        //a textbox must be created along with the attribute of clickaway, it should call a function to insert it into
+        //the category list
+        //ok button to click
+        //a category select should be allowed to select an categorize the meal
+        //the button will not work unless the category is specified
+        class_name= 'td_table_people_item';
+
+        let insert_after_element = document.getElementById('tr_table_people_header'); 
+        let temp_tr = document.createElement('tr');
+        let temp_td = document.createElement('td');
+        let temp_input_textbox = document.createElement('input');
+        let temp_form = document.createElement('form');
+        //let temp_select = document.createElement('select');
+        //let temp_option = document.createElement('option');
+        let temp_input_button = document.createElement('input');
+        //let temp_br = document.createElement('br');
+
+        //enter button
+        temp_input_button.setAttribute('type', 'button');
+        temp_input_button.value = 'Enter';
+        temp_input_button.setAttribute('id','button_new_category');
+        temp_input_button.setAttribute('onclick','CUD(\'person_info\',\'create\',\'\',\'\',document.getElementById(\'textbox_add\').value,\'\');');
+
+        //textbox
+        temp_input_textbox.addEventListener('keypress',function(event){
+            if(event.keyCode === 13){
+                document.getElementById('button_new_category').click();
+                this.blur();
+                event.preventDefault();
+            }
+        });
+        temp_input_textbox.setAttribute('id','textbox_add');
+        document.getElementById('select_person').remove();
+        
+        document.getElementById('span_person').appendChild(temp_input_textbox);
+        
+        document.getElementById('span_person').appendChild(temp_input_button);
+        add_bool = true;
+        //}
+    }
+    function edit_person(){
+        //add edit button to the side of each meal name
+        let p = -1;
+        let temp= document.getElementById('table_people');
+        //clears category list upon category selection
+        Array.prototype.slice.call(temp.getElementsByTagName('tr')).forEach(
+        function(item) {
+            if (p > 0){
+                item.getElementsByTagName('td')[1].setAttribute('class','tr_table_people_item_edit');
+                item.getElementsByTagName('td')[1].setAttribute('onclick','edit_selected(this.parentNode.id);');
+            }
+            p++;
+            // or item.parentNode.removeChild(item); for older browsers (Edge-)
+        });
+    }
+    function remove_person(name){
+        /*
+        // add remove button tot he side of each meal name
+        let p = 0;
+        let temp= document.getElementById('table_people');
+        //clears category list upon category selection
+        Array.prototype.slice.call(temp.getElementsByTagName('tr')).forEach(
+        function(item) {
+
+            if (p > 0){
+            item.setAttribute('class','tr_table_people_item_remove');
+            item.setAttribute('onclick','remove_selected(this.textContent)');
+
+            }
+            p++;
+            // or item.parentNode.removeChild(item); for older browsers (Edge-)
+        });
+        */
+       remove_selected(name);
+        }
+    function edit_selected(name){
+        //input the check so only 1 edit at a time here
+        let check_edit = document.getElementsByClassName('class_add_button_row')[1];
+
+        //double click of edit resets the button to only have 1 category selected
+        document.getElementById('span_edit_button').click();
+        document.getElementById('span_edit_button').click();
+
+        //console.log(check_edit);
+        class_name= 'td_table_people_item';
+
+        let insert_after_element = document.getElementById('tr_table_people_header'); 
+        let temp_tr = document.createElement('tr');
+        let temp_td = document.createElement('td');
+        let temp_input_textbox = document.createElement('input');
+        let temp_form = document.createElement('form');
+        //let temp_select = document.createElement('select');
+        //let temp_option = document.createElement('option');
+        let temp_input_button = document.createElement('input');
+        let temp_br = document.createElement('br');
+
+        //enter button
+        temp_input_button.setAttribute('type', 'button');
+        temp_input_button.value = 'Enter';
+        temp_input_button.setAttribute('id','button_new_category');
+        temp_input_button.setAttribute('onclick','CUD(\'person_info\',\'update\',document.getElementById(\'select_person\').value,\'\',document.getElementById(\'textbox_edit\').value,this.parentNode.parentNode.parentNode.parentNode.id);');
+
+        //textbox
+        temp_input_textbox.addEventListener('keypress',function(event){
+            if(event.keyCode === 13){
+                document.getElementById('button_new_category').click();
+                this.blur();
+                event.preventDefault();
+            }
+        });
+        //hide the current listing and create an edit of a new one in its place
+        //scan through all category names and check which holds the category name in textContent
+        //grab that element and add attribute hidden and append the edit content below this element
+        //when edit is deselected unhide all hidden and delete all edit content
+        let p = 0;
+        let temp = document.getElementById('table_people');
+        Array.prototype.slice.call(temp.getElementsByTagName('tr')).forEach(
+        function(item) {
+
+            if (p > 0){
+                if(item.id == name){
+                    item.getElementsByTagName('td')[1].setAttribute('hidden','hidden');
+                    item.getElementsByTagName('td')[1].after(temp_tr);
+                    //checks to make sure that the textContent is a number/ contains no letters/
+                    if (p==2||p==3||p==4||p==6||p==7){
+                        temp_input_textbox.setAttribute('onkeydown','return keyispressed(event);');
+                    }
+                    else if(p==5){
+                        temp_input_textbox = document.createElement('select');
+                        let temp_option_1 = document.createElement('option');
+                        temp_option_1.textContent = 'B,E,E,E,E';
+                        temp_input_textbox.appendChild(temp_option_1);
+                        let temp_option_2 = document.createElement('option');
+                        temp_option_2.textContent = 'B,E,E,E';
+                        temp_input_textbox.appendChild(temp_option_2);
+                        let temp_option_3 = document.createElement('option');
+                        temp_option_3.textContent = 'B,E,E';
+                        temp_input_textbox.appendChild(temp_option_3);
+                        let temp_option_4 = document.createElement('option');
+                        temp_option_4.textContent = 'B,E';
+                        temp_input_textbox.appendChild(temp_option_4);
+                        let temp_option_5 = document.createElement('option');
+                        temp_option_5.textContent = 'B';
+                        temp_input_textbox.appendChild(temp_option_5);
+                        let temp_option_6 = document.createElement('option');
+                        temp_option_6.textContent = 'E,E,E,E';
+                        temp_input_textbox.appendChild(temp_option_6);
+                        let temp_option_7= document.createElement('option');
+                        temp_option_7.textContent = 'E,E,E';
+                        temp_input_textbox.appendChild(temp_option_7);
+                        let temp_option_8 = document.createElement('option');
+                        temp_option_8.textContent = 'E,E';
+                        temp_input_textbox.appendChild(temp_option_8);
+                        let temp_option_9 = document.createElement('option');
+                        temp_option_9.textContent = 'E';
+                        temp_input_textbox.appendChild(temp_option_9);
+
+                    }
+                    temp_input_textbox.value = item.getElementsByTagName('td')[1].textContent;
+                }
+            }
+            p++;
+            // or item.parentNode.removeChild(item); for older browsers (Edge-)
+        });
+
+        temp_input_textbox.setAttribute('id','textbox_edit');
+
+        
+        temp_form.appendChild(temp_input_textbox);
+        //temp_form.appendChild(temp_br);
+        
+
+        //temp_form.appendChild(temp_select);
+        temp_form.appendChild(temp_input_button);
+        temp_td.appendChild(temp_form);
+
+        temp_td.setAttribute('class', class_name);
+
+        temp_tr.setAttribute('class', 'class_add_button_row')
+        temp_tr.appendChild(temp_td);
+        
+
+    }
+    function remove_selected(name){
+        document.getElementById("span_name_overlay").textContent = name;
+        document.getElementById("overlay").style.display = "block";
+    }
+    function delete_person(name){
+        //remove overlay
+        document.getElementById("overlay").style.display = "none";
+        //delete category && //refresh page
+        CUD('person_info','delete',name,'');
+    }
+
+        function dropdown(table_id_dropdown){
+            //change arrow img after click
+            img_var = document.getElementById(table_id_dropdown).getElementsByTagName('img')[0];
+            if ( img_var.className == 'down_arrow'){
+                img_var.setAttribute('class', 'up_arrow');
+                let p=0;
+                let temp= document.getElementById(table_id_dropdown);
+                //clear dropdown table data (3 tables)
+                Array.prototype.slice.call(temp.getElementsByTagName('tr')).forEach(
+                    function(item) {
+
+                        if (p > 0){
+                        item.removeAttribute('hidden');
+                        }
+                        /*
+                        if(item.getAttribute('class')=='class_dropdown_item'){
+                            item.setAttribute('')
+                        }*/
+                        p++;
+                        // or item.parentNode.removeChild(item); for older browsers (Edge-)
+                    });
+                //specific_meal_name = document.getElementById('select_specific_meal').value;
+                //instead unhide the table here
+
+                //inject table 
+                //FetchMySql('product_cost_table','specific_meal_table',specific_meal_name);
+            }
+            else{
+                img_var.setAttribute('class', 'down_arrow');
+                //instead hide the table here
+                let p=0;
+                let temp= document.getElementById(table_id_dropdown);
+                //clear dropdown table data (3 tables)
+                Array.prototype.slice.call(temp.getElementsByTagName('tr')).forEach(
+                    function(item) {
+
+                        if (p > 0){
+                        item.setAttribute('hidden','true');
+                        }
+                        p++;
+                        // or item.parentNode.removeChild(item); for older browsers (Edge-)
+                    });
+                //clears category list upon category selection
+                /*
+                let p = 0;
+                temp = document.getElementById('product_cost_table');
+                Array.prototype.slice.call(temp.getElementsByTagName('tr')).forEach(
+                function(item) {
+
+                    if (p > 0){
+                    item.remove();
+                    }
+                    p++;
+                    // or item.parentNode.removeChild(item); for older browsers (Edge-)
+                });
+                */
+            }
+
+        }
+        function view_pmp_page(){
+
+        }
+        function keyispressed(e){
+                var charValue= String.fromCharCode(e.keyCode);
+                if((isNaN(charValue)) && (e.which != 8 )){ // BSP KB code is 8
+                    e.preventDefault();
+                }
+                return true;
+            }  
+        function getPersonId(selectElement){
+            var selectedOption = selectElement.options[selectElement.selectedIndex];
+            var optionId = selectedOption.id;
+            // Extracting the number from the optionId
+            var number = optionId.replace(/^\D+/g, '');
+            return number;
+        }
+        function dropdown_clicked(span_dropdown_element){
+            var parentTR = span_dropdown_element.closest('tr');
+            var table = parentTR.closest('table');
+            var followingTRs = Array.from(table.querySelectorAll('tr')).slice(table.rows.length - table.rows.length + Array.from(table.rows).indexOf(parentTR) + 1);
+            
+
+            followingTRs.forEach(function(tr) {
+                tr.style.display = ''; // Remove the 'display' style property to unhide the <tr>
+                tr.removeAttribute('hidden');
+            });
+
+
+
+            // Remove onclick attribute from span_dropdown_element if class is present, otherwise add it back
+            if (span_dropdown_element.classList.contains('dropdown_clicked')) {
+                span_dropdown_element.removeAttribute('onclick');
+
+            } else {
+                span_dropdown_element.onclick = function() {
+                    followingTRs.forEach(function(tr) {
+                        tr.setAttribute('hidden', 'hidden');
+                        tr.style.display = 'none';
+                    });
+                    span_dropdown_element.setAttribute('onclick','dropdown_clicked(this);');
+                    // Toggle 'dropdown_clicked' class on span_dropdown_element
+                    span_dropdown_element.classList.toggle('dropdown_clicked');
+                };
+            }
+                // Toggle 'dropdown_clicked' class on span_dropdown_element
+                span_dropdown_element.classList.toggle('dropdown_clicked');
+        }
+        function createMealPlanTable() {
+            // Create the main table element
+            const table = document.createElement('table');
+            table.classList.add('table_meal_plan_option');
+
+            // Create the first row
+            const firstRow = document.createElement('tr');
+
+            // Create the first cell in the first row
+            const headerCell = document.createElement('td');
+            headerCell.classList.add('td_meal_plan_option_header');
+
+            // Create the header content
+            const headerSpan = document.createElement('span');
+            headerSpan.classList.add('span_meal_plan_option_header_value');
+
+            // Create the dot SVG element
+            const dotSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            dotSvg.setAttribute('width', '11');
+            dotSvg.setAttribute('height', '4');
+            dotSvg.setAttribute('viewBox', '0 0 11 4');
+            dotSvg.setAttribute('fill', 'none');
+
+            // Create the path element for the dot SVG
+            const dotPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            dotPath.setAttribute('d', 'M1.32821 3.12926C1.00009 3.12926 0.718365 3.01326 0.483043 2.78125C0.251036 2.54593 0.135032 2.2642 0.135032 1.93608C0.135032 1.61127 0.251036 1.33286 0.483043 1.10085C0.718365 0.868845 1.00009 0.752841 1.32821 0.752841C1.6464 0.752841 1.9248 0.868845 2.16344 1.10085C2.40208 1.33286 2.5214 1.61127 2.5214 1.93608C2.5214 2.15483 2.46505 2.35535 2.35236 2.53764C2.24299 2.71662 2.09881 2.8608 1.91983 2.97017C1.74086 3.07623 1.54365 3.12926 1.32821 3.12926ZM5.49814 3.12926C5.17001 3.12926 4.88829 3.01326 4.65297 2.78125C4.42096 2.54593 4.30495 2.2642 4.30495 1.93608C4.30495 1.61127 4.42096 1.33286 4.65297 1.10085C4.88829 0.868845 5.17001 0.752841 5.49814 0.752841C5.81632 0.752841 6.09473 0.868845 6.33336 1.10085C6.572 1.33286 6.69132 1.61127 6.69132 1.93608C6.69132 2.15483 6.63497 2.35535 6.52228 2.53764C6.41291 2.71662 6.26873 2.8608 6.08976 2.97017C5.91078 3.07623 5.71357 3.12926 5.49814 3.12926ZM9.66806 3.12926C9.33993 3.12926 9.05821 3.01326 8.82289 2.78125C8.59088 2.54593 8.47488 2.2642 8.47488 1.93608C8.47488 1.61127 8.59088 1.33286 8.82289 1.10085C9.05821 0.868845 9.33993 0.752841 9.66806 0.752841C9.98624 0.752841 10.2646 0.868845 10.5033 1.10085C10.7419 1.33286 10.8612 1.61127 10.8612 1.93608C10.8612 2.15483 10.8049 2.35535 10.6922 2.53764C10.5828 2.71662 10.4387 2.8608 10.2597 2.97017C10.0807 3.07623 9.88349 3.12926 9.66806 3.12926Z');
+            dotPath.setAttribute('fill', '#292929');
+
+            // Append the path to the dot SVG
+            dotSvg.appendChild(dotPath);
+
+            // Append the dot SVG to the header span
+            headerSpan.appendChild(dotSvg);
+
+            // Append the header span to the header cell
+            headerCell.appendChild(headerSpan);
+
+            // Append the header cell to the first row
+            firstRow.appendChild(headerCell);
+
+            // Append the first row to the table
+            table.appendChild(firstRow);
+
+            // Create an array of data for the remaining rows
+            const rowData = [
+                { label: 'Calories:', value: '' },
+                { label: 'Cost:', value: '' },
+                { label: 'Quantity:', value: '' },
+            ];
+
+            // Create the remaining rows
+            rowData.forEach((data) => {
+                const row = document.createElement('tr');
+                const cell = document.createElement('td');
+                cell.classList.add('td_meal_plan_option_dropdown');
+                const headerSpan = document.createElement('span');
+                headerSpan.classList.add('span_meal_plan_option_dropdown_header');
+                headerSpan.textContent = data.label;
+
+                const valueSpan = document.createElement('span');
+                valueSpan.classList.add('span_meal_plan_option_dropdown_header_value');
+
+                // Append the value span to the header span
+                headerSpan.appendChild(valueSpan);
+
+                const svgSpan = document.createElement('span');
+                svgSpan.classList.add('span_meal_plan_option_dropdown_svg');
+
+                // Create the arrow SVG element
+                const arrowSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                arrowSvg.setAttribute('width', '12');
+                arrowSvg.setAttribute('height', '12');
+                arrowSvg.setAttribute('viewBox', '0 0 12 12');
+                arrowSvg.setAttribute('fill', 'none');
+
+                // Create the path element for the arrow SVG
+                const arrowPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                arrowPath.setAttribute('d', 'M6.03417 11.1015L0.76938 0.550731L11.1615 0.476262L6.03417 11.1015Z');
+                arrowPath.setAttribute('fill', '#898989');
+
+                // Append the path to the arrow SVG
+                arrowSvg.appendChild(arrowPath);
+
+                // Append the arrow SVG to the svg span
+                svgSpan.appendChild(arrowSvg);
+
+                // Append the header span and svg span to the cell
+                cell.appendChild(headerSpan);
+                cell.appendChild(svgSpan);
+
+                // Append the cell to the row
+                row.appendChild(cell);
+
+                // Append the row to the table
+                table.appendChild(row);
+            });
+
+            // Return the created table
+            return table;
+            }
+    function callCreateMealPlanTable(){
+        // Get a reference to the parent element where you want to append the table
+        const parentElement = document.getElementsByClassName('td_meal_type_subtable')[0]; // Replace with the actual parent element ID
+        // Create the table and append it to the parent element
+        const mealPlanTable = createMealPlanTable();
+        parentElement.appendChild(mealPlanTable);
+    }
+
+
+    </script>
+
+    <div class = "menu_bar_header">
+        <table id="table_header">
+
+                <tr>
+                    
+                    <td id="td_a_pic">
+                        <a href="index.html" alt="Home_Web_page">
+                            <img id="img_header_logo"src="stylesheets\Fresno_State_Images\BellPepper.png" >
+                        </a>
+                    </td>
+                    <td id="td_a_h1">
+                        <a href="index.html" alt="Home_Web_page">
+                            <h1>    
+                                JuicyBell
+                            </h1>
+                        </a>
+                    </td>
+                    <td></td><td></td><td></td><td></td><td></td><td></td>
+                    <!--
+                    <td id = "td_person_meal_plan">
+                        <form>
+                            <div id = "div_personal_meal_plan_header">
+                                    <select id = "select_person" onchange="FetchMySql('table_header','person_info',value);">
+    
+                                    </select>
+                            </div>
+
+                        </form>
+                        <td></td><td></td><td></td><td></td><td></td><td></td>
+                    </td>
+                    -->
+                        <td></td><td></td><td></td><td></td><td></td><td></td>
+                    <!--
+                    <td id="td_search_bar">
+                        <form>
+                            <input id="input_search_bar" type="textbox">
+                            
+                        </form>
+                    </td><td><td></td><td></td><td></td><td></td>
+                    -->
+                    <td id="td_login_button">
+                        <a href= "login.html" alt = "Login_Web_Page">
+                            Login
+                        </a>
+                    </td>
+                    <td id="td_logout_button" hidden>
+                        <a href= "php/logout_mysql.php" alt = "Logout_Link">
+                            Logout
+                        </a>
+                    </td>
+                    <td id="td_register_button">
+                        <a href= "signup.html" alt = "Signup_Web_Page">
+                            Register
+                        </a>
+                    </td> 
+                    
+                </tr>
+        </table>
+    </div>
+    <div class="flex-container2">
+        <div id = "div_preparation_info" >
+            <!--
+            <table  id = "table_meal_plan_header"class="class_meal_plan_table_header">
+                <tr id = "tr_person_menu_header">
+                    <td id="person_menu_header" colspan="2">
+                        <form id = 'form_person_select'>
+                            <span id = "span_person">
+                                <label for="select_person">Person: </label>
+                                <select id = "select_person" onchange="FetchMySql('table_people','person_info',getPersonId(this))">
+
+                                </select>
+                            </span>
+                            <span class="span_crud_button" id = "span_remove_button" onclick="dynamic_page_change(id,'span_crud_button','table_people');">Delete</span>
+                            <span class="span_crud_button" id = "span_edit_button" onclick="dynamic_page_change(id,'span_crud_button','table_people');">Edit</span>
+                            <span class="span_crud_button" id = "span_add_button" onclick="dynamic_page_change(id,'span_crud_button','table_people');">Add</span>
+                        </form>
+                    </td>
+                </tr>
+            </table>
+        -->
+            <table id = "table_people" class="class_preparation_table">
+                
+                <tr id = "tr_person_menu_header">
+                    <td id="person_menu_header" colspan="2">
+                        <form id = 'form_person_select'>
+                            <span id = "span_person">
+                                <label for="select_person">Person: </label>
+                                <select id = "select_person" onchange="FetchMySql('table_people','person_info',getPersonId(this))">
+
+                                </select>
+                            </span>
+                            <span class = "span_meal_plan_option_dropdown_svg" onclick = "dropdown_clicked(this);">
+                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M6.03417 11.1015L0.76938 0.550731L11.1615 0.476262L6.03417 11.1015Z" fill="#898989"/>
+                                    </svg>                                                        
+                            </span>
+                            <span class="span_crud_button" id = "span_remove_button" onclick="dynamic_page_change(id,'span_crud_button','table_people');">Delete</span>
+                            <span class="span_crud_button" id = "span_add_button" onclick="dynamic_page_change(id,'span_crud_button','table_people');">Add</span>
+
+                        </form>
+                    </td>
+                </tr>
+                <tr id = "tr_personal_info_menu_header" hidden>
+                    <td id="personal_info_menu_header" colspan="2">
+                        <span>Personal Information</span>
+                        <span class="span_crud_button" id = "span_edit_button" onclick="dynamic_page_change(id,'span_crud_button','table_people');">Edit</span>
+                    </td>
+                </tr>
+                <tr class="tr_empty_row_top" id = "tr_dietary_restrictions" hidden>
+                    <td class="class_td_permanent">
+                        <span>Dietary Restrictions:</span>
+                    </td>
+                    <td></td>
+                </tr>
+                <tr class=" " id = "tr_current_weight" hidden>
+                    <td class="class_td_permanent">
+                        <span>Current Weight:</span>
+                    </td>
+                    <td></td>
+                </tr>
+                <tr class=" " id = "tr_daily_caloric_intake" hidden>
+                    <td class="class_td_permanent">
+                        <span>Caloric Intake (Daily):</span>
+                    </td>
+                    <td></td>
+                </tr>
+                <tr class=" " id = "tr_percent_of_daily_calories_from_meal_prep" hidden>
+                    <td class="class_td_permanent">
+                        <span>Percent of Daily Calories from Meal Prep:</span>
+                    </td>
+                    <td></td>
+                </tr>
+                <tr class=" " id = "tr_meal_plan" hidden>
+                    <td class="class_td_permanent">
+                        <span>Meal Plan (Daily):</span>
+                    </td>
+                    <td></td>
+                </tr>
+                <tr class=" " id = "tr_prep_cycle" hidden>
+                    <td class="class_td_permanent">
+                        <span>Prep Cycle (Days):</span>
+                    </td>
+                    <td></td>
+                </tr>
+                <tr class=" " id = "tr_grams_of_protein_per_day" hidden>
+                    <td class="class_td_permanent">
+                        <span>Grams of Protein (Daily):</span>
+                    </td>
+                    <td></td>
+                </tr>
+                <tr class=" " id = "tr_weight_goal" hidden>
+                    <td class="class_td_permanent">
+                        <span>Weight Goal:</span>
+                    </td>
+                    <td></td>
+                </tr>
+                <tr class="tr_empty_row_bottom" id = "tr_food_allergens" hidden>
+                    <td class="class_td_permanent">
+                        <span>Food Allergens:</span>
+                    </td>
+                    <td></td>
+                </tr>
+
+            </table>
+
+            <table  id = "table_meal_plan_header"class="class_meal_plan_table_header">
+                <tr>
+                    <td id = "td_meal_plan_menu_header">
+                        <span id = "span_meal_type_table_header">
+                            Meal Plan: <span id = "span_prep_cycle_meal_plan_header"></span>
+                        </span>
+                        <span id = "span_style_selector">
+                            <span >
+                                <svg width="22" height="17" viewBox="0 0 22 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M0.5 0.5H21.1667V16.166H0.5V0.5Z" fill="#D9D9D9" stroke="#898989"/>
+                                    <rect x="3" y="2.99989" width="6.5" height="3.9998" fill="#D9D9D9" stroke="#898989"/>
+                                    <rect x="12.1667" y="2.99989" width="6.5" height="3.9998" fill="#D9D9D9" stroke="#898989"/>
+                                    <rect x="3" y="9.66631" width="6.5" height="3.9998" fill="#D9D9D9" stroke="#898989"/>
+                                    <rect x="12.1667" y="9.66631" width="6.5" height="3.9998" fill="#D9D9D9" stroke="#898989"/>
+                                    </svg>
+                                    
+                                    
+                            </span>
+                            <span>
+                                <svg width="22" height="17" viewBox="0 0 22 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect x="0.833336" y="0.5" width="20.6667" height="15.666" fill="#D9D9D9" stroke="#898989"/>
+                                    <rect x="3.33333" y="2.99989" width="15.6667" height="3.9998" fill="#D9D9D9" stroke="#898989"/>
+                                    <rect x="3.33333" y="9.66631" width="15.6667" height="3.9998" fill="#D9D9D9" stroke="#898989"/>
+                                    </svg>
+                                    
+                                    
+                            </span>
+                        </span>
+                    </td>
+                </tr>
+            </table>
+
+            <table id = "table_meal_plan" class="class_meal_plan_table">
+                <tr class = "tr_meal_type_subtable">
+                    <td  class = "td_meal_type_subtable">
+                        <table class="table_meal_type_subtable">
+                            <tr>
+                                <td class = "td_meal_plan_subtable_header">
+                                    <span class="span_meal_plan_subtable_header">
+                                        Breakfasts
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="td_meal_plan_option_subtable">
+                                    <table class="table_meal_plan_option">
+                                        <tr>
+                                            <td class="td_meal_plan_option_header">
+                                                <span class = "span_meal_plan_option_header_value">
+                                                    Oatmeal
+                                                </span>
+                                                <span class="span_meal_plan_option_dot_svg">
+                                                    <svg width="11" height="4" viewBox="0 0 11 4" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <path d="M1.32821 3.12926C1.00009 3.12926 0.718365 3.01326 0.483043 2.78125C0.251036 2.54593 0.135032 2.2642 0.135032 1.93608C0.135032 1.61127 0.251036 1.33286 0.483043 1.10085C0.718365 0.868845 1.00009 0.752841 1.32821 0.752841C1.6464 0.752841 1.9248 0.868845 2.16344 1.10085C2.40208 1.33286 2.5214 1.61127 2.5214 1.93608C2.5214 2.15483 2.46505 2.35535 2.35236 2.53764C2.24299 2.71662 2.09881 2.8608 1.91983 2.97017C1.74086 3.07623 1.54365 3.12926 1.32821 3.12926ZM5.49814 3.12926C5.17001 3.12926 4.88829 3.01326 4.65297 2.78125C4.42096 2.54593 4.30495 2.2642 4.30495 1.93608C4.30495 1.61127 4.42096 1.33286 4.65297 1.10085C4.88829 0.868845 5.17001 0.752841 5.49814 0.752841C5.81632 0.752841 6.09473 0.868845 6.33336 1.10085C6.572 1.33286 6.69132 1.61127 6.69132 1.93608C6.69132 2.15483 6.63497 2.35535 6.52228 2.53764C6.41291 2.71662 6.26873 2.8608 6.08976 2.97017C5.91078 3.07623 5.71357 3.12926 5.49814 3.12926ZM9.66806 3.12926C9.33993 3.12926 9.05821 3.01326 8.82289 2.78125C8.59088 2.54593 8.47488 2.2642 8.47488 1.93608C8.47488 1.61127 8.59088 1.33286 8.82289 1.10085C9.05821 0.868845 9.33993 0.752841 9.66806 0.752841C9.98624 0.752841 10.2646 0.868845 10.5033 1.10085C10.7419 1.33286 10.8612 1.61127 10.8612 1.93608C10.8612 2.15483 10.8049 2.35535 10.6922 2.53764C10.5828 2.71662 10.4387 2.8608 10.2597 2.97017C10.0807 3.07623 9.88349 3.12926 9.66806 3.12926Z" fill="#292929"/>
+                                                    </svg>
+                                                </span>
+                                            </td>
+                                            
+                                        </tr>
+                                        <tr >
+                                            <td class="td_meal_plan_option_dropdown td_meal_plan_option_dropdown_first">
+                                                <span class="span_meal_plan_option_dropdown_header">
+                                                    Calories:
+                                                    <span class="span_meal_plan_option_dropdown_header_value">
+                                                        500
+                                                    </span>
+                                                </span>
+                                                <span class = "span_meal_plan_option_dropdown_svg">
+                                                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <path d="M6.03417 11.1015L0.76938 0.550731L11.1615 0.476262L6.03417 11.1015Z" fill="#898989"/>
+                                                        </svg>                                                        
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <tr >
+                                            <td class="td_meal_plan_option_dropdown">
+                                                <span class="span_meal_plan_option_dropdown_header">
+                                                    Cost:
+                                                    <span class="span_meal_plan_option_dropdown_header_value">
+                                                        $2.75
+                                                    </span>
+                                                </span>
+                                                <span class = "span_meal_plan_option_dropdown_svg">
+                                                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <path d="M6.03417 11.1015L0.76938 0.550731L11.1615 0.476262L6.03417 11.1015Z" fill="#898989"/>
+                                                        </svg>                                                        
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <tr >
+                                            <td class="td_meal_plan_option_dropdown">
+                                                <span class="span_meal_plan_option_dropdown_header">
+                                                    Quantity:
+                                                    <span class="span_meal_plan_option_dropdown_header_value">
+                                                        7
+                                                    </span>
+                                                </span>
+                                                <span class = "span_meal_plan_option_edit">
+                                                    edit
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <table class="table_meal_plan_option table_meal_plan_option_add_area">
+                                        <tr>
+                                            <td class="td_meal_plan_option_header">
+                                                <span class = "span_meal_plan_option_header_value">
+                                                    Breakfasts <span id = "span_breakfasts_amount_remaining"></span>
+                                                </span>
+                                            </td>
+                                            
+                                        </tr>
+                                        <tr >
+                                            <td class="td_meal_plan_option_add_area td_meal_plan_option_dropdown_first">
+                                                <span class="span_meal_plan_option_add_area">
+                                                    <svg width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg" onclick="callCreateMealPlanTable();">
+                                                        <path d="M49.875 25C49.875 38.7381 38.7381 49.875 25 49.875C11.2619 49.875 0.125 38.7381 0.125 25C0.125 11.2619 11.2619 0.125 25 0.125C38.7381 0.125 49.875 11.2619 49.875 25Z" fill="#D9D9D9" stroke="#898989" stroke-width="0.25"/>
+                                                        <path d="M11.8182 25H38.1819" stroke="#898989" stroke-width="0.25"/>
+                                                        <path d="M25 12.2727L25 36.8182" stroke="#898989" stroke-width="0.25"/>
+                                                        </svg>                                                                                                            
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td  class = "td_meal_type_subtable">
+                        <table class="table_meal_type_subtable">
+                            <tr>
+                                <td class = "td_meal_plan_subtable_header">
+                                    <span class="span_meal_plan_subtable_header">
+                                        Entrees
+                                    </span>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div id = "div_sidebar_info" >
+            <!-- <table id = "p_sidebar_header"><tr><td>Additional Information:</td></tr> -->
+            <!--
+            <table class = "class_dropdown_table" id="servings_cost_table">
+                <tr class = "class_dropdown_item" id = "row_servings_cost" onclick ="dropdown('servings_cost_table');">
+                    <td class="td_dropdown_header">
+                        <span>Servings Cost</span>
+                    </td>
+                    
+                    <td class="td_arrow">
+                        <img class="down_arrow" src="stylesheets\Fresno_State_Images\arrow.png">
+                    </td>
+                    
+                </tr>
+            </table>
+            -->
+            <table class = "class_dropdown_table" id="product_cost_table">
+                <tr class = "class_dropdown_item" id = "row_product_cost" onclick ="dropdown('product_cost_table');">
+                    <td class="td_dropdown_header">
+                        <span>Shopping List</span>
+                    </td>
+                    
+                    <td class="td_arrow">
+                        <img class="down_arrow" src="stylesheets\Fresno_State_Images\arrow.png">
+                    </td>
+                    
+                </tr>
+            </table>
+            <table class = "class_dropdown_table" id="nutrition_facts_table">
+                <tr class = "class_dropdown_item" id = "row_nutrition_facts" onclick ="dropdown('nutrition_facts_table');">
+                    <td class="td_dropdown_header">
+                        <span>Nutrition Facts</span>
+                    </td>
+                    
+                    <td class="td_arrow">
+                        <img class="down_arrow" src="stylesheets\Fresno_State_Images\arrow.png">
+                    </td>
+                    
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div id = 'overlay'>
+        <div id = 'overlay_text'  class="class_preparation_table">
+            <span id="span_overlay_menu_header">Are You Sure?</span>
+            <p id="p_overlay_text">Delete the person: <span id = "span_name_overlay"></span>?</p>
+            <span class="span_overlay_button" id = "span_delete_button" onclick="delete_person(document.getElementById('span_name_overlay').textContent);">Delete</span>
+            <span class="span_overlay_button" id = "span_cancel_button" onclick=" document.getElementById('overlay').style.display='none'; ">Cancel</span>        
+        </div>
+    </div>
+    <footer class="menu_bar_footer">
+        <div class = "div_footer_text">
+            <span class = "span_footer_text">Website designed and developed by Weston Hawes &copy.</span>
+        </div>
+    </footer>
+</body>
+</html>
