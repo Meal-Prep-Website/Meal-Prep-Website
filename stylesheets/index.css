@@ -352,6 +352,77 @@ input,select{padding: 1.88px 7.5px; background-color: #f2f2f2; display: inline; 
 .table_meal_type_subtable{width:100%;}
 /*#div_preparation_info{width:74%;float: left;}*/
 .class_meal_plan_table{width: 98%; border-bottom: solid 1px black;  border-left: solid 1px black;  border-right: solid 1px black;background-color: #f2f2f2;}
+
+.table_add_item {
+    display:block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1;
+}
+
+.overlay-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    padding: 20px;
+    width: 80%;
+    max-width: 400px;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+}
+
+.overlay-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 0 10px 0;
+    border-bottom: 1px solid #ccc;
+}
+
+.header-left {
+    font-weight: bold;
+}
+
+.header-right {
+    text-align: right;
+}
+
+.overlay-options {
+    max-height: 200px;
+    overflow-y: auto;
+    padding: 0 0 10px 0;
+}
+
+.overlay-options ul {
+    list-style: none;
+    padding: 0;
+}
+
+.overlay-options li {
+    margin-bottom: 10px;
+	margin-left: 10px;
+	margin-right: 10px;
+    cursor: pointer;
+}
+
+button#cancelButton {
+    background-color: #ff0000;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button#cancelButton:hover {
+    background-color: #cc0000;
+}
 /*END --- Meal Plan Table*/
 
 /*Start --- Menu Bar Footer*/

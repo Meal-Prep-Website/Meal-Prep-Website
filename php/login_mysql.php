@@ -29,7 +29,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     // Validate credentials
     if(empty($username_err) && empty($password_err)){
         // Prepare a select statement
-        $sql = "SELECT login, password FROM user_table WHERE login = ?";
+        $sql = "SELECT login, password_hash FROM users WHERE login = ?";
         if($stmt = mysqli_prepare($conn, $sql)){
             // Bind variables to the prepared statement as parameters
             mysqli_stmt_bind_param($stmt, "s", $param_username);
@@ -53,7 +53,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                             save the username to the session */
                             session_start();
                             $_SESSION['username'] = $username;      
-                            header("location: welcome_mysql.php");
+                            header("location: index.php");
                         } else{
                             // Display an error message if password is not valid
                             $password_err = 'The password you entered was not valid.';

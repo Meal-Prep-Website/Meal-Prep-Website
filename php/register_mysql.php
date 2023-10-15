@@ -14,8 +14,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         echo json_encode($username_err);
         
     } else{
+        
         // Prepare a select statement
-        $sql = "SELECT id FROM `user_table` WHERE login = ?";
+        $sql = "SELECT login_id FROM `users` WHERE login = ?";
         
         if($stmt = mysqli_prepare($conn, $sql)){
             // Bind variables to the prepared statement as parameters
@@ -24,7 +25,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             $param_username = trim($_POST["username"]);          
             // Attempt to execute the prepared statement
             if(mysqli_stmt_execute($stmt)){
-                /* store result */
+                /* store result*/
                 mysqli_stmt_store_result($stmt);   
                 if(mysqli_stmt_num_rows($stmt) == 1){
                     $username_err = "This username is already taken.";
@@ -35,6 +36,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             } else{
                 echo json_encode("Oops! Something went wrong. Please try again later.");
             }
+            
         }
         // Close statement
         mysqli_stmt_close($stmt);
@@ -67,7 +69,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     if(empty($username_err) && empty($password_err) && empty($confirm_password_err)){
         
         // Prepare an insert statement
-        $sql = "INSERT INTO `user_table` (login, password,recipes_created,items_clicked) VALUES (?,?,0,0)";
+        $sql = "INSERT INTO `users` (login, password_hash) VALUES (?,?)";
          
         if($stmt = mysqli_prepare($conn, $sql)){
             // Bind variables to the prepared statement as parameters
