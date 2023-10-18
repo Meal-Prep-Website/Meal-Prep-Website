@@ -15,8 +15,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         
     } else{
         // Prepare a select statement
-        $sql = "SELECT id FROM `user_table` WHERE login = ?";
-        
+        $sql = "SELECT id FROM `users` WHERE login = ?";
+        try{
         if($stmt = mysqli_prepare($conn, $sql)){
             // Bind variables to the prepared statement as parameters
             mysqli_stmt_bind_param($stmt, "s", $param_username);       
@@ -38,6 +38,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         }
         // Close statement
         mysqli_stmt_close($stmt);
+        } catch (Exception $e){
+            echo 'Caught exception in check: ',  $e->getMessage(), "\n";
+        }
     }
     // Validate password
     if(empty(trim($_POST['current-password']))){
@@ -67,8 +70,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     if(empty($username_err) && empty($password_err) && empty($confirm_password_err)){
         
         // Prepare an insert statement
-        $sql = "INSERT INTO `user_table` (login, password,recipes_created,items_clicked) VALUES (?,?,0,0)";
-         
+        $sql = "INSERT INTO `users` (login, password) VALUES (?,?)";
+        try{ 
         if($stmt = mysqli_prepare($conn, $sql)){
             // Bind variables to the prepared statement as parameters
             mysqli_stmt_bind_param($stmt, "ss", $param_username, $param_password);
@@ -89,6 +92,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         }
         // Close statement
         mysqli_stmt_close($stmt);
+        }catch (Exception $e){
+            echo 'Caught exception in insert: ',  $e->getMessage(), "\n";
+        }
     }
     // Close connection
     mysqli_close($conn);
