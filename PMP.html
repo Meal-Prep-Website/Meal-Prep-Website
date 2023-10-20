@@ -783,6 +783,44 @@
             //default select to all, update categories section with all generic meal types.  
         }
     }
+    async function FetchMySqlGenericMealNames(mealType){
+            let table_name = 'generic_meals'; 
+            var myObj;
+            //loading in php
+            var xhttpphp = new XMLHttpRequest();
+            xhttpphp.onload = function(){
+                console.log(this.responseText);
+                myObj = JSON.parse(this.responseText);
+
+            }
+            xhttpphp.open("GET","php/GetData.php?meal_page=false&table_name="+table_name+"&name="+mealType,true);
+            xhttpphp.send();
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                resolve(myObj);
+                }, 100); // Simulating a 2-second delay
+            });
+    }
+    //generate all specific meal names given a generic meal name
+    async function FetchMySqlSpecificMealNames(genericMealName){
+        var sql_table_name = 'specific_meals';
+        var xhttpphp = new XMLHttpRequest();
+        var myObj;
+        xhttpphp.onload = function(){
+            console.log(this.responseText);
+            myObj = JSON.parse(this.responseText);
+
+            //return myObj;
+            //FetchMySqlMealAll(document.getElementById('select_specific_meal').value);
+        }
+        xhttpphp.open("GET","php/GetData.php?meal_page=true&table_name="+sql_table_name+"&name="+genericMealName,true);
+        xhttpphp.send();
+        return new Promise((resolve) => {
+            setTimeout(() => {
+            resolve(myObj);
+            }, 100); // Simulating a .1-second delay
+        });
+    }
     function add_person(){
         //if(add_bool == false){
         //this should add a textbox at the top of the category table and upon clikcing away, or pressing enter, the entry will be inputted and
@@ -1090,7 +1128,7 @@
                 span_dropdown_element.classList.toggle('dropdown_clicked');
         }
 
-        function createMealPlanTable() {
+        function createMealPlanTable(genericMealName,specificMealName) {
             // Create the main table element
             const table = document.createElement('table');
             table.classList.add('table_meal_plan_option');
@@ -1105,7 +1143,10 @@
             // Create the header content
             const headerSpan = document.createElement('span');
             headerSpan.classList.add('span_meal_plan_option_header_value');
+            headerSpan.textContent = genericMealName;
 
+            const svgSpan = document.createElement('span');
+            svgSpan.classList.add('span_meal_plan_option_dot_svg');
             // Create the dot SVG element
             const dotSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
             dotSvg.setAttribute('width', '11');
@@ -1121,12 +1162,13 @@
             // Append the path to the dot SVG
             dotSvg.appendChild(dotPath);
 
-            // Append the dot SVG to the header span
-            headerSpan.appendChild(dotSvg);
+            svgSpan.appendChild(dotSvg);
 
             // Append the header span to the header cell
             headerCell.appendChild(headerSpan);
 
+            // Append the dot SVG to the header span
+            headerCell.appendChild(svgSpan);
             // Append the header cell to the first row
             firstRow.appendChild(headerCell);
 
@@ -1190,227 +1232,277 @@
             // Return the created table
             return table;
             }
-    function createMealPlanSelectTable(){
-                // Create the overlay element
-        var overlay = document.createElement('div');
-        overlay.id = 'table_add_item';
-        overlay.classList.add('table_add_item');
-        
-        // Create the overlay content container
-        var overlayContent = document.createElement('div');
-        overlayContent.classList.add('overlay-content');
-        
-        // Create the overlay header
-        var overlayHeader = document.createElement('div');
-        overlayHeader.classList.add('overlay-header');
-        
-        // Create the left header element
-        var headerLeft = document.createElement('div');
-        headerLeft.classList.add('header-left');
-        headerLeft.textContent = 'Category';
-        
-        // Create the right header element with a "Cancel" button
-        var headerRight = document.createElement('div');
-        headerRight.classList.add('header-right');
-        
-        var cancelButton = document.createElement('button');
-        cancelButton.id = 'cancelButton';
-        cancelButton.textContent = 'Cancel';
-        cancelButton.addEventListener('click',() => {
-            cancelButton.remove();
-            overlay.remove();
+            class MealPlanOverlayManager {
+                constructor() {
+                    this.overlay = null;
+                    this.header = null;
+                    this.headerLeft = null;
+                    this.headerRight = null;
+                    this.overlayOptions = null;
+                    this.optionsList = null;
+                    this.cancelButton = null;
+                    this.isBackButton = null;
+                    this.mealType = null;
+                }
 
-        });
-        // Append the "Cancel" button to the right header
-        headerRight.appendChild(cancelButton);
-        
-        // Append left and right headers to the overlay header
-        overlayHeader.appendChild(headerLeft);
-        overlayHeader.appendChild(headerRight);
-        
-        // Create the overlay options container with a scrollable list
-        const overlayOptions = document.createElement('div');
-        overlayOptions.classList.add('overlay-options');
+                createOverlay(mealType) {
+                    this.overlay = document.createElement('div');
+                    this.overlay.id = 'table_add_item';
+                    this.overlay.classList.add('table_add_item');
+                    //this.headerLeft = null;
+                    //this.cancelButton = null;
+                    //this.optionsList = null;
+                    // Create the overlay content container
+                    this.overlay = document.createElement('div');
+                    this.overlay.classList.add('overlay-content');
 
-        // Create the options list
-        const optionsList = document.createElement('ul');
+                    // Create the overlay header
+                    this.header = document.createElement('div');
+                    this.header.classList.add('overlay-header');
 
-        // Add sample options to the list
-        const options = ['Option 1', 'Option 2', 'Option 3', 'Option 4', 'Option 5', 'Option 6', 'Option 7', 'Option 8'];
-        options.forEach(optionText => {
-            const optionItem = document.createElement('li');
-       // optionItem.style.display = 'flex';
-        //optionItem.style.alignItems = 'center';
-        //optionItem.style.justifyContent = 'space-between';
+                    // Create the left header element
+                    this.headerLeft = document.createElement('div');
+                    this.headerLeft.classList.add('header-left');
+                    this.headerLeft.textContent = 'Category';
 
-        // Create a container for text and SVG
-        const textAndSvgContainer = document.createElement('div');
-        textAndSvgContainer.style.display = 'flex';
-        textAndSvgContainer.style.alignItems = 'center';
-        textAndSvgContainer.style.justifyContent = 'space-between';
+                    // Create the right header element with a "Cancel" button
+                    this.headerRight = document.createElement('div');
+                    this.headerRight.classList.add('header-right');
 
-        // Create a span for the option text with a line
-        const optionTextSpan = document.createElement('span');
-        optionTextSpan.textContent = optionText;
-        optionTextSpan.style.fontWeight = 'bold';
+                    // Create the overlay options container with a scrollable list
+                    this.overlayOptions = document.createElement('div');
+                    this.overlayOptions.classList.add('overlay-options');
 
-        const optionLine = document.createElement('hr');
-        optionLine.style.border = '0';
-        optionLine.style.borderTop = '0.25px solid #ccc';
-        //optionLine.style.width = '75%';
-        
-        // Add spacing (margin) to the hr element
-        optionLine.style.margin = '10px auto'; // 10px spacing and centered
+                    // Create the options list
+                    this.optionsList = document.createElement('ul');
 
+                    this.cancelButton = document.createElement('button');
+                    this.cancelButton.id = 'cancelButton';
+                    this.cancelButton.textContent = 'Cancel';
+                    /*
+                    this.cancelButton.addEventListener('click', () => {
+                        this.handleCancelButtonClick();
+                        this.cancelButton.removeEventListener('click', this.handleCancelButtonClick);
+                    });
+                    */
+                    this.cancelButton.addEventListener('click', this.handleCancelButtonClick.bind(this));
+                    this.isBackButton = false;
+                    // Append the "Cancel" button to the right header
+                    this.headerRight.appendChild(this.cancelButton);
 
-        // Create an SVG element
-        const svgIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        svgIcon.setAttribute('width', '11');
-        svgIcon.setAttribute('height', '13');
-        svgIcon.setAttribute('viewBox', '0 0 11 13');
+                    // Append left and right headers to the overlay header
+                    this.header.appendChild(this.headerLeft);
+                    this.header.appendChild(this.headerRight);
 
-        // Create the path element inside the SVG
-        const svgPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        svgPath.setAttribute('d', 'M4.53744 11.0746L9.07471 6.53729L4.53744 2.00002');
-        svgPath.setAttribute('fill','#ccc');
-        svgPath.setAttribute('stroke', '#ccc');
-        svgPath.setAttribute('stroke-opacity', '.5');
-        svgPath.setAttribute('stroke-width', '3');
-        svgPath.setAttribute('stroke-linecap', 'round');
-        svgPath.setAttribute('stroke-linejoin', 'round');
+                    // Append the options list to the overlay options container
+                    this.overlayOptions.appendChild(this.optionsList);
 
-        // Append the path element to the SVG element
-        svgIcon.appendChild(svgPath);
+                    // Append the options container to the overlay content
+                    this.overlay.appendChild(this.header);
+                    this.overlay.appendChild(this.overlayOptions);
 
+                    this.mealType = mealType;
+                }
+                createOptionItem(optionText) {
+                    const optionItem = document.createElement('li');
 
+                    const optionContainer = document.createElement('div');
+                    optionContainer.style.display = 'flex';
+                    optionContainer.style.alignItems = 'center';
+                    optionContainer.style.justifyContent = 'space-between';
 
-        // Append the option text span to the textAndSvgContainer
-        textAndSvgContainer.appendChild(optionTextSpan);
-        // Append the SVG to the container
-        textAndSvgContainer.appendChild(svgIcon);
-        // Append the textAndSvgContainer and the SVG container to the option item
-        optionItem.appendChild(textAndSvgContainer);
-        optionItem.appendChild(optionLine);
+                    const optionTextSpan = document.createElement('span');
+                    optionTextSpan.textContent = optionText;
+                    optionTextSpan.style.fontWeight = 'bold';
 
-        // Add a click event listener to each option's li
-        optionItem.addEventListener('click', () => {
-            // Replace "Category" with the selected option's text
-            headerLeft.textContent = optionText;
-            // Change the "cancel" button to a "back" button
-            cancelButton.remove();
-            var backButton = document.createElement('button');
-            backButton.id = 'cancelButton';
-            backButton.textContent = 'Back';
-            // Append the "Cancel" button to the right header
-            headerRight.appendChild(backButton);
-            backButton.addEventListener('click',() => {
-                overlay.remove();
-                backButton.remove();
-                callCreateMealPlanTable();
-            });
-            // Populate the list with the "variation" list (replace with your data source)
-            populateListWithVariations(optionsList);
-        });
+                    const svgIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                    svgIcon.setAttribute('width', '11');
+                    svgIcon.setAttribute('height', '13');
+                    svgIcon.setAttribute('viewBox', '0 0 11 13');
 
-        // Append the option item to the options list
-        optionsList.appendChild(optionItem);
-        //optionsList.appendChild();
-    });
+                    const svgPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                    svgPath.setAttribute('d', 'M4.53744 11.0746L9.07471 6.53729L4.53744 2.00002');
+                    svgPath.setAttribute('fill', '#ccc');
+                    svgPath.setAttribute('stroke', '#ccc');
+                    svgPath.setAttribute('stroke-opacity', '.5');
+                    svgPath.setAttribute('stroke-width', '3');
+                    svgPath.setAttribute('stroke-linecap', 'round');
+                    svgPath.setAttribute('stroke-linejoin', 'round');
 
+                    svgIcon.appendChild(svgPath);
 
-        // Append the options list to the overlay options container
-        overlayOptions.appendChild(optionsList);
+                    const optionLine = document.createElement('hr');
+                    optionLine.style.border = '0';
+                    optionLine.style.borderTop = '0.25px solid #ccc';
+                    optionLine.style.width = '75%';
+                    optionLine.style.margin = '10px auto';
 
-        // Append the options container to the overlay content
-        overlayContent.appendChild(overlayHeader);
-        overlayContent.appendChild(overlayOptions);
+                    optionContainer.appendChild(optionTextSpan);
+                    optionContainer.appendChild(svgIcon);
+                    optionItem.appendChild(optionContainer);
+                    optionItem.appendChild(optionLine);
 
-        
-        // Append the overlay content to the overlay element
-        overlay.appendChild(overlayContent);
-        
-        // Add the overlay to the document body
-        //document.body.appendChild(overlay);
-        return overlay;
-    }
-    // Function to populate the list with "variation" data
-    function populateListWithVariations(optionsList) {
-        // Clear the existing list
-        optionsList.innerHTML = '';
-        // Replace this with your "variation" data source
-        const variations = ['Variation 1', 'Variation 2', 'Variation 3'];
-        
-        variations.forEach(variationText => {
-            // Create list items for variations (similar to options)
-            const variationItem = document.createElement('li');
+                    return optionItem;
+                }
+                handleCancelButtonClick() {
+                    if (this.isBackButton) {
+                        this.handleBackButtonClick();
+                    } else {
+                        this.cancelButton.remove();
+                        this.overlay.remove();
+                    }
+                }
 
-            // Create a container for text and SVG (similar to options)
-            const variationTextAndSvgContainer = document.createElement('div');
-            variationTextAndSvgContainer.style.display = 'flex';
-            variationTextAndSvgContainer.style.alignItems = 'center';
-            variationTextAndSvgContainer.style.justifyContent = 'space-between';
+                handleOptionClick(optionText) {
+                    // Replace "Category" with the selected option's text
+                    this.headerLeft.textContent = optionText;
 
-            // Create a span for the variation text (similar to options)
-            const variationTextSpan = document.createElement('span');
-            variationTextSpan.textContent = variationText;
-            variationTextSpan.style.fontWeight = 'bold';
+                    //remove cancelButton event listener
+                    //this.cancelButton = null;
+                    // Change the "cancel" button to a "back" button
+                    this.cancelButton.textContent = 'Back';
+                    this.isBackButton = true;
 
-            const optionLine = document.createElement('hr');
-        optionLine.style.border = '0';
-        optionLine.style.borderTop = '0.25px solid #ccc';
-        //optionLine.style.width = '75%';
-        
-        // Add spacing (margin) to the hr element
-        optionLine.style.margin = '10px auto'; // 10px spacing and centered
+                    // Populate the list with the "variation" data
+                    this.populateListWithVariations();
 
+                }
+                handleVariationClick(optionText,optionText2) {
+                    // Replace the header text with the selected option's text
+                    if(optionText2){
+                        this.headerLeft.textContent = optionText2+ " : " + optionText;
+                    }
+                    else{
+                        this.headerLeft.textContent = optionText;
+                    }
+                    // Change the "Back" button to a "Reset" button
+                    this.cancelButton.textContent = 'Reset';
 
-        // Create an SVG element
-        const svgIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        svgIcon.setAttribute('width', '11');
-        svgIcon.setAttribute('height', '13');
-        svgIcon.setAttribute('viewBox', '0 0 11 13');
+                    // Clear the existing list
+                    this.optionsList.innerHTML = '';
 
-        // Create the path element inside the SVG
-        const svgPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        svgPath.setAttribute('d', 'M4.53744 11.0746L9.07471 6.53729L4.53744 2.00002');
-        svgPath.setAttribute('fill','#ccc');
-        svgPath.setAttribute('stroke', '#ccc');
-        svgPath.setAttribute('stroke-opacity', '.5');
-        svgPath.setAttribute('stroke-width', '3');
-        svgPath.setAttribute('stroke-linecap', 'round');
-        svgPath.setAttribute('stroke-linejoin', 'round');
+                    var optionItem = document.createElement('li');
+                    // Create a row for quantity input
+                    const quantityRow = document.createElement('div');
+                    quantityRow.style.display = 'flex';
+                    quantityRow.style.alignItems = 'center';
+                    quantityRow.style.justifyContent = 'space-between';
+                    const quantityLabel = document.createElement('div');
+                    quantityLabel.textContent = 'Quantity:';
+                    const quantityInput = document.createElement('input');
+                    quantityInput.type = 'number';
+                    quantityInput.min = 0;
+                    quantityInput.value = 1; // Default value
+                    quantityRow.appendChild(quantityLabel);
+                    quantityRow.appendChild(quantityInput);
 
-        // Append the path element to the SVG element
-        svgIcon.appendChild(svgPath);
+                    // Create a "Done" button
+                    const doneButton = document.createElement('button');
+                    doneButton.textContent = 'Done';
+                    doneButton.classList.add('done-button'); // Add a class
+                    doneButton.addEventListener('click', () => {
+                        // Get a reference to the parent element where you want to append the table
+                        var siblingNode = document.getElementsByClassName('table_meal_plan_option_add_area')[0]; // Replace with the actual parent element ID
+                        // Create the table and append it to the parent element
+                        var mealPlanTable = createMealPlanTable(optionText2, optionText);
 
-            // Append the option text span to the textAndSvgContainer
-            variationTextAndSvgContainer.appendChild(variationTextSpan);
-            // Append the SVG to the container
-            variationTextAndSvgContainer.appendChild(svgIcon);
+                        // Insert the new node before the sibling node
+                        siblingNode.parentNode.insertBefore(mealPlanTable, siblingNode);
 
-            // ... (Similar code for creating SVG and <hr> as in options)
+                        this.overlay.remove(); // Close the overlay
+                    });
 
-            // Add a click event listener to each variation's li
-            variationItem.addEventListener('click', () => {
-                // Handle the click on a variation
-                // You can add specific behavior here
-            });
+                    // Add spacing between quantity input and the "Done" button
+                    const spacer = document.createElement('div');
+                    spacer.style.flex = '1';
 
-            // Append elements for variation item
-            variationItem.appendChild(variationTextAndSvgContainer);
-            variationItem.appendChild(optionLine);
+                    // Append the "Done" button to the quantity row
+                    quantityRow.appendChild(spacer);
+                    quantityRow.appendChild(doneButton);
+                    optionItem.appendChild(quantityRow);
 
-            // Append the variation item to the options list
-            optionsList.appendChild(variationItem);
-        });
-    }
-    function callCreateMealPlanTable(){
+                    // Append the quantity row to the table
+                    this.optionsList.appendChild(optionItem);
+                }
+                handleBackButtonClick() {
+                    // Handle going back to the previous state
+                    this.headerLeft.textContent = 'Category';
+                    this.cancelButton.textContent = 'Cancel';
+                    this.populateListWithOptions(this.mealType);
+                    this.isBackButton = false;
+                }
+
+                async populateListWithVariations() {
+                    this.clearOptionsList();
+
+                    // Replace this with your "variation" data source
+                    var variations = await FetchMySqlSpecificMealNames(this.headerLeft.textContent);
+                    console.log(variations);
+                    variations.forEach(variationText => {
+                        variationText = variationText.specific_meal_name;
+                        // Create list items for variations
+                        var optionItem = this.createOptionItem(variationText);
+
+                        // ... (Create and append variation items as before)
+                        optionItem.addEventListener('click', () => {
+                            this.handleVariationClick(variationText,this.headerLeft.textContent);
+                        });
+
+                        this.optionsList.appendChild(optionItem);
+                    });
+
+                }
+                
+                async populateListWithOptions() {
+                    this.clearOptionsList();
+
+                    // Add sample options to the list
+                    //var options = ['Meal A', 'Meal B', 'Meal C'];
+                    //Replace with a get to get all genericMealNames
+                    // Replace this with your "variation" data source
+                    var options = await FetchMySqlGenericMealNames(this.mealType);
+                    console.log(options);
+
+                    options.forEach(optionText => {
+                        optionText = optionText.generic_meal_name;
+
+                        var optionItem = this.createOptionItem(optionText);
+
+                        optionItem.addEventListener('click', () => {
+                            this.handleOptionClick(optionText);
+                        });
+                        // Append the option item to the options list
+                        this.optionsList.appendChild(optionItem);
+                    });
+
+                }
+
+                clearOptionsList() {
+                    this.optionsList.innerHTML = '';
+                }
+
+            // Add other methods as needed
+                createMealPlanSelectTable(mealType) {
+                    // Create the overlay node
+                    this.createOverlay(mealType);
+                   
+                    this.populateListWithOptions();
+                    // Add the overlay to the document body
+                    document.body.appendChild(this.overlay);
+                }
+        }
+
+    function callCreateMealPlanSelectTable(mealType){
         // Get a reference to the parent element where you want to append the table
-        const parentElement = document.getElementsByClassName('td_meal_type_subtable')[0]; // Replace with the actual parent element ID
+       // const parentElement = document.getElementsByClassName('td_meal_type_subtable')[0]; // Replace with the actual parent element ID
         // Create the table and append it to the parent element
         //const mealPlanTable = createMealPlanTable();
-        var mealPlanTable = createMealPlanSelectTable();
-        document.body.appendChild(mealPlanTable);
+        //var mealPlanTable = createMealPlanSelectTable();
+        var mealPlanTable = new MealPlanOverlayManager();
+        mealPlanTable.createMealPlanSelectTable(mealType);
+
+        //append the overlay table
+        //document.body.appendChild(mealPlanTable);
     }
 
 
@@ -1696,7 +1788,7 @@
                                         <tr >
                                             <td class="td_meal_plan_option_add_area td_meal_plan_option_dropdown_first">
                                                 <span class="span_meal_plan_option_add_area">
-                                                    <svg width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg" onclick="callCreateMealPlanTable();">
+                                                    <svg width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg" onclick="callCreateMealPlanSelectTable('Breakfasts');">
                                                         <path d="M49.875 25C49.875 38.7381 38.7381 49.875 25 49.875C11.2619 49.875 0.125 38.7381 0.125 25C0.125 11.2619 11.2619 0.125 25 0.125C38.7381 0.125 49.875 11.2619 49.875 25Z" fill="#D9D9D9" stroke="#898989" stroke-width="0.25"/>
                                                         <path d="M11.8182 25H38.1819" stroke="#898989" stroke-width="0.25"/>
                                                         <path d="M25 12.2727L25 36.8182" stroke="#898989" stroke-width="0.25"/>

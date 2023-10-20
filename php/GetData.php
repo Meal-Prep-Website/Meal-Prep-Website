@@ -274,6 +274,10 @@ if($meal_page == 'true'){
 
 
 else{
+    if($table_name =='generic_meals'){
+        $sql = "SELECT generic_meal_name FROM generic_meals where meal_type_name = \"".$name."\" ORDER BY generic_meal_name;";
+        $result = mysqli_query($conn, $sql) or die("Error in Selecting " . mysqli_error($conn));
+    }
     //echo ($table_name);
     if ($table_name =='meal_types'){
         if ($name == 'All'){

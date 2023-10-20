@@ -423,6 +423,20 @@ button#cancelButton {
 button#cancelButton:hover {
     background-color: #cc0000;
 }
+
+/* In your CSS file or style block */
+.done-button {
+    background-color: #4CAF50; /* Green background color */
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.done-button:hover {
+    background-color: #45a049; /* Slightly darker green on hover */
+}
 /*END --- Meal Plan Table*/
 
 /*Start --- Menu Bar Footer*/
