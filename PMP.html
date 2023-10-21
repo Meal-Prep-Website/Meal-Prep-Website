@@ -184,429 +184,7 @@
                 xhttpphp.send();
 
         }
-        
 
-        function FetchMySqlAll(name){//reads in the name of the specific meal to be queried 
-            let p = 0;
-            //let temp= document.getElementById(injected_table_name);
-
-
-                            
-                //loading in php
-                var xhttpphp = new XMLHttpRequest();
-                xhttpphp.onload = function(){
-                    console.log(this.responseText);
-                    
-                        let class_name= ' ';
-                        let myObj = JSON.parse(this.responseText);
-                        let myObjLength = 0;
-                        let list_arr = [];
-                        let insert_table = ' ';
-                        //console.log(myObj);
-                        //console.log(myObj[0].specific_meals[0]);
-                       /// if (sql_table_name == 'specific_meal_table'){
-                        //reset dropdown list and the arrows
-                        let i = 0;
-                        while (i < myObj[0].specific_meals[0].num_ingredients){
-                            list_arr[i] = myObj[0].specific_meals[0].ingredients[i].name;
-                            i++;
-                        }
-                        //console.log(myObj[0].specific_meals[0].ingredients[0].food_products[0].total_cost);
-                        console.log(myObj[0].specific_meals[0]);
-                        //console.log(myObj[0].specific_meals[0].ingredients[0].total_cost);
-                            //counts how many elements in list
-                            //myObjLength = ((myObj[0].ingredient_list).match(/,/g) || []).length + 1;
-                            //list_arr = (myObj[0].specific_meals.ingredient_list).split(',');
-                            //class_name= 'td_dropdown_menu_item';
-                            //insert_table = injected_table_name;
-                        //}
-                        //clears category list upon category selection
-                        //reset dropdown list and the arrows
-                        let dropdown_list_names= [];
-                        dropdown_list_names[0]= 'servings_cost_table';
-                        dropdown_list_names[1]= 'product_cost_table';
-                        dropdown_list_names[2]= 'nutrition_facts_table';
-                        i = 0;
-                        while (i < dropdown_list_names.length){
-                            p=0;
-                            temp= document.getElementById(dropdown_list_names[i]);
-                            //clear dropdown table data (3 tables)
-                            Array.prototype.slice.call(temp.getElementsByTagName('tr')).forEach(
-                                function(item) {
-                                    temp.getElementsByTagName('img')[0].setAttribute('class','down_arrow');
-                                    if (p > 0){
-                                    item.remove();
-                                    }
-                                    p++;
-                                    // or item.parentNode.removeChild(item); for older browsers (Edge-)
-                                });
-                                i++;
-                        }
-                        console.log(myObjLength);
-
-                        //insert dropdown table data
-
-                        //insert servings cost table data
-                            //row length is cost per ingredient(num ingredients)
-                            // 2 columns ing name and cost
-                        //loop to create x by y textboxes for Matrix A
-                        
-
-
-                        for (let i = 0; i < myObj[0].specific_meals[0].num_ingredients; i++){
-                            let r = document.createElement('tr');
-                            
-
-                            for(let j = 0; j < 2; j++){
-                                let c = document.createElement('td');
-                                //first column is name
-                                if (i==0){
-                                    c.setAttribute('class', 'first '+class_name)
-                                }
-                                if(i+1 == myObjLength){
-                                    c.setAttribute('class', 'last '+class_name);
-                                }
-                                if(i==0 && (i+1 == myObjLength)){
-                                    c.setAttribute('class', 'last first'+class_name);
-                                }
-                                else{
-                                    c.setAttribute('class', class_name)
-                                }
-                                if (j == 0){
-                                    c.innerText= list_arr[i];
-                                }
-                                else if(j==1){
-                                    c.innerText = '$'+myObj[0].specific_meals[0].cost_per_ingredient[i].toFixed(2);
-                                }
-                                r.appendChild(c);
-                                r.setAttribute('hidden','true')
-                            }
-                            document.getElementById(dropdown_list_names[0]).appendChild(r);
-
-                        }
-                        //insert dropdown table data
-
-                        //insert product cost table data
-                            //row length is cost per ingredient(num ingredients)
-                            // 3 columns ing name, cost per product, and how many of product to make all servings
-                        //loop to create x by y textboxes for Matrix A
-                        
-                        for (let i = 0; i < myObj[0].specific_meals[0].num_ingredients; i++){
-                            let r = document.createElement('tr');
-                            
-
-                            for(let j = 0; j < 2; j++){
-                                let c = document.createElement('td');
-                                //first column is name
-                                if (i==0){
-                                    c.setAttribute('class', 'first '+class_name)
-                                }
-                                if(i+1 == myObjLength){
-                                    c.setAttribute('class', 'last '+class_name);
-                                }
-                                if(i==0 && (i+1 == myObjLength)){
-                                    c.setAttribute('class', 'last first '+class_name);
-                                }
-                                else{
-                                    c.setAttribute('class', class_name)
-                                }
-                                if (j == 0){
-                                    c.innerText= myObj[0].specific_meals[0].ingredients[i].name;
-                                }
-                                else if(j==1){
-                                    let tempNum = myObj[0].specific_meals[0].ingredients[i].food_products[0].total_cost;
-                                    c.innerText = '$'+Number(tempNum).toFixed(2);//.toPrecision(2);//.toPrecision(2);
-                                }
-                                r.appendChild(c);
-                                r.setAttribute('hidden','true')
-                            }
-                            document.getElementById(dropdown_list_names[1]).appendChild(r);
-
-                        }
-                        
-                                                //insert dropdown table data
-
-                        //insert nutrition facts table data
-                            //row length is amount of nutriton facts
-                            // fact, amount, dvpercentage
-                            //create table, write insert all facts along with grams and percentages on far right
-                        //loop to create x by y textboxes for Matrix A
-                                                //put into an array all nutrition facts per seving and then
-                        //display those along with the accompanying grams and dvp
-                        let nut_fact_names_arr= [];
-                        nut_fact_names_arr.push('Calories');
-                        nut_fact_names_arr.push('Total Fat');
-                        nut_fact_names_arr.push('Saturated Fat');
-                        nut_fact_names_arr.push('Trans Fat');
-                        nut_fact_names_arr.push('Cholesterol');
-                        nut_fact_names_arr.push('Sodium');
-                        nut_fact_names_arr.push('Total Carbs');
-                        nut_fact_names_arr.push('Fiber');
-                        nut_fact_names_arr.push('Total Sugar');
-                        nut_fact_names_arr.push('Added Sugar');
-                        nut_fact_names_arr.push('Protein');
-                        nut_fact_names_arr.push('Vitamin D');
-                        nut_fact_names_arr.push('Calcium');
-                        nut_fact_names_arr.push('Iron');
-                        nut_fact_names_arr.push('Potassium');
-                        //grams
-                        let nut_fact_grams_arr=[];
-                        nut_fact_grams_arr.push(myObj[0].specific_meals[0].calories_per_serving);
-                        nut_fact_grams_arr.push(myObj[0].specific_meals[0].total_fat_per_serving);
-                        nut_fact_grams_arr.push(myObj[0].specific_meals[0].saturated_fat_per_serving);
-                        nut_fact_grams_arr.push(myObj[0].specific_meals[0].trans_fat_per_serving);
-                        nut_fact_grams_arr.push(myObj[0].specific_meals[0].cholesterol_per_serving);
-                        nut_fact_grams_arr.push(myObj[0].specific_meals[0].sodium_per_serving);
-                        nut_fact_grams_arr.push(myObj[0].specific_meals[0].total_carbs_per_serving);
-                        nut_fact_grams_arr.push(myObj[0].specific_meals[0].fiber_per_serving);
-                        nut_fact_grams_arr.push(myObj[0].specific_meals[0].total_sugar_per_serving);
-                        nut_fact_grams_arr.push(myObj[0].specific_meals[0].added_sugar_per_serving);
-                        nut_fact_grams_arr.push(myObj[0].specific_meals[0].protein_per_serving);
-                        nut_fact_grams_arr.push(myObj[0].specific_meals[0].vitamin_d_per_serving);
-                        nut_fact_grams_arr.push(myObj[0].specific_meals[0].calcium_per_serving);
-                        nut_fact_grams_arr.push(myObj[0].specific_meals[0].iron_per_serving);
-                        nut_fact_grams_arr.push(myObj[0].specific_meals[0].potassium_per_serving);
-
-                        //dvp
-                        console.log(nut_fact_grams_arr);
-
-                        for (let i = 0; i < 15; i++){
-                            let r = document.createElement('tr');
-                            
-
-                            for(let j = 0; j < 2; j++){
-                                let c = document.createElement('td');
-                                
-                                if (i==0){
-                                    c.setAttribute('class', 'first '+class_name)
-                                }
-                                if(i+1 == myObjLength){
-                                    c.setAttribute('class', 'last '+class_name);
-                                }
-                                if(i==0 && (i+1 == myObjLength)){
-                                    c.setAttribute('class', 'last first '+class_name);
-                                }
-                                else{
-                                    c.setAttribute('class', class_name)
-                                }
-                                //first column is name
-                                if (j == 0){
-                                    c.innerText= nut_fact_names_arr[i]+':';
-                                }
-                                //second column is data
-                                else if(j==1){
-                                    //if statements to format info correctly
-                                    //number roundage
-                                    if(nut_fact_names_arr[i]=='Calories'){
-                                        c.innerText = (Math.round(nut_fact_grams_arr[i]/10)*10);
-                                    }
-                                    else if (nut_fact_names_arr[i]=='Total Fat' || nut_fact_names_arr[i]=='Saturated Fat'
-                                        || nut_fact_names_arr[i]=='Trans Fat'){
-                                            c.innerText = c.innerText+(Math.round(nut_fact_grams_arr[i]/.5)*.5);
-                                    }
-                                    else if(nut_fact_names_arr[i]=='Cholesterol' || nut_fact_names_arr[i]=='Sodium'
-                                    || nut_fact_names_arr[i]=='Calcium' || nut_fact_names_arr[i]=='Potassium'
-                                    || nut_fact_names_arr[i]=='Vitamin D'){
-                                        c.innerText = c.innerText+(Math.round(nut_fact_grams_arr[i]/5)*5);
-                                    }
-                                    else if(nut_fact_names_arr[i]=='Total Carbs' || nut_fact_names_arr[i]=='Total Sugar'
-                                    || nut_fact_names_arr[i]=='Added Sugar' || nut_fact_names_arr[i]=='Fiber'
-                                    || nut_fact_names_arr[i]=='Protein'){
-                                        c.innerText = c.innerText+(Math.round(nut_fact_grams_arr[i]/1));
-                                    }
-                                    else if (nut_fact_names_arr[i]=='Iron'){
-                                        c.innerText = c.innerText+(Math.round(nut_fact_grams_arr[i]/.1)*.1).toFixed(1);
-                                    }
-                                    /*
-
-                                        */
-                                    //unit of measurement
-                                    if(nut_fact_names_arr[i]=='Total Fat' || nut_fact_names_arr[i]=='Saturated Fat'
-                                    || nut_fact_names_arr[i]=='Trans Fat' || nut_fact_names_arr[i]=='Total Carbs'
-                                    || nut_fact_names_arr[i]=='Fiber' || nut_fact_names_arr[i]=='Total Sugar'
-                                    || nut_fact_names_arr[i]=='Added Sugar' || nut_fact_names_arr[i]=='Protein'){
-                                        c.innerText = c.innerText+'g';
-                                    }
-                                    else if(nut_fact_names_arr[i]=='Cholesterol' || nut_fact_names_arr[i]=='Sodium'
-                                    || nut_fact_names_arr[i]=='Calcium' || nut_fact_names_arr[i]=='Iron'
-                                    || nut_fact_names_arr[i]=='Potassium'){
-                                        c.innerText = c.innerText+'mg';
-                                    }
-                                    else if(nut_fact_names_arr[i]=='Vitamin D'){
-                                        c.innerText = c.innerText+'mcg';
-                                    }
-
-                                   // c.innerText = (Math.round(nut_fact_grams_arr[i]*10)/10);
-                                }
-                                r.appendChild(c);
-                                r.setAttribute('hidden','true')
-                            }
-                            document.getElementById(dropdown_list_names[2]).appendChild(r);
-                        }
-                        
-                //clear all left side description
-                            
-                temp= document.getElementById('table_preparation');
-                //clear description table data (3 tables)
-                Array.prototype.slice.call(temp.getElementsByTagName('tr')).forEach(
-                    function(item) {
-                        if (item.getAttribute('class')!=' '){
-                        item.remove();
-                        }
-                        p++;
-                        // or item.parentNode.removeChild(item); for older browsers (Edge-)
-                    });
-                    i++;
-
-                //fill ingredients required
-                //temp_td = document.createElement('td');
-                let temp_r = document.getElementById('tr_ingredients_required');
-
-                    for (let i = 0; i < myObj[0].specific_meals[0].num_ingredients; i++){
-                            let r = document.createElement('tr');
-
-                            for(let j = 0; j < 2; j++){
-                                let c = document.createElement('td');
-                                //first column is name
-                                if (i==0){
-                                    c.setAttribute('class', 'first '+class_name)
-                                }
-                                if(i+1 == myObj[0].specific_meals[0].num_ingredients){
-                                    c.setAttribute('class', 'last '+class_name);
-                                }
-                                if(i==0 && (i+1 == myObj[0].specific_meals[0].num_ingredients)){
-                                    c.setAttribute('class', 'last first '+class_name);
-                                }
-                                else{
-                                    //c.setAttribute('class', class_name)
-                                }
-                                if (j == 0){
-                                    c.innerText= myObj[0].specific_meals[0].ingredients[i].name;
-                                }
-                                else if(j==1){
-                                    c.innerText = myObj[0].specific_meals[0].grams_needed_per_ingredient[i]+' g';
-                                }
-                                r.appendChild(c);
-                                //r.setAttribute('hidden','true')
-                            }
-                            temp_r.after(r);
-                            temp_r = r;
-
-
-                        }
-
-                //fill preparation
-                temp_r = document.getElementById('tr_preparation');
-                //console.log(myObj[0].specific_meals[0].num_ingredients);
-                    for (let i = 0; i < myObj[0].specific_meals[0].preparation_steps.length; i++){
-                            let r = document.createElement('tr');
-
-                            for(let j = 0; j < 2; j++){
-                                let c = document.createElement('td');
-                                //first column is name
-                                if (i==0){
-                                    c.setAttribute('class', 'first '+class_name)
-                                }
-                                if(i+1 == myObj[0].specific_meals[0].preparation_steps.length){
-                                    c.setAttribute('class', 'last '+class_name);
-                                }
-                                if(i==0 && (i+1 == myObj[0].specific_meals[0].preparation_steps.length)){
-                                    c.setAttribute('class', 'last first '+class_name);
-                                }
-                                else{
-                                    //c.setAttribute('class', class_name)
-                                }
-                                if (j == 0){
-                                    c.innerText= 'Step '+(i+1)+':';
-                                }
-                                else if(j==1){
-                                    c.innerText = myObj[0].specific_meals[0].preparation_steps[i];
-                                }
-                                r.appendChild(c);
-                                //r.setAttribute('hidden','true')
-                            }
-                            temp_r.after(r);
-                            temp_r = r;
-
-
-                        }
-                //fill cooking
-                temp_r = document.getElementById('tr_cooking');
-                //console.log(myObj[0].specific_meals[0].num_ingredients);
-                    for (let i = 0; i < myObj[0].specific_meals[0].cooking_steps.length; i++){
-                            let r = document.createElement('tr');
-
-                            for(let j = 0; j < 2; j++){
-                                let c = document.createElement('td');
-                                //first column is name
-                                if (i==0){
-                                    c.setAttribute('class', 'first '+class_name)
-                                }
-                                if(i+1 == myObj[0].specific_meals[0].cooking_steps.length){
-                                    c.setAttribute('class', 'last '+class_name);
-                                }
-                                if((i==0) && (i+1 == myObj[0].specific_meals[0].cooking_steps.length)){
-                                    c.setAttribute('class', 'last first '+class_name);
-                                }
-                                else{
-                                    //c.setAttribute('class', class_name)
-                                }
-                                if (j == 0){
-                                    c.innerText= 'Step '+(i+1)+':';
-                                }
-                                else if(j==1){
-                                    c.innerText = myObj[0].specific_meals[0].cooking_steps[i];
-                                }
-                                r.appendChild(c);
-                                //r.setAttribute('hidden','true')
-                            }
-                            temp_r.after(r);
-                            temp_r = r;
-
-
-                        }
-                //fill finishing
-                temp_r = document.getElementById('tr_finishing');
-                //console.log(myObj[0].specific_meals[0].num_ingredients);
-                    for (let i = 0; i < myObj[0].specific_meals[0].finishing_steps.length; i++){
-                            let r = document.createElement('tr');
-
-                            for(let j = 0; j < 2; j++){
-                                let c = document.createElement('td');
-                                //first column is name
-                                if (i==0){
-                                    c.setAttribute('class', 'first '+class_name)
-                                }
-                                if(i+1 == myObj[0].specific_meals[0].finishing_steps.length){
-                                    c.setAttribute('class', 'last '+class_name);
-                                }
-                                if(i==0 && (i+1 == myObj[0].specific_meals[0].finishing_steps.length)){
-                                    c.setAttribute('class', 'last first '+class_name);
-                                }
-                                else{
-                                    //c.setAttribute('class', class_name)
-                                }
-                                if (j == 0){
-                                    c.innerText= 'Step '+(i+1)+':';
-                                }
-                                else if(j==1){
-                                    c.innerText = myObj[0].specific_meals[0].finishing_steps[i];
-                                }
-                                r.appendChild(c);
-                                //r.setAttribute('hidden','true')
-                            }
-                            temp_r.after(r);
-                            temp_r = r;
-
-
-                        }
-                }
-                xhttpphp.open("GET","php/GetData.php?meal_page=true&table_name=specific_meal_table&name="+name,true);
-                xhttpphp.send();
-
-
-
-        }
         function CUD(table_name,operation_type,old_name,old_cat,new_name,new_cat){
         //i should store the category of which the operations were conducted
             //only one edit shluld be conducted at a time
@@ -620,37 +198,7 @@
             if(operation_type == 'update'){
                 let tempCat;
                 let p1 = 0;
-                /*
-                //create options here
-                Array.prototype.slice.call(document.getElementsByClassName('td_meal_type_menu_item')).forEach(
-                function(item) {
 
-                    if (p1 > 0){
-                        if(item.getAttribute('style') != null){
-                            tempCat = item.id;
-                        }
-                    }
-                    p1++;
-                    // or item.parentNode.removeChild(item); for older browsers (Edge-)
-                });
-                let tempName;
-                let p2 = 0;
-                //create options here
-                Array.prototype.slice.call(document.getElementsByClassName('tr_table_people_item_edit')).forEach(
-                function(item) {
-
-                    if (p1 > 0){
-                        //console.log(item.getAttribute('hidden'));
-                        if(item.getAttribute('hidden') == 'hidden'){
-                            tempName = item.textContent;
-                            //console.log(tempName);
-                            old_name = tempName;
-                        }
-                    }
-                    p1++;
-                    // or item.parentNode.removeChild(item); for older browsers (Edge-)
-                });
-                */
                 new_cat = new_cat.slice(3,new_cat.length);
                 xhttpphp.open("GET","php/CUD.php?table_name="+table_name+"&operation_type="+operation_type+"&old_name="+old_name+"&old_cat="+old_cat+"&new_name="+new_name+"&new_cat="+new_cat,true);
             }
@@ -816,6 +364,23 @@
         xhttpphp.open("GET","php/GetData.php?meal_page=true&table_name="+sql_table_name+"&name="+genericMealName,true);
         xhttpphp.send();
         return new Promise((resolve) => {
+            setTimeout(() => {
+            resolve(myObj);
+            }, 100); // Simulating a .1-second delay
+        });
+    }
+    async function fetchMealOptionInfo(name, storeName) {
+            var sql_table_name = 'meal_plan_option';
+            var myObj;
+            const xhttpphp1 = new XMLHttpRequest();
+            xhttpphp1.onload = function() {
+                myObj = JSON.parse(this.responseText);
+                console.log(myObj);
+            };
+
+            xhttpphp1.open('GET','php/GetData.php?meal_page=false&table_name='+sql_table_name+'&store_name=' +storeName +'&name=' +name,true);
+            xhttpphp1.send();
+            return new Promise((resolve) => {
             setTimeout(() => {
             resolve(myObj);
             }, 100); // Simulating a .1-second delay
@@ -1079,9 +644,6 @@
             }
 
         }
-        function view_pmp_page(){
-
-        }
         function keyispressed(e){
                 var charValue= String.fromCharCode(e.keyCode);
                 if((isNaN(charValue)) && (e.which != 8 )){ // BSP KB code is 8
@@ -1128,7 +690,7 @@
                 span_dropdown_element.classList.toggle('dropdown_clicked');
         }
 
-        function createMealPlanTable(genericMealName,specificMealName) {
+        async function createMealPlanTable(genericMealName,specificMealName,quantity) {
             // Create the main table element
             const table = document.createElement('table');
             table.classList.add('table_meal_plan_option');
@@ -1144,6 +706,8 @@
             const headerSpan = document.createElement('span');
             headerSpan.classList.add('span_meal_plan_option_header_value');
             headerSpan.textContent = genericMealName;
+            // Add a data-tooltip attribute with additional information
+            headerSpan.setAttribute('data-tooltip', specificMealName);
 
             const svgSpan = document.createElement('span');
             svgSpan.classList.add('span_meal_plan_option_dot_svg');
@@ -1175,13 +739,79 @@
             // Append the first row to the table
             table.appendChild(firstRow);
 
+            // Create the arrow SVG element for all rows
+            const arrowSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            arrowSvg.setAttribute('width', '12');
+            arrowSvg.setAttribute('height', '12');
+            arrowSvg.setAttribute('viewBox', '0 0 12 12');
+            arrowSvg.setAttribute('fill', 'none');
+
+            // Create the path element for the arrow SVG
+            const arrowPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            arrowPath.setAttribute('d', 'M6.03417 11.1015L0.76938 0.550731L11.1615 0.476262L6.03417 11.1015Z');
+            arrowPath.setAttribute('fill', '#898989');
+
+            // Append the path to the arrow SVG
+            arrowSvg.appendChild(arrowPath);
+
+            // Create the "Edit" span element
+            const editSpan = document.createElement('span');
+            editSpan.classList.add('span_meal_plan_option_edit');
+            editSpan.textContent = ' edit ';
+
+            // Add an event listener to make the valueSpan editable
+            editSpan.addEventListener('click', function () {
+                event.stopPropagation(); 
+                var clickedRow = event.target.closest('tr');
+                var valueSpan = clickedRow.querySelector('.span_meal_plan_option_dropdown_header_value');
+                //hide the edit button
+                editSpan.style.display = "none";
+
+                // Create an input field for editing
+                const inputField = document.createElement('input');
+                inputField.type = 'number';
+                inputField.min = 0;
+                inputField.value = valueSpan.textContent.trim(); // Preserve the existing value
+
+                // Set the input field's size to 3 characters wide
+                inputField.style.width = '5ch';
+
+                valueSpan.innerHTML = "";
+                // Replace the valueSpan with the input field
+                valueSpan.appendChild(inputField);
+
+                // Focus the input field and select its text for easy editing
+                inputField.focus();
+                inputField.select();
+                // Add an event listener to save changes when clicking outside the input field
+                const saveChanges = () => {
+                    if (inputField.value == ""){
+                        valueSpan.textContent = 1;
+                    }
+                    else{
+                        valueSpan.textContent = inputField.value;
+                    }
+                    valueSpan.removeAttribute(inputField);
+                    document.removeEventListener('click', saveChanges);
+
+                    //bring back the edit button
+                    editSpan.style.display = "block";
+                };
+
+                // Listen for clicks outside the input field to save changes
+                document.addEventListener('click', saveChanges);
+            });
             // Create an array of data for the remaining rows
             const rowData = [
-                { label: 'Calories:', value: '' },
-                { label: 'Cost:', value: '' },
-                { label: 'Quantity:', value: '' },
+                { label: 'Calories: ', value: '' },
+                { label: 'Cost: ', value: '' },
+                { label: 'Quantity: ', value: quantity },
             ];
-
+            
+            var tempData = await fetchMealOptionInfo(specificMealName);
+            console.log(tempData);
+            rowData[0].value = Math.round(parseFloat(tempData[0].total_calories) || 0);
+            rowData[1].value = '$' + (parseFloat(tempData[0].total_cost) || 0).toFixed(2);
             // Create the remaining rows
             rowData.forEach((data) => {
                 const row = document.createElement('tr');
@@ -1190,37 +820,33 @@
                 const headerSpan = document.createElement('span');
                 headerSpan.classList.add('span_meal_plan_option_dropdown_header');
                 headerSpan.textContent = data.label;
-
-                const valueSpan = document.createElement('span');
+                let valueSpan = document.createElement('span');
                 valueSpan.classList.add('span_meal_plan_option_dropdown_header_value');
+
+                valueSpan.textContent = data.value;
+
+                const svgSpan = document.createElement('span');
+                svgSpan.classList.add('span_meal_plan_option_dropdown_svg');
+                svgSpan.appendChild(arrowSvg.cloneNode(true));
+
 
                 // Append the value span to the header span
                 headerSpan.appendChild(valueSpan);
 
-                const svgSpan = document.createElement('span');
-                svgSpan.classList.add('span_meal_plan_option_dropdown_svg');
-
-                // Create the arrow SVG element
-                const arrowSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-                arrowSvg.setAttribute('width', '12');
-                arrowSvg.setAttribute('height', '12');
-                arrowSvg.setAttribute('viewBox', '0 0 12 12');
-                arrowSvg.setAttribute('fill', 'none');
-
-                // Create the path element for the arrow SVG
-                const arrowPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                arrowPath.setAttribute('d', 'M6.03417 11.1015L0.76938 0.550731L11.1615 0.476262L6.03417 11.1015Z');
-                arrowPath.setAttribute('fill', '#898989');
-
-                // Append the path to the arrow SVG
-                arrowSvg.appendChild(arrowPath);
-
-                // Append the arrow SVG to the svg span
-                svgSpan.appendChild(arrowSvg);
-
-                // Append the header span and svg span to the cell
+                // Append the header span and SVG span to the cell
                 cell.appendChild(headerSpan);
-                cell.appendChild(svgSpan);
+
+                if (data.label === 'Quantity: ') {
+                    // If the value is an HTML element (in this case, the "Edit" span), append it
+                    cell.appendChild(editSpan);
+
+                } else {
+                    // Otherwise, set the text content
+                    //removed to simplify ui, 
+                    //I will use the meal.html to show expanded info exclusively
+                    //I will use pm pto show macro expand info.
+                    //cell.appendChild(svgSpan);
+                }
 
                 // Append the cell to the row
                 row.appendChild(cell);
@@ -1230,8 +856,13 @@
             });
 
             // Return the created table
-            return table;
-            }
+            //return table;
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                resolve(table);
+                }, 100); // Simulating a .1-second delay
+            });
+        }
             class MealPlanOverlayManager {
                 constructor() {
                     this.overlay = null;
@@ -1393,6 +1024,8 @@
                     quantityInput.type = 'number';
                     quantityInput.min = 0;
                     quantityInput.value = 1; // Default value
+                    // Set the input field's size to 3 characters wide
+                    quantityInput.style.width = '5ch';
                     quantityRow.appendChild(quantityLabel);
                     quantityRow.appendChild(quantityInput);
 
@@ -1400,11 +1033,11 @@
                     const doneButton = document.createElement('button');
                     doneButton.textContent = 'Done';
                     doneButton.classList.add('done-button'); // Add a class
-                    doneButton.addEventListener('click', () => {
+                    doneButton.addEventListener('click', async () => {
                         // Get a reference to the parent element where you want to append the table
                         var siblingNode = document.getElementsByClassName('table_meal_plan_option_add_area')[0]; // Replace with the actual parent element ID
                         // Create the table and append it to the parent element
-                        var mealPlanTable = createMealPlanTable(optionText2, optionText);
+                        var mealPlanTable =  await createMealPlanTable(optionText2, optionText, quantityInput.value);
 
                         // Insert the new node before the sibling node
                         siblingNode.parentNode.insertBefore(mealPlanTable, siblingNode);

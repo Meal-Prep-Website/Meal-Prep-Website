@@ -274,6 +274,44 @@ if($meal_page == 'true'){
 
 
 else{
+    if($table_name == 'meal_plan_option'){
+        $store_name = $_GET['store_name'];
+        $specific_meal_name = $_GET['name'];
+        $sql = "SELECT
+                    COALESCE(SUM(((mp.size / mp.size_unit_per_serving) * nf.calories_per_serving) * (smi.grams_needed / mp.size)), SUM(((p.size / p.size_unit_per_serving) * nf.calories_per_serving) * (smi.grams_needed / p.size))) AS total_calories,
+                    COALESCE(SUM(COALESCE(mp.price, p.price) * (smi.grams_needed / COALESCE(mp.size, p.size))), 2) AS total_cost
+                FROM
+                    specific_meals sm
+                    JOIN specific_meal_ingredients smi ON sm.specific_meal_name = smi.specific_meal_name
+                    LEFT JOIN (
+                        SELECT
+                            *
+                        FROM
+                            products a
+                        WHERE
+                            store_name = \"".$store_name."\"
+                        AND 
+                            price = (
+                                SELECT MIN(price)
+                                FROM products b
+                                WHERE b.store_name = \"".$store_name."\" AND a.store_name = \"".$store_name."\" AND b.ingredient_name = a.ingredient_name)
+                    ) mp ON smi.ingredient_name = mp.ingredient_name 
+                    LEFT JOIN (
+                        SELECT
+                            *
+                        FROM
+                            products a
+                        WHERE
+                            price = (
+                                SELECT MIN(price)
+                                FROM products b
+                                WHERE b.ingredient_name = a.ingredient_name)
+                    ) p ON smi.ingredient_name = p.ingredient_name 
+                    LEFT JOIN product_nutrition_facts nf ON mp.product_id = nf.product_id OR p.product_id = nf.product_id
+                WHERE
+                    sm.specific_meal_name = \"".$specific_meal_name."\"";
+        $result = mysqli_query($conn, $sql) or die("Error in Selecting " . mysqli_error($conn));
+    }
     if($table_name =='generic_meals'){
         $sql = "SELECT generic_meal_name FROM generic_meals where meal_type_name = \"".$name."\" ORDER BY generic_meal_name;";
         $result = mysqli_query($conn, $sql) or die("Error in Selecting " . mysqli_error($conn));
