@@ -6,6 +6,7 @@ function spa_post() {
     document.getElementById("username_err").textContent = '';
     document.getElementById("password_err").textContent = '';
     //arr = '{\'username\':\''+username+'\'},{password:\''+password+'\'}';
+
     //Create an XMLHttpRequest object
     var xhttp = new XMLHttpRequest();
     console.log(JSON.stringify(arr));
@@ -14,6 +15,7 @@ function spa_post() {
         //process data
         console.log(this.responseText);
         //console.log(JSON.parse(this.responseText));
+        alert(this.responseText);
         let err = this.responseText;
         err = err.replace("\"\"", "*");
         err = err.replace("\"", "");
