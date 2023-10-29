@@ -14,15 +14,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         echo json_encode($username_err);
         
     } else{
-        
         // Prepare a select statement
-<<<<<<< HEAD
         $sql = "SELECT login_id FROM `users` WHERE login = ?";
-        
-=======
-        $sql = "SELECT id FROM `users` WHERE login = ?";
         try{
->>>>>>> origin/cleanup-tbd
         if($stmt = mysqli_prepare($conn, $sql)){
             // Bind variables to the prepared statement as parameters
             mysqli_stmt_bind_param($stmt, "s", $param_username);       
@@ -30,7 +24,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             $param_username = trim($_POST["username"]);          
             // Attempt to execute the prepared statement
             if(mysqli_stmt_execute($stmt)){
-                /* store result*/
+                /* store result */
                 mysqli_stmt_store_result($stmt);   
                 if(mysqli_stmt_num_rows($stmt) == 1){
                     $username_err = "This username is already taken.";
@@ -41,7 +35,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             } else{
                 echo json_encode("Oops! Something went wrong. Please try again later.");
             }
-            
         }
         // Close statement
         mysqli_stmt_close($stmt);
@@ -77,13 +70,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     if(empty($username_err) && empty($password_err) && empty($confirm_password_err)){
         
         // Prepare an insert statement
-<<<<<<< HEAD
         $sql = "INSERT INTO `users` (login, password_hash) VALUES (?,?)";
-         
-=======
-        $sql = "INSERT INTO `users` (login, password) VALUES (?,?)";
         try{ 
->>>>>>> origin/cleanup-tbd
         if($stmt = mysqli_prepare($conn, $sql)){
             // Bind variables to the prepared statement as parameters
             mysqli_stmt_bind_param($stmt, "ss", $param_username, $param_password);
@@ -111,42 +99,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     // Close connection
     mysqli_close($conn);
 }
-/*
-?>
- 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Sign Up</title>
-</head>
-<body>
-    <div>
-        <h2>Sign Up</h2>
-        <p>Please fill this form to create an account.</p>
-        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
-            <div <?php echo (!empty($username_err)) ? 'has-error' : ''; ?>">
-                <label>Username:<sup>*</sup></label>
-                <input type="text" name="username" value="<?php echo $username; ?>">
-                <span><?php echo $username_err; ?></span>
-            </div>    
-            <div <?php echo (!empty($password_err)) ? 'has-error' : ''; ?>">
-                <label>Password:<sup>*</sup></label>
-                <input type="password" name="password" value="<?php echo $password; ?>">
-                <span><?php echo $password_err; ?></span>
-            </div>
-            <div <?php echo (!empty($confirm_password_err)) ? 'has-error' : ''; ?>">
-                <label>Confirm Password:<sup>*</sup></label>
-                <input type="password" name="confirm_password" value="<?php echo $confirm_password; ?>">
-                <span><?php echo $confirm_password_err; ?></span>
-            </div>
-            <div>
-                <input type="submit" value="Submit">
-                <input type="reset"  value="Reset">
-            </div>
-            <p>Already have an account? <a href="login_mysql.php">Login here</a>.</p>
-        </form>
-    </div>    
-</body>
-</html>
-*/
+else{
+    echo "incorrect method";
+}
