@@ -15,7 +15,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         
     } else{
         // Prepare a select statement
-        $sql = "SELECT id FROM `users` WHERE login = ?";
+        $sql = "SELECT login_id FROM `users` WHERE login = ?";
         try{
         if($stmt = mysqli_prepare($conn, $sql)){
             // Bind variables to the prepared statement as parameters
@@ -70,7 +70,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     if(empty($username_err) && empty($password_err) && empty($confirm_password_err)){
         
         // Prepare an insert statement
-        $sql = "INSERT INTO `users` (login, password) VALUES (?,?)";
+        $sql = "INSERT INTO `users` (login, password_hash) VALUES (?,?)";
         try{ 
         if($stmt = mysqli_prepare($conn, $sql)){
             // Bind variables to the prepared statement as parameters
@@ -99,42 +99,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     // Close connection
     mysqli_close($conn);
 }
-/*
-?>
- 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Sign Up</title>
-</head>
-<body>
-    <div>
-        <h2>Sign Up</h2>
-        <p>Please fill this form to create an account.</p>
-        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
-            <div <?php echo (!empty($username_err)) ? 'has-error' : ''; ?>">
-                <label>Username:<sup>*</sup></label>
-                <input type="text" name="username" value="<?php echo $username; ?>">
-                <span><?php echo $username_err; ?></span>
-            </div>    
-            <div <?php echo (!empty($password_err)) ? 'has-error' : ''; ?>">
-                <label>Password:<sup>*</sup></label>
-                <input type="password" name="password" value="<?php echo $password; ?>">
-                <span><?php echo $password_err; ?></span>
-            </div>
-            <div <?php echo (!empty($confirm_password_err)) ? 'has-error' : ''; ?>">
-                <label>Confirm Password:<sup>*</sup></label>
-                <input type="password" name="confirm_password" value="<?php echo $confirm_password; ?>">
-                <span><?php echo $confirm_password_err; ?></span>
-            </div>
-            <div>
-                <input type="submit" value="Submit">
-                <input type="reset"  value="Reset">
-            </div>
-            <p>Already have an account? <a href="login_mysql.php">Login here</a>.</p>
-        </form>
-    </div>    
-</body>
-</html>
-*/
+else{
+    echo "incorrect method";
+}

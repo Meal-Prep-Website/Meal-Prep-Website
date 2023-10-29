@@ -4,7 +4,7 @@
 *{  font-family: "Inter", sans-serif;}
 table {margin-left: auto;margin-right: auto;border-spacing: 0px;}
 h1{font-size: 26px;text-align: bottom;font-weight:bolder;color:black;}
-body{background-color: #FAFAFA;position:relative;background: url("Fresno_state_Images/vegetables_background.svg");background-repeat: no-repeat;background-attachment:fixed;background-size:cover;margin:0px;}
+body{background-color: #FAFAFA;position:relative;background: url("Fresno_State_Images/vegetables_background.svg");background-repeat: no-repeat;background-attachment:fixed;background-size:cover;margin:0px;}
 a{color: black;text-decoration: none;font-size: 22px;  font-family: "Inter", sans-serif;}
 .flex-container{width:75%;margin-right:auto; margin-left:auto;}
 main{  margin-bottom: calc(10.75px + 39.6px);}
@@ -18,7 +18,7 @@ main{  margin-bottom: calc(10.75px + 39.6px);}
 .span_meal_type_clicked_button{font-size:16px;color:red;cursor:pointer; padding: 3.75px 7.5px; background-color: #f2f2f2; border: solid 1px red; }
 #div_personal_meal_plan_header{background-color: #d9d9d9;padding:3.75px; left:50%; position: absolute;text-align: center;transform: translate(-50%,-50%);-ms-transform: translate(-50%,-50%); }
 #td_search_bar{width:60%; }
-#input_search_bar{width:100%;font-size: 18px; background-image:url("Fresno_state_Images/Search_Icon.png"); background-repeat: no-repeat; padding: 7.5px;padding-left:33px;background-size: 18px 18px;background-position: 7.5px 50%;}
+#input_search_bar{width:100%;font-size: 18px; background-image:url("Fresno_State_Images/Search_Icon.png"); background-repeat: no-repeat; padding: 7.5px;padding-left:33px;background-size: 18px 18px;background-position: 7.5px 50%;}
 #img_all{width: 38px; height:40px;}
 #img_breakfasts{width:65.4px; height:40px;}
 #img_entrees{width:57.6px; height: 40px;}
