@@ -728,6 +728,13 @@
 
             svgSpan.appendChild(dotSvg);
 
+            // Add an event listener to trigger showOptionsMenu when clicked
+            svgSpan.addEventListener('click', function () {
+                event.stopPropagation();
+                showOptionsMenu(this,genericMealName);
+            });
+
+
             // Append the header span to the header cell
             headerCell.appendChild(headerSpan);
 
@@ -1137,8 +1144,71 @@
         //append the overlay table
         //document.body.appendChild(mealPlanTable);
     }
+    // Function to display the options menu
+    function showOptionsMenu(clickedElement, genericMealName) {
+        // Create the options menu
+        const optionsMenu = document.createElement('div');
+        optionsMenu.className = 'options-menu';
+        
+        // Define some example options (you can customize these)
+        const optionItems = [
+            { text: 'Meal Page', action: () => load_meal_page(genericMealName)},
+            { text: 'Change Meal', action: () => alert('Change Meal Clicked') },
+            { text: 'Delete Meal', action: () => deleteMeal(genericMealName) },
+        ];
+        
+        // Create option elements and add them to the menu
+        optionItems.forEach(item => {
+            const option = document.createElement('a');
+            option.href = '#';
+            option.textContent = item.text;
+            option.addEventListener('click', (e) => {
+                e.preventDefault();
+                item.action();
+                closeOptionsMenu();
+            });
+            optionsMenu.appendChild(option);
+        });
 
+        // Position the menu next to the clicked element
+        const rect = clickedElement.getBoundingClientRect();
+        optionsMenu.style.top = (rect.bottom + window.scrollY) + 'px';
+        optionsMenu.style.left = rect.left + 'px';
 
+        // Append the options menu to the body
+        document.body.appendChild(optionsMenu);
+
+        // Close the menu if you click outside of it
+        window.addEventListener('click', (e) => {
+            if (!optionsMenu.contains(e.target) && e.target !== clickedElement) {
+                closeOptionsMenu();
+            }
+        });
+
+        // Function to close the options menu
+        function closeOptionsMenu() {
+            document.body.removeChild(optionsMenu);
+        }
+    }
+    function deleteMeal(generic_meal_name) {
+        // For example, remove the table associated with this meal
+        const mealTable = document.getElementById(generic_meal_name);
+        if (mealTable) {
+            mealTable.remove();
+        }
+        // Close the options menu
+        closeOptionsMenu();
+    }
+    function changeMeal(generic_meal_name) {
+        // Implement code to change the meal with the given generic_meal_name
+        // For example, open an overlay for editing
+        // You can access generic_meal_name here
+        // Close the options menu
+        closeOptionsMenu();
+    }
+    function load_meal_page(generic_meal_name){
+        window.location.href = "../Meal-Prep-Website/meal.html?generic_meal_name=" + encodeURIComponent(generic_meal_name);
+    }
     </script>
 
     <div class = "menu_bar_header">

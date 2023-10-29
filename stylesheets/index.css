@@ -363,7 +363,8 @@ input,select{padding: 1.88px 7.5px; background-color: #f2f2f2; display: inline; 
 .span_meal_plan_option_dropdown_svg:hover{cursor:pointer;}
 .span_meal_plan_option_dropdown_svg:hover svg path{ fill: #f2f2f2; }
 .dropdown_clicked svg path{fill: #e9e9e9;}
-.span_meal_plan_option_dot_svg {float:right; padding-right: 10.75px;   display: table-cell;}
+.span_meal_plan_option_dot_svg {float:right; padding-right: 10.75px;   display: table-cell; }
+.span_meal_plan_option_dot_svg:hover {cursor:pointer;}
 .span_meal_plan_option_edit{float:right; font-weight: 550; color:#898989; font-size:14px; padding-top: 2px;}
 .table_meal_type_subtable{width:100%;}
 /*#div_preparation_info{width:74%;float: left;}*/
@@ -455,6 +456,26 @@ button#cancelButton:hover {
 
 .done-button:hover {
     background-color: #45a049; /* Slightly darker green on hover */
+}
+/* Styles for the options menu */
+.options-menu {
+    position: absolute;
+    background-color: white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border: 1px solid #ccc;
+    z-index: 9999; /* Adjust the z-index value as needed */
+}
+
+.options-menu a {
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+    color: #333;
+    transition: background-color 0.2s;
+}
+
+.options-menu a:hover {
+    background-color: #f0f0f0;
 }
 /*END --- Meal Plan Table*/
 
