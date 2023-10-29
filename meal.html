@@ -10,10 +10,7 @@
     <title>Main Page</title>
 	<link rel="icon" type="image/x-icon" href = "stylesheets\Fresno_State_Images\BellPepper.ico">
     <link rel = "stylesheet" href ="stylesheets/index.css">
-
-</head>
-<body onload="login_check(); FetchMySqlSpecificMealNames(genericMealName);/*FetchMySql('table_header','person_info',document.getElementById('select_person').value);*/">
-
+    <script src = "js/genPgFunc.js"></script>
     <script>
         var by = 'times_clicked';
         var order = 'desc';
@@ -24,10 +21,8 @@
         var allOptions = [];
         // Get the query parameters from the URL
         const urlParams = new URLSearchParams(window.location.search);
-
         // Get the value of the 'mealName' parameter
         const genericMealName = urlParams.get('generic_meal_name');
-
         // Function to apply red color to indicate incorrect input
         function setInvalid(element) {
         element.style.borderColor = 'red';
@@ -37,181 +32,45 @@
         function setValid(element) {
         element.style.borderColor = 'green';
         }
-
+        function fetch(resFunc, mealPgBool, tableName, mealName, storeName){
+            let url = ""
+            if(storeName.length ==0){
+                url = encodeURI("php/GetData.php?meal_page="+mealPgBool+"&table_name="+tableName+"&name="+mealName);
+                req(resFunc, url, 'GET', mealName);
+            }
+            else{
+                url = encodeURI("php/GetData.php?meal_page="+mealPgBool+"&table_name="+tableName+"&name="+mealName);
+                req(resFunc, url, 'GET', mealName);
+            }
+        }
         //generate all specific meal names given a generic meal name
-        function FetchMySqlSpecificMealNames(genericMealName){
-            var sql_table_name = 'specific_meals';
-            var xhttpphp = new XMLHttpRequest();
-            xhttpphp.onload = function(){
-                console.log(this.responseText);
-                let myObj = JSON.parse(this.responseText);
+        function createMealOptions(xhttp, genericMealName){
+                console.log(xhttp.responseText);
+                let myObj = JSON.parse(xhttp.responseText);
 
                 let selectElement= document.getElementById("select_specific_meal");
 
                 // Loop through the mealNames array
                 for (let i = 0; i < myObj.length; i++) {
-                // Create a new option element
-                var optionElement = document.createElement('option');
+                    // Create a new option element
+                    var optionElement = document.createElement('option');
 
-                // Set the value and text of the option
-                optionElement.value = myObj[i].specific_meal_name;
-                optionElement.text = myObj[i].specific_meal_name;
-                optionElement.setAttribute('id',myObj[i].specific_meal_name);
-                // Append the option to the select element
-                selectElement.appendChild(optionElement);
+                    // Set the value and text of the option
+                    optionElement.value = myObj[i].specific_meal_name;
+                    optionElement.text = myObj[i].specific_meal_name;
+                    optionElement.setAttribute('id',myObj[i].specific_meal_name);
+                    // Append the option to the select element
+                    selectElement.appendChild(optionElement);
                 }
                 FetchMySqlMealAll(document.getElementById('select_specific_meal').value);
-            }
-            xhttpphp.open("GET","php/GetData.php?meal_page=true&table_name="+sql_table_name+"&name="+genericMealName,true);
-            xhttpphp.send();
         }
-
-        function login_check(){
-            var xhttpphp1 = new XMLHttpRequest();
-            xhttpphp1.onload = function(){
-            console.log(this.responseText);
-            let myObj = JSON.parse(this.responseText);
-
-                if (JSON.parse(this.responseText)=='You must be logged in to see your own stats.'){
-                    document.getElementById('td_logout_button').setAttribute('hidden', 'true');
-                    document.getElementById('td_login_button').removeAttribute('hidden');
-                    document.getElementById('td_register_button').removeAttribute('hidden');
-
-                }
-                else{
-                    document.getElementById('td_logout_button').removeAttribute('hidden');
-                    document.getElementById('td_login_button').setAttribute('hidden', 'true');
-                    document.getElementById('td_register_button').setAttribute('hidden', 'true');
-
-                }
-            }
-            xhttpphp1.open("GET","php/session.php?",true);
-            xhttpphp1.send();
+        function FetchMySqlSpecificMealNames(genericMealName){
+            fetch(createMealOptions, "true", "specific_meals", genericMealName, "");
         }
+        function mealNutFactsArr(myObj){
+            let nut_fact_grams_arr = Array(15).fill(0);
 
-        function FetchMySqlMeal(injected_table_name,sql_table_name, name){
-            let p = 0;
-            let temp= document.getElementById(injected_table_name);
-
-
-                            
-                //loading in php
-                var xhttpphp = new XMLHttpRequest();
-                xhttpphp.onload = function(){
-                    console.log(this.responseText);
-                        let class_name= ' ';
-                        let myObj = JSON.parse(this.responseText);
-                        let myObjLength = 0;
-                        let list_arr = [];
-                        let insert_table = ' ';
-                        console.log(myObj);
-                        
-                        if (sql_table_name == 'specific_meals'){
-                        
-                            
-                            //counts how many elements in list
-                            myObjLength = ((myObj[0].ingredient_list).match(/,/g) || []).length + 1;
-                            list_arr = (myObj[0].ingredient_list).split(',');
-                            class_name= 'td_dropdown_menu_item';
-                            insert_table = injected_table_name;
-                        }
-                        //clears category list upon category selection
-
-                        Array.prototype.slice.call(temp.getElementsByTagName('tr')).forEach(
-                            function(item) {
-
-                                if (p > 0){
-                                item.remove();
-                                }
-                                p++;
-                                // or item.parentNode.removeChild(item); for older browsers (Edge-)
-                            });
-                        
-                        console.log(myObjLength);
-                        //loop to create x by y textboxes for Matrix A
-                        for (let i = 0; i < myObjLength; i++){
-                            let r = document.createElement('tr');
-                            
-
-                            for(let j = 0; j < 1; j++){
-                                let c = document.createElement('td');
-                                if (i==0){
-                                    c.setAttribute('class', 'first '+class_name)
-                                }
-                                else if(i+1 == myObjLength){
-                                    c.setAttribute('class', 'last '+class_name);
-                                }
-                                else{
-                                    c.setAttribute('class', "first last "+class_name)
-                                }
-                                c.innerText= list_arr[i];
-                                r.classList.add('editable_tr');
-                                r.appendChild(c);
-                            }
-                            document.getElementById(insert_table).appendChild(r);
-
-                        }
-                    
-                }
-                console.log(name);
-                console.log(sql_table_name);
-                xhttpphp.open("GET","php/GetData.php?table_name="+sql_table_name+"&name="+name,true);
-                xhttpphp.send();
-
-
-
-        }
-        function updateDropdown(name, storeName) {
-            let class_name = "";
-            // clears category list upon category selection
-            // reset dropdown list and the arrows
-            let dropdownListNames = [];
-            dropdownListNames[0] = 'servings_cost_table';
-            dropdownListNames[1] = 'product_cost_table';
-            dropdownListNames[2] = 'nutrition_facts_table';
-            let i = 0;
-            while (i < dropdownListNames.length) {
-                let p = 0;
-                let temp = document.getElementById(dropdownListNames[i]);
-                
-                // Clear dropdown table data (3 tables)
-                Array.prototype.slice.call(temp.getElementsByTagName('tr')).forEach(function (item) {
-                temp.getElementsByTagName('img')[0].setAttribute('class', 'down_arrow');
-                if (p > 0) {
-                    item.remove();
-                }
-                p++;
-                // or item.parentNode.removeChild(item); for older browsers (Edge-)
-                });
-                i++;
-            }
-            let xhttpphp1 = new XMLHttpRequest();
-            xhttpphp1.onload = function() {
-                console.log(this.responseText);
-
-                let myObj = JSON.parse(this.responseText);
-
-                let nut_fact_names_arr = [
-                'Calories',
-                'Total Fat',
-                'Saturated Fat',
-                'Trans Fat',
-                'Cholesterol',
-                'Sodium',
-                'Total Carbs',
-                'Fiber',
-                'Total Sugar',
-                'Added Sugar',
-                'Protein',
-                'Vitamin D',
-                'Calcium',
-                'Iron',
-                'Potassium'
-                ];
-
-                let nut_fact_grams_arr = Array(15).fill(0);
-
-                for (var i = 0; i < myObj.length; i++) {
+             for (var i = 0; i < myObj.length; i++) {
                 var obj = myObj[i];
                 nut_fact_grams_arr[0] += parseFloat(obj.calories_per_serving);
                 nut_fact_grams_arr[1] += parseFloat(obj.total_fat_per_serving);
@@ -228,10 +87,37 @@
                 nut_fact_grams_arr[12] += parseFloat(obj.calcium_per_serving);
                 nut_fact_grams_arr[13] += parseFloat(obj.iron_per_serving);
                 nut_fact_grams_arr[14] += parseFloat(obj.potassium_per_serving);
-                }
+            }
+            return nut_fact_grams_arr;
+        }        
+        function DropdownDynTableCreate(obj, textFunc){
 
-                console.log(nut_fact_grams_arr);
+        }      
+        function populateDropdownFromData(xhttp, dropdownListNames){
+            let class_name = "";
+            console.log(xhttp.responseText);
+            let myObj = JSON.parse(xhttp.responseText);
 
+            let nut_fact_names_arr = [
+            'Calories',
+            'Total Fat',
+            'Saturated Fat',
+            'Trans Fat',
+            'Cholesterol',
+            'Sodium',
+            'Total Carbs',
+            'Fiber',
+            'Total Sugar',
+            'Added Sugar',
+            'Protein',
+            'Vitamin D',
+            'Calcium',
+            'Iron',
+            'Potassium'
+            ];
+            let nut_fact_grams_arr = mealNutFactsArr(myObj);
+            console.log(nut_fact_grams_arr);
+            console.log("here");
                 for (let i = 0; i < 15; i++) {
                 let r = document.createElement('tr');
                 if ( i == 0){
@@ -382,18 +268,37 @@
                 }
                 document.getElementById(dropdownListNames[1]).appendChild(r);
                 }
-            };
-            xhttpphp1.open(
-                'GET',
-                'php/GetData.php?meal_page=true&table_name=ingredient_facts&store_name=' +
-                storeName +
-                '&name=' +
-                name,
-                true
-            );
-            xhttpphp1.send();
+        }
+        function updateDropdown(mealName, storeName) {
+            // clears category list upon category selection
+            // reset dropdown list and the arrows
+            let dropdownListNames = [];
+            dropdownListNames[0] = 'servings_cost_table';
+            dropdownListNames[1] = 'product_cost_table';
+            dropdownListNames[2] = 'nutrition_facts_table';
+            let i = 0;
+            while (i < dropdownListNames.length) {
+                let p = 0;
+                let temp = document.getElementById(dropdownListNames[i]);
+                
+                // Clear dropdown table data (3 tables)
+                Array.prototype.slice.call(temp.getElementsByTagName('tr')).forEach(function (item) {
+                temp.getElementsByTagName('img')[0].setAttribute('class', 'down_arrow');
+                if (p > 0) {
+                    item.remove();
+                }
+                p++;
+                // or item.parentNode.removeChild(item); for older browsers (Edge-)
+                });
+                i++;
             }
-
+            try{
+            req(populateDropdownFromData, encodeURI("php/GetData.php?meal_page=true&table_name=ingredient_facts&store_name="+storeName+"&name="+mealName), 'GET', dropdownListNames);
+            }
+            catch(error){
+                console.log(error);
+            }
+        }
 
         function FetchMySqlMealAll(name){//reads in the name of the specific meal to be queried 
             let p = 0;
@@ -2510,7 +2415,10 @@
         //delete category && //refresh page
         CUD('meal_types','delete',name,'');
     }
-    </script>
+</script>
+</head>
+<body onload="login_check(); FetchMySqlSpecificMealNames(genericMealName);/*FetchMySql('table_header','person_info',document.getElementById('select_person').value);*/">
+
 <main>
     <div class = "menu_bar_header">
         <table id="table_header">
