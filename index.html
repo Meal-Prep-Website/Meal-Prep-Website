@@ -10,9 +10,9 @@
     <title>Main Page</title>
 	<link rel="icon" type="image/x-icon" href = "stylesheets\Fresno_State_Images\BellPepper.ico">
     <link rel = "stylesheet" href ="stylesheets/index.css">
-    <script src = "js\httpreq.js"></script>
+    <script src = "js\genPgFunc.js"></script>
 </head>
-<body onload="login_check(); document.getElementById('td_all_button').click(); /*FetchMySql('table_header','person_info',document.getElementById('select_person').value);*/">
+<body onload="login_check(); document.getElementById('td_all_button').click();">
     <script async>
         //var add_bool = false;
         var by = 'times_clicked';
@@ -21,7 +21,6 @@
         var myObjLength = 0;
         var attempts = 0;
         var maxAttempts = 3;
-    /* login_check() */
     function FetchMySqlIndex(table_name, name){
         let p = 0;
         let temp= document.getElementById('category_menu');
@@ -306,7 +305,7 @@
         }
     }
     function load_meal_page(generic_meal_name){
-        window.location.href = "../MealPrep/meal.html?generic_meal_name=" + encodeURIComponent(generic_meal_name);
+        window.location.href = "../Meal-Prep-Website/meal.html?generic_meal_name=" + encodeURIComponent(generic_meal_name);
     }
     function add_meal_type(){
         //if(add_bool == false){
@@ -585,118 +584,8 @@
         CUD('meal_types','delete',name,'');
     }
     function load_pmp_page(){
-        window.location.href = "../MealPrep/PMP.html";
+        window.location.href = "../Meal-Prep-Website/PMP.html";
     }
-    function FetchMySql(injected_table_name,sql_table_name, name){
-            console.log(sql_table_name);
-            let p = 0;
-            let temp= document.getElementById(injected_table_name);
-
-            
-                            
-                //loading in php
-                var xhttpphp = new XMLHttpRequest();
-                xhttpphp.onload = function(){
-                    console.log(this.responseText);
-                        let class_name= ' ';
-                        let myObj = JSON.parse(this.responseText);
-                        let myObjLength = 0;
-                        let list_arr = [];
-                        let insert_table = ' ';
-                        console.log(myObj);
-
-                        if(document.getElementById('select_person').value==''){
-                            //gets name
-                            let c = document.createElement('td');
-                            let s = document.createElement('span');
-                            p = 0;
-                            Array.prototype.slice.call(myObj).forEach(function(obj){
-                                let o = document.createElement('option');
-                                o.setAttribute('id','option_'+p)
-                                o.textContent = obj.person_name;
-                                temp.getElementsByTagName('tr')[0].getElementsByTagName('select')[0].appendChild(o);
-                                p++;
-                            })
-                            c.appendChild(s);
-                            temp.getElementsByTagName('tr')[0].appendChild(c);
-                        }
-                        else{
-                            p = 0;
-                            //delete all data before insertion
-                            Array.prototype.slice.call(temp.getElementsByTagName('span')).forEach(
-                                function(item) {
-                                    //this is only used on the person table
-                                    if (p >= 0){
-                                    item.remove();
-                                    }
-                                    p++;
-                                    // or item.parentNode.removeChild(item); for older browsers (Edge-)
-                                });
-                            //append meal plans to pmp header to amount of bs and es
-                            let temp_header = document.getElementById("div_personal_meal_plan_header");
-                            //extract indexes of meal type names
-                            indexBreakfasts = -1;
-                            indexEntrees = -1;
-                            indexDesserts = -1;
-                            for (var i = 0; i < myObj.length; i++) {
-                                if (myObj[i].meal_type_name === "Breakfasts") {
-                                    indexBreakfasts = i; // Assign the index value when validation is successful
-                                }
-                                else if (myObj[i].meal_type_name === "Entrees") {
-                                    indexEntrees = i; // Assign the index value when validation is successful
-                                }
-                                else if (myObj[i].meal_type_name === "Desserts") {
-                                    indexDesserts = i; // Assign the index value when validation is successful
-                                }
-                                }
-                            let b_count = myObj[indexBreakfasts].meal_type_amount;
-                            let e_count = myObj[indexEntrees].meal_type_amount;
-                            let d_count = myObj[indexDesserts].meal_type_amount;
-                            p = 0;
-                            while(b_count > p){
-                            let temp_s = document.createElement('span');
-                            temp_s.setAttribute('class','span_meal_type_non_clickable_button');
-                            temp_s.textContent = 'B'+(p+1);
-                            temp_header.appendChild(temp_s);
-                            p++;
-                            }
-                            p = 0;
-                            while(e_count > p){
-                            let temp_s = document.createElement('span');
-                            temp_s.setAttribute('class','span_meal_type_non_clickable_button');
-                            temp_s.textContent = 'E'+(p+1);
-                            temp_header.appendChild(temp_s);
-                            p++;
-                            }
-                            p = 0;
-                            while(d_count > p){
-                            let temp_s = document.createElement('span');
-                            temp_s.setAttribute('class','span_meal_type_non_clickable_button');
-                            temp_s.textContent = 'D'+(p+1);
-                            temp_header.appendChild(temp_s);
-                            p++;
-                            }
-                            let temp_s = document.createElement('span');
-                            temp_s.setAttribute('class','span_meal_type_clickable_button');
-                            temp_s.setAttribute('onclick','load_pmp_page();');
-                            temp_s.textContent = 'View All';
-                            temp_header.appendChild(temp_s);
-                            }
-                    
-                }
-                console.log(name);
-                console.log(document.getElementById('select_person').value);
-                if (document.getElementById('select_person').value == '' && attempts < maxAttempts){
-                    xhttpphp.open("GET","php/GetData.php?meal_page=\"false\"&table_name="+sql_table_name+"&name=NULL",true);
-                    attempts++;
-                    xhttpphp.onloadend=function(){FetchMySql(injected_table_name,sql_table_name, document.getElementById('select_person').value);};
-                }
-                else{
-                    xhttpphp.open("GET","php/GetData.php?meal_page=\"false\"&table_name="+sql_table_name+"&name="+name,true);
-                }
-                xhttpphp.send();
-
-        }
     </script>
 <main>
     <div class = "menu_bar_header">
@@ -717,27 +606,6 @@
                         </a>
                     </td>
                     <td></td><td></td><td></td><td></td><td></td><td></td>
-                    <!--
-                    <td id = "td_person_meal_plan">
-                        <form>
-                            <div id = "div_personal_meal_plan_header">
-                                    <select id = "select_person" onchange="FetchMySql('table_header','person_info',value);">
-    
-                                    </select>
-                            </div>
-
-                        </form>
-                        <td></td><td></td><td></td><td></td><td></td><td></td>
-                    </td>
-                    -->
-                    <!--
-                    <td id="td_search_bar">
-                        <form>
-                            <input id="input_search_bar" type="textbox">
-                            
-                        </form>
-                    </td>
-                    -->
                     
                     <td id="td_login_button">
                         <a href= "login.html" alt = "Login_Web_Page">

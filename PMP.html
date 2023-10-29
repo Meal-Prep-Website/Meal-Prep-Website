@@ -24,8 +24,8 @@
         function login_check(){
             var xhttpphp1 = new XMLHttpRequest();
             xhttpphp1.onload = function(){
-            console.log(this.responseText);
-            let myObj = JSON.parse(this.responseText);
+                console.log(this.responseText);
+                let myObj = JSON.parse(this.responseText);
 
                 if (JSON.parse(this.responseText)=='You must be logged in to see your own stats.'){
                     document.getElementById('td_logout_button').setAttribute('hidden', 'true');
