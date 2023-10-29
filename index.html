@@ -10,7 +10,7 @@
     <title>Main Page</title>
 	<link rel="icon" type="image/x-icon" href = "stylesheets\Fresno_State_Images\BellPepper.ico">
     <link rel = "stylesheet" href ="stylesheets/index.css">
-
+    <script src = "js\httpreq.js"></script>
 </head>
 <body onload="login_check(); document.getElementById('td_all_button').click(); /*FetchMySql('table_header','person_info',document.getElementById('select_person').value);*/">
     <script async>
@@ -21,29 +21,7 @@
         var myObjLength = 0;
         var attempts = 0;
         var maxAttempts = 3;
-    function login_check(){
-        var xhttpphp1 = new XMLHttpRequest();
-        xhttpphp1.onload = function(){
-        console.log(this.responseText);
-        let myObj = JSON.parse(this.responseText);
-
-            if (JSON.parse(this.responseText)=='You must be logged in to see your own stats.'){
-                document.getElementById('td_logout_button').setAttribute('hidden', 'true');
-                document.getElementById('td_login_button').removeAttribute('hidden');
-                document.getElementById('td_register_button').removeAttribute('hidden');
-
-            }
-            else{
-                document.getElementById('td_logout_button').removeAttribute('hidden');
-                document.getElementById('td_login_button').setAttribute('hidden', 'true');
-                document.getElementById('td_register_button').setAttribute('hidden', 'true');
-
-            }
-        }
-        xhttpphp1.open("GET","php/session.php?",true);
-        xhttpphp1.send();
-    }
-
+    /* login_check() */
     function FetchMySqlIndex(table_name, name){
         let p = 0;
         let temp= document.getElementById('category_menu');

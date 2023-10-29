@@ -2,7 +2,11 @@ CREATE DATABASE IF NOT EXISTS mpdb;
 USE mpdb;
 # Create users table
 CREATE TABLE IF NOT EXISTS users(
+<<<<<<< HEAD
     login_id INT(5) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+=======
+    login_id int(5) AUTO_INCREMENT PRIMARY KEY,
+>>>>>>> origin/cleanup-tbd
     login VARCHAR(255) NOT NULL,
     password_hash VARCHAR(255) NOT NULL
 ) ENGINE=InnoDB;

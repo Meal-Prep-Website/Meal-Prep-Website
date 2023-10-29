@@ -143,13 +143,14 @@
                 //Create an XMLHttpRequest object
                 var xhttp = new XMLHttpRequest();
                 console.log(JSON.stringify(arr));
+                alert(JSON.stringify(arr))
                 //Define a callback function (used for async)
                 xhttp.onload=function(){
                     //process data
                     console.log(this.responseText);
                     //console.log(JSON.parse(this.responseText));
                     console.log(this.responseText);
-                    
+                    alert(this.responseText);
                     let err = this.responseText;
                         err = err.replace("\"\"", "*");
                         err = err.replace("\"", "");
