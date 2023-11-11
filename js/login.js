@@ -15,7 +15,6 @@ function spa_post() {
         //process data
         console.log(this.responseText);
         //console.log(JSON.parse(this.responseText));
-        alert(this.responseText);
         let err = this.responseText;
         err = err.replace("\"\"", "*");
         err = err.replace("\"", "");

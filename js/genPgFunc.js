@@ -16,7 +16,6 @@ function req(res_func, pg_url, method, args){
 
 function login_check_helper(xhttp){
     console.log(xhttp.responseText);
-    alert(xhttp.responseText);
     if (JSON.parse(xhttp.responseText)=='You must be logged in to see your own stats.'){
         document.getElementById('td_logout_button').setAttribute('hidden', 'true');
         document.getElementById('td_login_button').removeAttribute('hidden');
@@ -25,6 +24,8 @@ function login_check_helper(xhttp){
     else{
         document.getElementById('td_logout_button').removeAttribute('hidden');
         document.getElementById('td_login_button').setAttribute('hidden', 'true');
+
+        
         document.getElementById('td_register_button').setAttribute('hidden', 'true');
 
     }
