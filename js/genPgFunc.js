@@ -38,3 +38,6 @@ function login_check(){
 function redirectToMainPage(){
     window.location.href = "index.html";
 }
+function load_pmp_page(){
+    window.location.href = "../Meal-Prep-Website/PMP.html";
+}

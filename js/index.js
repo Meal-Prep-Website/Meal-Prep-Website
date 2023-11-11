@@ -560,6 +560,3 @@ function delete_category(name){
     //delete category && //refresh page
     CUD('meal_types','delete',name,'');
 }
-function load_pmp_page(){
-    window.location.href = "../Meal-Prep-Website/PMP.html";
-}
