@@ -1,12 +1,4 @@
-USE mpdb;
-INSERT INTO users (login, password_hash) 
-    VALUES 
-    ('OldFashionedOats', PASSWORD('RolledOats')),
-    ('Silk', PASSWORD('SoyMilk')),
-    ('Flaxseed', PASSWORD('GroundFlaxSeed')),
-    ('GroundCinnamon', PASSWORD('Cinnamon')),
-    ('Stevia', PASSWORD('SteviaExtract')),
-    ('Weston', PASSWORD('Weston559'));
+USE testmpdb;
     
 # Dummy data for the 'meal_types' table
 INSERT INTO meal_types (meal_type_name) VALUES
@@ -66,65 +58,17 @@ INSERT INTO stores (store_name) VALUES
     ('Store C');
 
 # Dummy data for the 'store_locations' table
-INSERT INTO store_locations (store_location, store_name) VALUES
-    ('Location A', 'Store A'),
-    ('Location B', 'Store B'),
-    ('Location C', 'Store C');
+INSERT INTO store_locations (store_location, store_id) VALUES
+    ('Location A', 1),
+    ('Location B', 2),
+    ('Location C', 3);
 
 # Dummy data for the 'brands' table
-INSERT INTO brands (brand_name, store_name, generic) VALUES
-    ('Brand A', 'Store A', 0),
-    ('Brand B', 'Store B', 1),
-    ('Brand C', 'Store C', 0);
+INSERT INTO brands (brand_name, store_id, generic) VALUES
+    ('Brand A', 1, 0),
+    ('Brand B', 2, 1),
+    ('Brand C', 3, 0);
 
-# Dummy data for the 'generic_meals' table
-INSERT INTO generic_meals (generic_meal_name, meal_type_name) VALUES
-    ('Meal A', 'Breakfasts'),
-    ('Meal B', 'Entrees'),
-    ('Meal C', 'Desserts');
-
-# Dummy data for the 'specific_meals' table
-INSERT INTO specific_meals (specific_meal_name, generic_meal_name) VALUES
-    ('Specific Meal 1', 'Meal A'),
-    ('Specific Meal 2', 'Meal B'),
-    ('Specific Meal 3', 'Meal B'),
-    ('Specific Meal 4', 'Meal C');
-
-# Dummy data for the 'specific_meal_ingredients' table
-INSERT INTO specific_meal_ingredients (ingredient_name, specific_meal_name, generic_meal_name, grams_needed) VALUES
-    ('Ingredient 1', 'Specific Meal 1', 'Meal A', 100),
-    ('Ingredient 2', 'Specific Meal 1', 'Meal A', 50),
-    ('Ingredient 3', 'Specific Meal 2', 'Meal B', 200),
-    ('Ingredient 4', 'Specific Meal 2', 'Meal B', 150),
-    ('Ingredient 5', 'Specific Meal 3', 'Meal B', 175),
-    ('Ingredient 6', 'Specific Meal 4', 'Meal C', 300);
-
-# Dummy data for the 'specific_meal_preparation_steps' table
-INSERT INTO specific_meal_preparation_steps (preparation_step_number, specific_meal_name, generic_meal_name, preparation_step_description) VALUES
-    (1, 'Specific Meal 1', 'Meal A', 'Step 1: Boil water'),
-    (2, 'Specific Meal 1', 'Meal A', 'Step 2: Add ingredients'),
-    (1, 'Specific Meal 2', 'Meal B', 'Step 1: Chop vegetables'),
-    (2, 'Specific Meal 2', 'Meal B', 'Step 2: Cook vegetables'),
-    (1, 'Specific Meal 4', 'Meal C', 'Step 1: Preheat oven'),
-    (2, 'Specific Meal 4', 'Meal C', 'Step 2: Bake for 30 minutes');
-
-# Dummy data for the 'specific_meal_cooking_steps' table
-INSERT INTO specific_meal_cooking_steps (cooking_step_number, specific_meal_name, generic_meal_name, cooking_step_description) VALUES
-    (1, 'Specific Meal 1', 'Meal A', 'Step 1: Heat oil in a pan'),
-    (2, 'Specific Meal 1', 'Meal A', 'Step 2: Cook ingredients in the pan'),
-    (1, 'Specific Meal 2', 'Meal B', 'Step 1: Heat oil in a wok'),
-    (2, 'Specific Meal 2', 'Meal B', 'Step 2: Stir-fry vegetables in the wok'),
-    (1, 'Specific Meal 4', 'Meal C', 'Step 1: Season meat with salt and pepper'),
-    (2, 'Specific Meal 4', 'Meal C', 'Step 2: Grill meat for 10 minutes');
-
-# Dummy data for the 'specific_meal_finishing_steps' table
-INSERT INTO specific_meal_finishing_steps (finishing_step_number, specific_meal_name, generic_meal_name, finishing_step_description) VALUES
-    (1, 'Specific Meal 1', 'Meal A', 'Step 1: Plate the cooked ingredients'),
-    (2, 'Specific Meal 1', 'Meal A', 'Step 2: Garnish with herbs'),
-    (1, 'Specific Meal 2', 'Meal B', 'Step 1: Transfer cooked vegetables to a plate'),
-    (2, 'Specific Meal 2', 'Meal B', 'Step 2: Serve hot'),
-    (1, 'Specific Meal 4', 'Meal C', 'Step 1: Remove meat from the oven'),
-    (2, 'Specific Meal 4', 'Meal C', 'Step 2: Let it rest for 5 minutes');
 
 # Dummy data for the 'ingredients' table
 INSERT INTO ingredients (ingredient_name) VALUES
@@ -136,52 +80,70 @@ INSERT INTO ingredients (ingredient_name) VALUES
     ('Ingredient 6');
 
 # Dummy data for the 'ingredient_substitutes' table
-INSERT INTO ingredient_substitutes (ingredient_name_1, ingredient_name_2) VALUES
-    ('Ingredient 1', 'Ingredient 4'),
-    ('Ingredient 2', 'Ingredient 5'),
-    ('Ingredient 3', 'Ingredient 6');
+INSERT INTO ingredient_substitutes (ingredient_id_1, ingredient_id_2) VALUES
+    (1, 4),
+    (2, 5),
+    (3, 6);
 
 # Dummy data for the 'products' table
-INSERT INTO products (product_id, store_name, product_name, price, rating, brand_name, ingredient_name, size,	size_unit,	size_unit_per_serving,	organic,	indivisible_bool	)
+INSERT INTO products (product_name, ingredient_id, store_id)
 VALUES
-    -- For Ingredient Name 1
-    (1, 'Store A', 'Product 1', 10.99, 4.5, 'Brand A', 'Ingredient 1', 100, 'g', 100, 1, 0),
-    (2, 'Store B', 'Product 2', 9.99, 4.2, 'Brand B', 'Ingredient 1', 200, 'g', 100, 0, 0),
-    (3, 'Store C', 'Product 3', 8.99, 4.0, 'Brand C', 'Ingredient 1', 150, 'g', 100, 0, 1),
-    (4, 'Store A', 'Product 4', 7.99, 4.7, 'Brand A', 'Ingredient 1', 120, 'g', 100, 1, 1),
-    (5, 'Store B', 'Product 5', 6.99, 3.8, 'Brand B', 'Ingredient 1', 180, 'g', 100, 0, 0),
+('Product 1', 1, 1),
+('Product 2', 1, 2), 
+('Product 3', 1, 3), 
+('Product 4', 1, 1), 
+('Product 5', 1, 2), 
+('Product 6', 2, 3), 
+('Product 7', 2, 1), 
+('Product 8', 2, 2), 
+('Product 9', 2, 3), 
+('Product 10', 2, 1), 
+('Product 11', 3, 2), 
+('Product 12', 3, 3), 
+('Product 13', 3, 1), 
+('Product 14', 3, 2), 
+('Product 15', 3, 3), 
+('Product 16', 4, 1), 
+('Product 17', 4, 2), 
+('Product 18', 4, 3), 
+('Product 19', 4, 1), 
+('Product 20', 4, 2), 
+('Product 21', 5, 3), 
+('Product 22', 5, 1), 
+('Product 23', 5, 2), 
+('Product 24', 5, 3), 
+('Product 25', 5, 1); 
 
-    -- Repeat the above pattern for the remaining products and ingredient names
-    -- For Ingredient Name 2
-    (6, 'Store A', 'Product 6', 10.99, 4.5, 'Brand A', 'Ingredient 2', 100, 'g', 100, 1, 0),
-    (7, 'Store B', 'Product 7', 9.99, 4.2, 'Brand B', 'Ingredient 2', 200, 'g', 100, 0, 0),
-    (8, 'Store C', 'Product 8', 8.99, 4.0, 'Brand C', 'Ingredient 2', 150, 'g', 100, 0, 1),
-    (9, 'Store A', 'Product 9', 7.99, 4.7, 'Brand A', 'Ingredient 2', 120, 'g', 100, 1, 1),
-    (10, 'Store B', 'Product 10', 6.99, 3.8, 'Brand B', 'Ingredient 2', 180, 'g', 100, 0, 0),
+# Dummy data for the 'product_inf' table
 
-    -- Repeat the above pattern for the remaining products and ingredient names
-    -- For Ingredient Name 3
-    (11, 'Store A', 'Product 11', 10.99, 4.5, 'Brand A', 'Ingredient 3', 100, 'g', 100, 1, 0),
-    (12, 'Store B', 'Product 12', 9.99, 4.2, 'Brand B', 'Ingredient 3', 200, 'g', 100, 0, 0),
-    (13, 'Store C', 'Product 13', 8.99, 4.0, 'Brand C', 'Ingredient 3', 150, 'g', 100, 0, 1),
-    (14, 'Store A', 'Product 14', 7.99, 4.7, 'Brand A', 'Ingredient 3', 120, 'g', 100, 1, 1),
-    (15, 'Store B', 'Product 15', 6.99, 3.8, 'Brand B', 'Ingredient 3', 180, 'g', 100, 0, 0),
+INSERT INTO product_info(product_id, brand_name, price, rating, size, size_unit, size_unit_per_serving, organic, indivisible_bool)
+VALUES
+(1, 'Brand A', 10.99, 4.5, 100, 'g', 100, 1, 0 ),
+(2, 'Brand B', 9.99, 4.2, 200, 'g', 100, 0, 0 ),
+(3, 'Brand C', 8.99, 4.7, 150, 'g', 100, 1, 1 ),
+(4, 'Brand A', 7.99, 4.0, 180, 'g', 100, 1, 0 ),
+(5, 'Brand B', 6.99, 3.8, 120, 'g', 100, 1, 0 ),
+(6, 'Brand C', 10.99, 4.5, 100, 'g', 100, 1, 0 ),
+(7, 'Brand A', 9.99, 4.2, 200, 'g', 100, 1, 0 ),
+(8, 'Brand B', 8.99, 4.7, 150, 'g', 100, 1, 0 ),
+(9, 'Brand C', 7.99, 4.0, 180, 'g', 100, 1, 0 ),
+(10, 'Brand A', 6.99, 3.5, 120, 'g', 100, 1, 0 ),
+(11, 'Brand B', 10.99, 4.5, 100, 'g', 100, 1, 0 ),
+(12, 'Brand C', 9.99, 4.2, 200, 'g', 100, 1, 0 ),
+(13, 'Brand A', 8.99, 4.7, 130, 'g', 100, 1, 0 ),
+(14, 'Brand B', 7.99, 4.0, 150, 'g', 100, 1, 0 ),
+(15, 'Brand C', 6.99, 3.5, 180, 'g', 100, 1, 0 ),
+(16, 'Brand A', 10.99, 2.5, 100, 'g', 100, 1, 0 ),
+(17, 'Brand B', 9.99, 4.5, 200, 'g', 100, 1, 0 ),
+(18, 'Brand C', 8.99, 4.0, 150, 'g', 100, 1, 0 ),
+(19, 'Brand A', 7.99, 3.5, 170, 'g', 100, 1, 0 ),
+(20, 'Brand B', 6.99, 4.7, 120, 'g', 100, 1, 0 ),
+(21, 'Brand C', 10.99, 4.5, 90, 'g', 100, 1, 0 ),
+(22, 'Brand A', 9.99, 4.0, 120, 'g', 100, 1, 0 ),
+(23, 'Brand B', 8.99, 3.5, 140, 'g', 100, 1, 0 ),
+(24, 'Brand C', 7.99, 4.7, 150, 'g', 100, 1, 0 ),
+(25, 'Brand A', 6.99, 4.0, 160, 'g', 100, 1, 0 );
 
-    -- Repeat the above pattern for the remaining products and ingredient names
-    -- For Ingredient Name 4
-    (16, 'Store A', 'Product 16', 10.99, 4.5, 'Brand A', 'Ingredient 4', 100, 'g', 100, 1, 0),
-    (17, 'Store B', 'Product 17', 9.99, 4.2, 'Brand B', 'Ingredient 4', 200, 'g', 100, 0, 0),
-    (18, 'Store C', 'Product 18', 8.99, 4.0, 'Brand C', 'Ingredient 4', 150, 'g', 100, 0, 1),
-    (19, 'Store A', 'Product 19', 7.99, 4.7, 'Brand A', 'Ingredient 4', 120, 'g', 100, 1, 1),
-    (20, 'Store B', 'Product 20', 6.99, 3.8, 'Brand B', 'Ingredient 4', 180, 'g', 100, 0, 0),
-
-    -- Repeat the above pattern for the remaining products and ingredient names
-    -- For Ingredient Name 5
-    (21, 'Store A', 'Product 21', 10.99, 4.5, 'Brand A', 'Ingredient 5', 100, 'g', 100, 1, 0),
-    (22, 'Store B', 'Product 22', 9.99, 4.2, 'Brand B', 'Ingredient 5', 200, 'g', 100, 0, 0),
-    (23, 'Store C', 'Product 23', 8.99, 4.0, 'Brand C', 'Ingredient 5', 150, 'g', 100, 0, 1),
-    (24, 'Store A', 'Product 24', 7.99, 4.7, 'Brand A', 'Ingredient 5', 120, 'g', 100, 1, 1),
-    (25, 'Store B', 'Product 25', 6.99, 3.8, 'Brand B', 'Ingredient 5', 180, 'g', 100, 0, 0);
 
 # Dummy data for the 'product_nutrition_facts' table
 INSERT INTO product_nutrition_facts (product_id, calories_per_serving, total_fat_per_serving, saturated_fat_per_serving, trans_fat_per_serving, cholesterol_per_serving, sodium_per_serving, total_carbs_per_serving, fiber_per_serving, total_sugar_per_serving, added_sugar_per_serving, protein_per_serving, vitamin_d_per_serving, calcium_per_serving, iron_per_serving, potassium_per_serving)
@@ -242,3 +204,54 @@ VALUES
     (23, 1, 0, 0, 0, 1, 0, 1, 1, 0),
     (24, 0, 0, 1, 1, 0, 1, 0, 0, 1),
     (25, 1, 1, 0, 0, 1, 0, 1, 0, 1);
+
+
+# Dummy data for the 'generic_meals' table
+INSERT INTO generic_meals (generic_meal_name, meal_type_name) VALUES
+    ('Meal A', 'Breakfasts'),
+    ('Meal B', 'Entrees'),
+    ('Meal C', 'Desserts');
+
+# Dummy data for the 'specific_meals' table
+INSERT INTO specific_meals (specific_meal_name, generic_meal_name) VALUES
+    ('Specific Meal 1', 'Meal A'),
+    ('Specific Meal 2', 'Meal B'),
+    ('Specific Meal 3', 'Meal B'),
+    ('Specific Meal 4', 'Meal C');
+
+# Dummy data for the 'specific_meal_ingredients' table
+INSERT INTO specific_meal_ingredients (ingredient_id, specific_meal_name, generic_meal_name, grams_needed) VALUES
+    (1, 'Specific Meal 1', 'Meal A', 100),
+    (2, 'Specific Meal 1', 'Meal A', 50),
+    (3, 'Specific Meal 2', 'Meal B', 200),
+    (4, 'Specific Meal 2', 'Meal B', 150),
+    (5, 'Specific Meal 3', 'Meal B', 175),
+    (6, 'Specific Meal 4', 'Meal C', 300);
+
+# Dummy data for the 'specific_meal_preparation_steps' table
+INSERT INTO specific_meal_preparation_steps (preparation_step_number, specific_meal_name, generic_meal_name, preparation_step_description) VALUES
+    (1, 'Specific Meal 1', 'Meal A', 'Step 1: Boil water'),
+    (2, 'Specific Meal 1', 'Meal A', 'Step 2: Add ingredients'),
+    (1, 'Specific Meal 2', 'Meal B', 'Step 1: Chop vegetables'),
+    (2, 'Specific Meal 2', 'Meal B', 'Step 2: Cook vegetables'),
+    (1, 'Specific Meal 4', 'Meal C', 'Step 1: Preheat oven'),
+    (2, 'Specific Meal 4', 'Meal C', 'Step 2: Bake for 30 minutes');
+
+# Dummy data for the 'specific_meal_cooking_steps' table
+INSERT INTO specific_meal_cooking_steps (cooking_step_number, specific_meal_name, generic_meal_name, cooking_step_description) VALUES
+    (1, 'Specific Meal 1', 'Meal A', 'Step 1: Heat oil in a pan'),
+    (2, 'Specific Meal 1', 'Meal A', 'Step 2: Cook ingredients in the pan'),
+    (1, 'Specific Meal 2', 'Meal B', 'Step 1: Heat oil in a wok'),
+    (2, 'Specific Meal 2', 'Meal B', 'Step 2: Stir-fry vegetables in the wok'),
+    (1, 'Specific Meal 4', 'Meal C', 'Step 1: Season meat with salt and pepper'),
+    (2, 'Specific Meal 4', 'Meal C', 'Step 2: Grill meat for 10 minutes');
+
+# Dummy data for the 'specific_meal_finishing_steps' table
+INSERT INTO specific_meal_finishing_steps (finishing_step_number, specific_meal_name, generic_meal_name, finishing_step_description) VALUES
+    (1, 'Specific Meal 1', 'Meal A', 'Step 1: Plate the cooked ingredients'),
+    (2, 'Specific Meal 1', 'Meal A', 'Step 2: Garnish with herbs'),
+    (1, 'Specific Meal 2', 'Meal B', 'Step 1: Transfer cooked vegetables to a plate'),
+    (2, 'Specific Meal 2', 'Meal B', 'Step 2: Serve hot'),
+    (1, 'Specific Meal 4', 'Meal C', 'Step 1: Remove meat from the oven'),
+    (2, 'Specific Meal 4', 'Meal C', 'Step 2: Let it rest for 5 minutes');
+

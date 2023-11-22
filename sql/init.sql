@@ -1,8 +1,8 @@
-CREATE DATABASE IF NOT EXISTS mpdb;
-USE mpdb;
+CREATE DATABASE IF NOT EXISTS testmpdb;
+USE testmpdb;
 # Create users table
 CREATE TABLE IF NOT EXISTS users(
-    login_id int(255) AUTO_INCREMENT PRIMARY KEY,
+    login_id INT(255) AUTO_INCREMENT PRIMARY KEY,
     login VARCHAR(255) NOT NULL,
     password_hash VARCHAR(255) NOT NULL
 ) ENGINE=InnoDB;
@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS meal_plans(
 
 # Create person_info table
 CREATE TABLE IF NOT EXISTS person_info(
-    person_id INT(5) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    person_id INT(255) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     person_name VARCHAR(255) NOT NULL,
     daily_caloric_intake INT(5) UNSIGNED NOT NULL,
     weight_goal DECIMAL(6,3) UNSIGNED NOT NULL,
@@ -109,6 +109,24 @@ CREATE TABLE IF NOT EXISTS brands(
         ON UPDATE CASCADE,
     generic TINYINT(1)
 ) ENGINE=InnoDB;
+# Create ingredients table
+CREATE TABLE IF NOT EXISTS ingredients(
+    ingredient_id INT(255) AUTO_INCREMENT PRIMARY KEY,
+    ingredient_name VARCHAR(255) NOT NULL
+) ENGINE=InnoDB;
+
+# Create ingredient_substitutes table
+CREATE TABLE IF NOT EXISTS ingredient_substitutes(
+    ingredient_id_1 INT(255) NOT NULL,
+    ingredient_id_2 INT(255) NOT NULL,
+    PRIMARY KEY (ingredient_id_1, ingredient_id_2),
+    FOREIGN KEY (ingredient_id_1) REFERENCES ingredients (ingredient_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    FOREIGN KEY (ingredient_id_2) REFERENCES ingredients (ingredient_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+) ENGINE=InnoDB;
 
 # Create generic_meals table
 CREATE TABLE IF NOT EXISTS generic_meals(
@@ -131,10 +149,13 @@ CREATE TABLE IF NOT EXISTS specific_meals(
 
 # Create specific_meal_ingredients table
 CREATE TABLE IF NOT EXISTS specific_meal_ingredients(
-    ingredient_name VARCHAR(255) NOT NULL,
+    ingredient_id INT(255) NOT NULL,
+    FOREIGN KEY (ingredient_id) REFERENCES ingredients (ingredient_id)
+        on DELETE CASCADE
+        ON UPDATE CASCADE,
     specific_meal_name VARCHAR(255) NOT NULL,
     generic_meal_name VARCHAR(255) NOT NULL,
-    PRIMARY KEY (specific_meal_name, generic_meal_name, ingredient_name),
+    PRIMARY KEY (specific_meal_name, generic_meal_name, ingredient_id),
     FOREIGN KEY (specific_meal_name, generic_meal_name)
         REFERENCES specific_meals (specific_meal_name, generic_meal_name)
         ON DELETE CASCADE
@@ -181,47 +202,28 @@ CREATE TABLE IF NOT EXISTS specific_meal_finishing_steps(
     finishing_step_description VARCHAR(255)
 ) ENGINE=InnoDB;
 
-# Create ingredients table
-CREATE TABLE IF NOT EXISTS ingredients(
-    ingredient_id INT(255) NOT NULL PRIMARY KEY,
-    ingredient_name VARCHAR(255)
-) ENGINE=InnoDB;
-
-# Create ingredient_substitutes table
-CREATE TABLE IF NOT EXISTS ingredient_substitutes(
-    ingredient_name_1 VARCHAR(255) NOT NULL,
-    ingredient_name_2 VARCHAR(255) NOT NULL,
-    PRIMARY KEY (ingredient_name_1, ingredient_name_2),
-    FOREIGN KEY (ingredient_name_1) REFERENCES ingredients (ingredient_name)
+# Create products table
+CREATE TABLE IF NOT EXISTS products(
+    product_id INT(255) AUTO_INCREMENT PRIMARY KEY,
+    product_name VARCHAR(255) NOT NULL,
+    ingredient_id INT(255),
+    FOREIGN KEY (ingredient_id) REFERENCES ingredients (ingredient_id)
         ON DELETE CASCADE
         ON UPDATE CASCADE,
-    FOREIGN KEY (ingredient_name_2) REFERENCES ingredients (ingredient_name)
+    store_id INT(255) NOT NULL,
+    FOREIGN KEY (store_id) REFERENCES stores (store_id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
-# Create products table
-CREATE TABLE IF NOT EXISTS products(
-    product_id INT(255) UNSIGNED PRIMARY KEY,
-    product_name VARCHAR(255) NOT NULL,
-) ENGINE=InnoDB;
-
 # Create product_info table
 Create TABLE IF NOT EXISTS product_info(
-    product_id INT(255) not NULL,
-    FOREIGN KEY (product_id) REFERENCES stores (product_id)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE,
-    store_id VARCHAR(255) NOT NULL,
-    FOREIGN KEY (store_id) REFERENCES stores (store_id)
+    product_id INT(255) NOT NULL,
+    FOREIGN KEY (product_id) REFERENCES products (product_id)
         ON DELETE CASCADE
         ON UPDATE CASCADE,
     brand_name VARCHAR(255),
     FOREIGN KEY (brand_name) REFERENCES brands (brand_name)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE,
-    ingredient_id VARCHAR(255),
-    FOREIGN KEY (ingredient_id) REFERENCES ingredients (ingredient_id)
         ON DELETE CASCADE
         ON UPDATE CASCADE,
     price DECIMAL(6,2) UNSIGNED NOT NULL,
@@ -231,11 +233,11 @@ Create TABLE IF NOT EXISTS product_info(
 	size_unit_per_serving DECIMAL(6,3) UNSIGNED,
     organic TINYINT(1),
     indivisible_bool TINYINT(1)
-)
+) ENGINE = INNODB;
 
 # Create product_nutrition_facts table
 CREATE TABLE IF NOT EXISTS product_nutrition_facts(
-    product_id INT(255) UNSIGNED,
+    product_id INT(255) NOT NULL,
     PRIMARY KEY (product_id),
     FOREIGN KEY (product_id) REFERENCES products (product_id)
         ON DELETE CASCADE
@@ -259,7 +261,7 @@ CREATE TABLE IF NOT EXISTS product_nutrition_facts(
 
 # Create product_allergen_info table
 CREATE TABLE IF NOT EXISTS product_allergen_info(
-    product_id INT(255) UNSIGNED,
+    product_id INT(255) NOT NULL,
     PRIMARY KEY (product_id),
     FOREIGN KEY (product_id) REFERENCES products (product_id)
         ON DELETE CASCADE
