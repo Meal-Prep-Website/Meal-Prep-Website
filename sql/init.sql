@@ -276,3 +276,32 @@ CREATE TABLE IF NOT EXISTS product_allergen_info(
     contains_soy_bool TINYINT(1) NOT NULL,
     contains_sesame_bool TINYINT(1) NOT NULL
 ) ENGINE=InnoDB;
+#create view for easy access to product and store info for get data or updates.
+ create view product_store_info_list as(
+ select * from (
+ select s.store_id as s_store_id,
+    	api.*
+	from (
+		Select *
+    	from stores
+	) s
+	RIGHT join (
+    	Select * 
+    	FROM
+	    	(select *
+	    		from 
+		    		(select product_id, 
+		    			product_name,
+     	    			pr.ingredient_id,
+		    			store_id
+		    	from products pr join (
+            		SELECT ingredient_id
+		    		from specific_meal_ingredients
+    	    	) smi on pr.ingredient_id = smi.ingredient_id) mi
+		join 
+        	product_info pi USING(product_id)
+    	)pri 
+        	join product_nutrition_facts pnf using(product_id)
+	) api on api.store_id = s.store_id or null
+ ) pil
+);
